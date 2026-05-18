@@ -1,0 +1,568 @@
+/* RESET EVERYTHING */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc; /* Subtle grey background for the site } 
+*/
+html, 
+body, 
+#root, 
+.layout, 
+.app {
+  
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none !important;      /* Removes those vertical 'box' lines */
+  background-color: #ffffff;    /* Pure white background */
+  overflow-x: hidden; /* Prevents horizontal scrolling */
+  display: block;          
+}
+
+/* THE FULL-WIDTH BAR */
+.menu-bar {
+  position: sticky;
+  top: 0;
+  width: 100%;             /* Covers 100% of the horizontal screen */
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  height: 70px;            /* Fixed height for the top bar */
+  display: flex;
+  align-items: center;
+  
+  z-index: 9999!important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* THE CENTERED CONTAINER */
+.menu-container {
+  display: flex;
+  justify-content: space-between; /* Pushes Logo | Nav | Login apart */
+  align-items: center;
+  width: 100%;
+  max-width: 1280px;      /* Limits how far buttons spread on huge monitors */
+  margin: 0 auto;         /* Centers the container horizontally */
+  padding: 0 2rem;
+}
+
+/* LOGO STYLES */
+.menu-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  color: #1e293b;
+}
+.logo-image {
+  height: 40px;      /* Adjust height to fit your bar */
+  width: auto;       /* Keeps the original aspect ratio */
+  object-fit: contain;
+}
+
+.logo-text {
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: -0.5px;
+  color: #1e293b;
+  /* Optional: if you want that gradient look back */
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+/* HORIZONTAL NAVIGATION */
+.menu-links {
+  display: flex;
+  gap: 1.5rem;            /* Spacing between buttons */
+}
+
+.menu-item-btn {
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.menu-item-btn:hover {
+  color: #2563eb;         /* Blue highlight on hover */
+}
+
+/* LOGIN BUTTON */
+.login-btn {
+  background-color: #1e293b;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background-color: #334155;
+}
+
+/* MAIN CONTENT SPACING */
+.main-content {
+  max-width: 1280px;
+  margin: 40px auto;
+  padding: 0 2rem;
+}
+.hero-banner {
+  width: 100%;
+  height: 500px; /* Adjust this to change how much of the screen it covers */
+  background-image: url('/home.png'); /* Ensure this image is in your /public folder */
+  background-size: cover;      /* Scales image to fill the area without stretching */
+  background-position: center; /* Keeps the middle of the image visible */
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.hero-overlay {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* Darkens the image slightly so text is readable */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-content {
+  text-align: center;
+  color: white;
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.cta-button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.cta-button:hover {
+  transform: scale(1.05);
+  background-color: #1d4ed8;
+}
+
+/* SERVICES SECTION */
+.services-section {
+  padding: 80px 0;
+  background-color: #ffffff;
+}
+
+.services-intro {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 50px;
+}
+
+.services-intro h2 {
+  color: #2563eb;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.services-intro h3 {
+  font-size: 2rem;
+  color: #1e293b;
+  margin-bottom: 15px;
+}
+
+.services-intro p {
+  color: #64748b;
+  line-height: 1.7;
+}
+
+/* THE GRID */
+.services-slider {
+  display: flex;             /* Horizontal layout */
+  gap: 20px;
+  overflow-x: auto;          /* Allows scrolling */
+  scroll-behavior: smooth;
+  padding: 20px 5px;
+  scrollbar-width: none;     /* Hides scrollbar for Firefox */
+  scroll-snap-type: x mandatory; /* Makes it "snap" into place */
+}
+.services-slider::-webkit-scrollbar {
+  display: none;             /* Hides scrollbar for Chrome/Safari */
+}
+/* MINI BLOG / SERVICE CARD */
+.service-card {
+  /* This calculation ensures 4 cards fit perfectly */
+  flex: 0 0 calc(25% - 15px); 
+  min-width: 280px;          /* Prevents them from getting too small on mobile */
+  scroll-snap-align: start;  /* Snaps the edge of the card to the container */
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  border: 1px solid #f1f5f9;
+}
+@media (max-width: 1024px) {
+  .service-card {
+    flex: 0 0 calc(50% - 10px);
+  }
+}
+
+/* Adjust for mobile (show 1 card) */
+@media (max-width: 600px) {
+  .service-card {
+    flex: 0 0 100%;
+  }
+}
+.service-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+}
+
+.service-img-wrapper {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.service-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.service-info {
+  padding: 25px;
+}
+
+.service-info h4 {
+  font-size: 1.25rem;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.service-info p {
+  color: #64748b;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* DESTINATION BAR */
+.destinations-badge {
+  text-align: center;
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 50px;
+  color: #475569;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border: 1px dashed #cbd5e1;
+}
+.why-us-section {
+  padding: 100px 0;
+  background-color: #ffffff;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.why-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 80px;
+  gap: 50px;
+}
+
+/* This class flips the order of the columns */
+.why-row.reverse {
+  flex-direction: row-reverse;
+}
+
+.why-image-side {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.why-text-side {
+  flex: 1;
+  padding: 20px;
+}
+
+/* Large Question Mark Design */
+.question-mark {
+  font-size: 12rem;
+  font-weight: 900;
+  color: #f1f5f9; /* Light grey 'watermark' look */
+  text-shadow: 10px 10px 0px rgba(37, 99, 235, 0.1);
+  user-select: none;
+}
+
+.question-mark.color-2 { text-shadow: 10px 10px 0px rgba(16, 185, 129, 0.1); }
+.question-mark.color-3 { text-shadow: 10px 10px 0px rgba(245, 158, 11, 0.1); }
+
+.why-icon-small {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.why-text-side h4 {
+  font-size: 1.8rem;
+  color: #1e293b;
+  margin-bottom: 15px;
+}
+
+.why-text-side p {
+  font-size: 1.1rem;
+  color: #64748b;
+  line-height: 1.8;
+}
+
+/* Responsive: Stack them on mobile */
+@media (max-width: 768px) {
+  .why-row, .why-row.reverse {
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  
+  .question-mark {
+    font-size: 6rem;
+  }
+}
+.section-title h2 {
+  color: #000000;         /* Solid black */
+  font-size: 2.5rem;      /* Large, clear size */
+  font-weight: 800;       /* Extra bold for authority */
+  margin-bottom: 10px;
+  position: relative;
+  display: inline-block;  /* Allows the underline effect below */
+}
+
+/* Optional: Add a small accent line below the black text to keep it modern */
+.section-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 4px;
+  background-color: #2563eb; /* Sewa Blue accent */
+  margin: 10px auto 0;
+  border-radius: 2px;
+}
+/* FOOTER SECTION */
+.footer-section {
+  width: 100%;
+  background-color: #0f172a; /* Deep Dark Blue */
+  color: #ffffff;
+  padding: 60px 0 20px 0;
+  margin-top: 50px;
+}
+
+.footer-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
+}
+
+.footer-column h4 {
+  color: #38bdf8; /* Light blue accent for headers */
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.logo-image-footer {
+  height: 35px;
+  filter: brightness(0) invert(1); /* Makes the logo white for the dark background */
+}
+
+.footer-logo-text {
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: #ffffff;
+}
+
+.footer-tagline {
+  color: #94a3b8;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.address-text {
+  color: #cbd5e1;
+  line-height: 1.8;
+}
+
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-link {
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.contact-link:hover {
+  color: #38bdf8;
+}
+
+/* FOOTER BOTTOM BAR */
+.footer-bottom {
+  margin-top: 50px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(166, 15, 15, 0.1);
+  text-align: center;
+  font-size: 0.85rem;
+  color: #d13945;
+}
+
+/* Responsive adjust */
+@media (max-width: 768px) {
+  .footer-container {
+    text-align: center;
+  }
+  .footer-logo {
+    justify-content: center;
+  }
+}
+.footer-map {
+  width: 100%;
+  margin-top: 15px;
+  filter: grayscale(0.5) contrast(1.2) opacity(0.8); /* Optional: Softens the map colors to match the dark theme */
+  transition: filter 0.3s ease;
+}
+
+.footer-map:hover {
+  filter: grayscale(0); /* Brings back full color when the user hovers over it */
+  opacity: 1;
+}
+
+.footer-map iframe {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+/* Container that fills the screen below the navbar */
+.login-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh; /* Centers the card vertically */
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+}
+
+/* The modern Login Card */
+.login-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-card h2 {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 24px;
+}
+
+.login-card p {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+
+/* Form Layout */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-group {
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #444;
+  font-size: 14px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #007bff; /* Sewa Blue */
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+/* Modern Login Button */
+.submit-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  background-color: #0056b3;
+}

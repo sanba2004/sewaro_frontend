@@ -1,0 +1,131 @@
+.shipment-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.shipment-table th, .shipment-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.shipment-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.shipment-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.badge-status {
+  background: #e1f5fe;
+  color: #01579b;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+/* Container Background */
+.view-shipments-container {
+    background-color: #121212; /* Dark background */
+    padding: 20px;
+    border-radius: 12px;
+    color: #ffffff; /* White text for contrast */
+    min-height: 100vh;
+}
+
+.view-shipments-container h2 {
+    color: #f0f0f0;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Table Styling */
+.shipment-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px; /* Creates a "gap" between rows */
+    background-color: transparent;
+}
+
+.shipment-table th {
+    background-color: #1f1f1f;
+    color: #bbbbbb;
+    text-align: left;
+    padding: 15px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #333;
+}
+
+.shipment-table td {
+    background-color: #1a1a1a; /* Dark row background */
+    color: #e0e0e0;
+    padding: 15px;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+}
+
+/* First and last cell rounding for a modern look */
+.shipment-table td:first-child {
+    border-left: 1px solid #333;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.shipment-table td:last-child {
+    border-right: 1px solid #333;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+/* Hover effect to make rows "pop" */
+.shipment-table tr:hover td {
+    background-color: #252525;
+    border-color: #444;
+    transition: all 0.2s ease;
+}
+
+/* Status Badge */
+.badge-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    background-color: #333;
+    color: #ff9800; /* Orange for 'Pending' visibility */
+    border: 1px solid #444;
+}
+
+/* Action Button */
+.view-btn {
+    background: #333;
+    border: 1px solid #444;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.view-btn:hover {
+    background: #ff9800;
+    border-color: #ff9800;
+    color: #000;
+}
+
+/* Loader Styling */
+.loader {
+    color: #ff9800;
+    text-align: center;
+    margin-top: 50px;
+    font-size: 1.2rem;
+}
