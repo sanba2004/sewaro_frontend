@@ -1,26 +1,54 @@
+
 // import React, { useState } from 'react';
 // import './Register.css';
 
-// const Register = ({ onBackToLogin }) => {
+// const Register = ({ onBackToLogin, onRegisterSuccess }) => {
 //   const [formData, setFormData] = useState({
+//     fullName: '', // Added fullName to match your DB schema
 //     email: '',
 //     password: '',
 //     confirmPassword: ''
 //   });
 //   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
+//     setError('');
+    
 //     if (formData.password !== formData.confirmPassword) {
-//       alert("Passwords do not match!");
+//       setError("Passwords do not match!");
 //       return;
 //     }
     
 //     setLoading(true);
-//     // Here you will call your backend (e.g., http://localhost:5000/api/auth/register)
-//     console.log("Registration data:", formData);
-//     setLoading(false);
-//   };
+    
+//     try {
+//       const response = await fetch('http://localhost:5000/api/auth/register-customer', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           fullName: formData.fullName,
+//           email: formData.email,
+//           password: formData.password
+//         }),
+//       });
+
+//       const data = await response.json();
+
+//       if (response.ok) {
+//         onRegisterSuccess(formData.email);
+//         // alert("Registration Successful! Please sign in.");
+//         // onBackToLogin(); // Go back to Login screen instead of OTP screen
+//       } else {
+//         setError(data.error || 'Registration failed.');
+//       }
+//     } catch (err) {
+//       setError('Connection error.');
+//     } finally {
+//       setLoading(false);
+//     }
+// };
 
 //   return (
 //     <div className="auth-container">
@@ -31,6 +59,19 @@
 //         </div>
 
 //         <form onSubmit={handleSubmit} className="auth-form">
+//           {error && <p className="error-message" style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+          
+//           <div className="input-group">
+//             <label>Full Name</label>
+//             <input 
+//               type="text" 
+//               placeholder="Enter your full name" 
+//               required
+//               value={formData.fullName}
+//               onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+//             />
+//           </div>
+
 //           <div className="input-group">
 //             <label>Work Email</label>
 //             <input 
@@ -65,7 +106,7 @@
 //           </div>
 
 //           <button type="submit" className="register-btn" disabled={loading}>
-//             {loading ? 'Sending Verification...' : 'Create Account'}
+//             {loading ? 'Sending Verification Code...' : 'Create Account'}
 //           </button>
 //         </form>
 
@@ -82,15 +123,10 @@
 
 // export default Register;
 import React, { useState } from 'react';
-import './Register.css';
+import "/src/styles/Register.css";
 
-const Register = ({ onBackToLogin, onRegisterSuccess }) => {
-  const [formData, setFormData] = useState({
-    fullName: '', // Added fullName to match your DB schema
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
+// 🌟 CHANGE: Destructure formData and setFormData from props
+const Register = ({ onBackToLogin, onRegisterSuccess, formData, setFormData }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -119,9 +155,8 @@ const Register = ({ onBackToLogin, onRegisterSuccess }) => {
       const data = await response.json();
 
       if (response.ok) {
+        // 🌟 CHANGE: We pass the email up so VerifyOTP knows where to track the matching token map keys
         onRegisterSuccess(formData.email);
-        // alert("Registration Successful! Please sign in.");
-        // onBackToLogin(); // Go back to Login screen instead of OTP screen
       } else {
         setError(data.error || 'Registration failed.');
       }
@@ -130,7 +165,7 @@ const Register = ({ onBackToLogin, onRegisterSuccess }) => {
     } finally {
       setLoading(false);
     }
-};
+  };
 
   return (
     <div className="auth-container">
@@ -150,6 +185,7 @@ const Register = ({ onBackToLogin, onRegisterSuccess }) => {
               placeholder="Enter your full name" 
               required
               value={formData.fullName}
+              // 🌟 CHANGE: Directly update parent state mapping
               onChange={(e) => setFormData({...formData, fullName: e.target.value})}
             />
           </div>
@@ -161,6 +197,7 @@ const Register = ({ onBackToLogin, onRegisterSuccess }) => {
               placeholder="e.g. name@company.com" 
               required
               value={formData.email}
+              // 🌟 CHANGE: Directly update parent state mapping
               onChange={(e) => setFormData({...formData, email: e.target.value})}
             />
           </div>
@@ -172,6 +209,7 @@ const Register = ({ onBackToLogin, onRegisterSuccess }) => {
               placeholder="Min. 8 characters" 
               required
               value={formData.password}
+              // 🌟 CHANGE: Directly update parent state mapping
               onChange={(e) => setFormData({...formData, password: e.target.value})}
             />
           </div>
@@ -183,6 +221,7 @@ const Register = ({ onBackToLogin, onRegisterSuccess }) => {
               placeholder="Re-type password" 
               required
               value={formData.confirmPassword}
+              // 🌟 CHANGE: Directly update parent state mapping
               onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
             />
           </div>

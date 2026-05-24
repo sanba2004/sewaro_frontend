@@ -62,7 +62,7 @@
 
 // export default VerifyOTP;
 import React, { useState } from 'react';
-import './VerifyOTP.css';
+import "/src/styles/VerifyOtp.css";
 
 const VerifyOTP = ({ email, onVerifySuccess, onBackToRegister }) => {
   const [otp, setOtp] = useState('');

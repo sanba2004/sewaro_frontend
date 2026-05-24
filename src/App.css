@@ -252,7 +252,15 @@ body,
 .service-img-wrapper img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; 
+  
+  /* 🌟 ADDED: Gives the box a clean background fill so any empty space looks intentional */
+  background-color: #f7f9fa; 
+  
+  /* 🌟 ADDED: Optional padding to keep the image edges away from the card border */
+  padding: 15px; 
+  box-sizing: border-box;
+
 }
 
 .service-info {
@@ -565,4 +573,463 @@ body,
 
 .submit-btn:hover {
   background-color: #0056b3;
+}
+/* --- Tracking UI Classes --- */
+.scan-loading-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #333;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 4px;
+  z-index: 10000;
+  font-weight: bold;
+}
+
+.scan-error-alert {
+  max-width: 450px;
+  margin: 20px auto;
+  padding: 15px;
+  background-color: #fff5f5;
+  border: 1px solid #fc8181;
+  border-radius: 6px;
+  color: #c53030;
+  text-align: center;
+}
+
+.scan-error-alert button {
+  display: block;
+  margin: 10px auto 0;
+  background: #c53030;
+  color: #fff;
+  border: none;
+  padding: 4px 12px;
+  borderRadius: 4px;
+  cursor: pointer;
+}
+
+.public-label-viewer {
+  padding: 40px 20px;
+  background-color: #f1f3f5;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.label-viewer-actions {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.label-viewer-actions .btn-print {
+  background: #212529;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.label-viewer-actions .btn-close {
+  background: #6c757d;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.search-track-form {
+  display: flex;
+  background-color: #ffffff;
+  padding: 6px;
+  border-radius: 30px;
+  max-width: 500px;
+  width: 90%;
+  margin: 20px auto 0 auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-sizing: border-box;
+}
+
+.track-input-field {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px 20px;
+  font-size: 15px;
+  border-radius: 30px 0 0 30px;
+  color: #1a1a1a; /* Fixed white-on-white bug */
+}
+
+.track-submit-btn {
+  background: #0056b3;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.track-search-error-msg {
+  margin-top: 15px;
+  color: #ff8787;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.public-tracking-result-section {
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+}
+
+.tracking-card-container {
+  background-color: #ffffff;
+  max-width: 650px;
+  width: 100%;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-top: '5px solid #0056b3';
+}
+
+.tracking-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.card-header-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.card-header-id {
+  margin: 2px 0 0 0;
+  color: #0056b3;
+  font-family: monospace;
+  font-size: 20px;
+}
+
+.card-header-status-block {
+  text-align: right;
+}
+
+.status-badge {
+  margin-top: 4px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.badge-collected { background-color: #d4edda; color: #155724; }
+.badge-landed { background-color: #d1ecf1; color: #0c5460; }
+.badge-in-transit { background-color: #fff3cd; color: #856404; }
+.badge-pending { background-color: #e2e3e5; color: #383d41; }
+
+.tracking-timeline-flow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  position: relative;
+}
+
+.timeline-progress-bar {
+  position: absolute;
+  top: 15px;
+  left: 5%;
+  right: 5%;
+  height: 4px;
+  background-color: #e9ecef;
+  z-index: 1;
+}
+
+.timeline-step-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  z-index: 2;
+}
+
+.node-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #fff;
+  border: 2px solid #ced4da;
+  color: #ced4da;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.node-label {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: capitalize;
+  text-align: center;
+}
+
+.node-completed .node-circle {
+  background-color: #0056b3;
+  border: 2px solid #0056b3;
+  color: #fff;
+}
+
+.node-completed .node-label {
+  font-weight: bold;
+  color: #212529;
+}
+
+/* 📱 Native Mobile Media Queries Overlay */
+@media screen and (max-width: 600px) {
+  .search-track-form {
+    flex-direction: column;
+    border-radius: 16px;
+    padding: 10px;
+  }
+
+  .track-input-field {
+    border-radius: 8px;
+    margin-bottom: 8px;
+    text-align: center;
+    padding: 12px;
+  }
+
+  .track-submit-btn {
+    border-radius: 8px;
+    width: 100%;
+  }
+
+  .card-header-status-block {
+    text-align: left;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .tracking-timeline-flow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding-left: 20px;
+  }
+
+  .timeline-progress-bar {
+    top: 15px;
+    left: 35px;
+    right: auto;
+    width: 4px;
+    height: calc(100% - 30px);
+  }
+
+  .timeline-step-node {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+  }
+
+  .node-label {
+    margin-top: 0;
+    text-align: left;
+    font-size: 14px;
+  }
+}
+.why-image-side {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 450px; /* Adjust based on your layout constraints */
+}
+
+.why-display-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px; /* Adds a clean, modern look to your assets */
+}
+/* Container Layout Canvas */
+/* Container Layout Canvas */
+.services-showcase-container {
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 70px; /* Space between rows */
+  box-sizing: border-box;
+}
+
+/* Individual Alignments */
+.services-showcase-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 30px;
+  width: 100%;
+}
+
+/* 🎯 AUTOMATIC ALTERNATION: Forces every second row to flip directions automatically */
+.services-showcase-container .services-showcase-row:nth-child(even) {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+/* 🎯 IMAGES MADE SMALLER: Reduced max-width constraint cleanly */
+.services-showcase-image-wrapper {
+  flex: 0 0 37%; /* Shrinks down its flex blueprint footprint */
+  max-width: 370px; /* Sized down slightly for a punchier aesthetic */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Base image styling (Odd rows: Left Image, Right Text) */
+.services-showcase-image-wrapper img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 16px 4px 16px 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 🎯 AUTOMATIC IMAGE BORDER CORNERS: Flips corners cleanly for even rows */
+.services-showcase-container .services-showcase-row:nth-child(even) .services-showcase-image-wrapper img {
+  border-radius: 4px 16px 16px 16px;
+}
+
+/* 🎯 THE PADDED TEXT BORDER CARD: Encloses your text blocks */
+.services-card-wrapper {
+  flex: 1;
+  background-color: #ffffff;
+  border: 1px solid #eceff0;    /* Soft clean outer outline border */
+  border-radius: 0px 30px 30px 30px; /* Custom curved accents tracking your sample */
+  padding: 20px 40px;            /* Generous internal spacing padding around the words */
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12); /* Clean elevation lift */
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  max-width: 550px;
+  
+  min-height: 220px;
+}
+
+/* 🎯 AUTOMATIC CARD CORNERS: Flips card borders cleanly for even rows */
+.services-showcase-container .services-showcase-row:nth-child(even) .services-card-wrapper {
+  border-radius: 30px 0px 30px 30px;
+}
+
+/* Content Typography Inner Accents */
+.services-mini-badge {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  color: #0250a3; /* Sewa blue branding tone */
+  margin-bottom: 10px;
+}
+
+.services-card-wrapper h4 {
+  font-size: 1.6rem;
+  color: #0f1c2a;
+  margin: 0 0 12px 0;
+  font-weight: 700;
+}
+
+.services-card-wrapper p {
+  font-size: 0.98rem;
+  color: #566573;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Mobile Responsive Optimization fallback */
+@media (max-width: 768px) {
+  .services-showcase-row,
+  .services-showcase-container .services-showcase-row:nth-child(even) {
+    flex-direction: column !important; /* Stack vertically cleanly on phones */
+    gap: 20px;
+  }
+
+  .services-showcase-image-wrapper {
+    max-width: 80%;
+  }
+
+  .services-card-wrapper,
+  .services-showcase-container .services-showcase-row:nth-child(even) .services-card-wrapper {
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+}
+
+
+/* 🎯 THE GRID WRAPPER */
+.services-grid {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  display: flex;
+  justify-content: center; /* Centers the inner layout container horizontally */
+}
+
+/* 🎯 THE SLIDER TRACK (Turned into a centered container) */
+.services-slider {
+  display: flex;
+  
+  /* 🌟 CHANGED: Centers the cards perfectly side-by-side */
+  justify-content: center; 
+  align-items: stretch; /* Ensures all cards match each other's height dynamically */
+  
+  /* 🌟 CHANGED: Wraps items to the next line on small screens instead of scrolling */
+  flex-wrap: wrap; 
+  
+  /* 🌟 REMOVED: Delete 'overflow-x: auto' so the scrollbar disappears completely */
+  
+  gap: 30px; /* Adjust this to add more or less space between the 3 cards */
+  width: 100%;
+}
+
+/* 🎯 THE INDIVIDUAL SERVICE CARDS */
+.service-card {
+  /* 🌟 CHANGED: Uses flex-basis to let them divide space cleanly up to 340px each */
+  flex: 0 1 340px; 
+  
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #eceff0;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
 }

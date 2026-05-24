@@ -1,7 +1,14 @@
 
 import React, { useState } from 'react';
-import './ShipmentStepper.css';
-import { supabase } from './supabaseClient';
+import { supabase } from "../supabaseClient";
+
+import '/src/styles/ShipmentStepper.css';
+import '/src/styles/Invoice.css';
+
+
+
+// 🗺️ Go up one level to exit 'components', then down into 'views' to find ShippingLabel
+import ShippingLabel from '../views/ShippingLabel';
 
 export const countryList = [
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", 
@@ -90,7 +97,7 @@ const ShipmentStepper = ({userId}) => {
 
   // Step 2: Receiver
   const [receiverInfo, setReceiverInfo] = useState(() => 
-    getSafeCache('shp_receiver', { fullName: '',state: '',zip: '',landmark: '', contactNumber: '', country: 'Nepal', city: '', fullAddress: '' })
+    getSafeCache('shp_receiver', { fullName: '',state: '',zip: '',landmark: '', contactNumber: '', country: 'Nepal', city: '', fullAddress: '', receiverIdUrl:'' })
   );
 
   const [billingInfo, setBillingInfo] = useState(() => 
@@ -172,7 +179,12 @@ const calculateGrandTotal = () => {
 
 
 
-
+// Add this near your other state hooks at the top of your component file
+const [previewTrackingId, setPreviewTrackingId] = useState(() => {
+  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  return `SHP-${dateStr}-${randomSuffix}`;
+});
 
 
 
@@ -205,9 +217,17 @@ const calculateGrandTotal = () => {
 
 
 
-  // Calculate Total Weight for a specific package
-  const calculateTotalWeight = (pkgItems) => {
-    return pkgItems.reduce((sum, item) => sum + (item.weight * item.qty), 0).toFixed(2);
+  // // Calculate Total Weight for a specific package
+  // const calculateTotalWeight = (pkgItems) => {
+  //   return pkgItems.reduce((sum, item) => sum + (item.weight * item.qty), 0).toFixed(2);
+  // };
+  const calculateTotalWeight = (pkgItems = []) => {
+    const total = pkgItems.reduce((sum, item) => {
+      const q = parseFloat(item.qty) || 0;
+      const w = parseFloat(item.weight) || 0;
+      return sum + (q * w);
+    }, 0);
+    return parseFloat(total.toFixed(2)); // Returns a clean number type
   };
 
   
@@ -321,29 +341,74 @@ const calculateGrandTotal = () => {
   };
 
 
+// const uploadToSupabase = async (side) => {
+//   // Select the correct file based on the 'side' passed ('front' or 'back')
+//   const file = side === 'front' ? stagedFiles.frontFile : stagedFiles.backFile;
+  
+//   if (!file) return alert("Please select a file first!");
+
+//   const fileName = `${Date.now()}-${side}.${file.name.split('.').pop()}`;
+//   const folderPath = side === 'front' ? 'sender-ids' : 'receiver-ids';
+//   try {
+//     const { data, error } = await supabase.storage
+//       .from('documents')
+//       .upload(`sender-ids/${fileName}`, file);
+
+//     if (error) throw error;
+
+//     const { data: { publicUrl } } = supabase.storage
+//       .from('documents')
+//       .getPublicUrl(`sender-ids/${fileName}`);
+
+//     setSenderInfo(prev => ({
+//       ...prev,
+//       [side === 'front' ? 'idFrontUrl' : 'idBackUrl']: publicUrl
+//     }));
+    
+//     alert(`${side.toUpperCase()} upload successful!`);
+//   } catch (err) {
+//     alert("Upload failed: " + err.message);
+//   }
+// };
 const uploadToSupabase = async (side) => {
-  // Select the correct file based on the 'side' passed ('front' or 'back')
-  const file = side === 'front' ? stagedFiles.frontFile : stagedFiles.backFile;
+  // Select 'frontFile' or 'receiverFile' depending on which step calls it
+  const file = side === 'front' ? stagedFiles.frontFile : stagedFiles.receiverFile;
   
   if (!file) return alert("Please select a file first!");
 
+  // Keep 'front' naming for sender, and use 'receiver' for side parameters
   const fileName = `${Date.now()}-${side}.${file.name.split('.').pop()}`;
+  
+  // 🌟 Clean folder routing: Front uploads stay in 'sender-ids/', receiver uploads go to 'receiver-ids/'
+  const folderPath = side === 'front' ? 'sender-ids' : 'receiver-ids';
   
   try {
     const { data, error } = await supabase.storage
       .from('documents')
-      .upload(`sender-ids/${fileName}`, file);
+      .upload(`${folderPath}/${fileName}`, file);
 
     if (error) throw error;
 
     const { data: { publicUrl } } = supabase.storage
       .from('documents')
-      .getPublicUrl(`sender-ids/${fileName}`);
+      .getPublicUrl(`${folderPath}/${fileName}`);
 
-    setSenderInfo(prev => ({
-      ...prev,
-      [side === 'front' ? 'idFrontUrl' : 'idBackUrl']: publicUrl
-    }));
+    // 🌟 Conditional State Mapping: Left 'front' exactly as it was, updated 'receiver' cache rules
+    if (side === 'front') {
+      setSenderInfo(prev => ({
+        ...prev,
+        idFrontUrl: publicUrl
+      }));
+    } else {
+      setReceiverInfo(prev => ({
+        ...prev,
+        receiverIdUrl: publicUrl
+      }));
+      // Manually push to storage to guarantee state caching across screens
+      const savedReceiver = JSON.parse(localStorage.getItem('shp_receiver') || '{}');
+      savedReceiver.receiverIdUrl = publicUrl;
+      localStorage.setItem('shp_receiver', JSON.stringify(savedReceiver));
+    }
     
     alert(`${side.toUpperCase()} upload successful!`);
   } catch (err) {
@@ -355,8 +420,8 @@ const uploadToSupabase = async (side) => {
 const [stagedFiles, setStagedFiles] = useState({
   frontFile: null,
   frontPreview: '',
-  backFile: null,
-  backPreview: ''
+  receiverFile: null,
+  receiverPreview: ''
 });
 
 const handleFileSelect = (e, side) => {
@@ -368,15 +433,15 @@ const handleFileSelect = (e, side) => {
 
   setStagedFiles(prev => ({
     ...prev,
-    [side === 'front' ? 'frontFile' : 'backFile']: file,
-    [side === 'front' ? 'frontPreview' : 'backPreview']: previewUrl
+    [side === 'front' ? 'frontFile' : 'receiverFile']: file,
+    [side === 'front' ? 'frontPreview' : 'receiverPreview']: previewUrl
   }));
 };
 const clearImage = (side) => {
   setStagedFiles(prev => ({
     ...prev,
-    [side === 'front' ? 'frontFile' : 'backFile']: null,
-    [side === 'front' ? 'frontPreview' : 'backPreview']: ''
+    [side === 'front' ? 'frontFile' : 'receiverFile']: null,
+    [side === 'front' ? 'frontPreview' : 'receiverPreview']: ''
   }));
   
   // Also clear the permanent URL in senderInfo if it was already uploaded
@@ -490,14 +555,15 @@ const clearImage = (side) => {
 //   }
 // };
 
+
 const confirmShipment = async () => {
   setLoading(true);
 
   try {
     let finalFrontUrl = senderInfo.idFrontUrl || "";
-    let finalBackUrl = senderInfo.idBackUrl || "";
+    let finalReceiverUrl = receiverInfo.receiverIdUrl || ""; // 🌟 Updated fallback from receiverInfo cache
 
-    // 1. AUTO-UPLOAD: If there are staged files that haven't been uploaded yet
+    // 1. AUTO-UPLOAD (Front File - UNTOUCHED)
     if (stagedFiles.frontFile) {
       const fileName = `${Date.now()}-front.${stagedFiles.frontFile.name.split('.').pop()}`;
       const { data, error } = await supabase.storage.from('documents').upload(`sender-ids/${fileName}`, stagedFiles.frontFile);
@@ -506,15 +572,15 @@ const confirmShipment = async () => {
       finalFrontUrl = publicUrl;
     }
 
-    if (stagedFiles.backFile) {
-      const fileName = `${Date.now()}-back.${stagedFiles.backFile.name.split('.').pop()}`;
-      const { data, error } = await supabase.storage.from('documents').upload(`sender-ids/${fileName}`, stagedFiles.backFile);
-      if (error) throw new Error("Back ID upload failed");
-      const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(`sender-ids/${fileName}`);
-      finalBackUrl = publicUrl;
+    // 🌟 AUTO-UPLOAD (Receiver File - CHANGED FROM BACKFILE)
+    if (stagedFiles.receiverFile) {
+      const fileName = `${Date.now()}-receiver.${stagedFiles.receiverFile.name.split('.').pop()}`;
+      const { data, error } = await supabase.storage.from('documents').upload(`receiver-ids/${fileName}`, stagedFiles.receiverFile);
+      if (error) throw new Error("Receiver ID upload failed");
+      const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(`receiver-ids/${fileName}`);
+      finalReceiverUrl = publicUrl;
     }
 
-    // Safety check: If userId is completely missing from props/state, protect the database
     const verifiedUserId = userId ? Number(userId) : null;
     if (!verifiedUserId || isNaN(verifiedUserId)) {
       alert("Error: Active User Session ID could not be identified. Please try logging in again.");
@@ -524,7 +590,7 @@ const confirmShipment = async () => {
 
     // 2. Prepare the payload
     const payload = {
-      userId: verifiedUserId, // Safe parsed absolute integer
+      userId: verifiedUserId, 
       shipment: {
         trackingId: String(shipmentId || ""),
         senderType: String(senderInfo.senderType || ""),
@@ -535,11 +601,10 @@ const confirmShipment = async () => {
         senderContact: String(senderInfo.contactNum || ""),
         senderCountry: String(senderInfo.country || ""),
         senderState: String(senderInfo.state || ""),
-        senderZip: String(senderInfo.zipcode || ""),
+        senderZip: String(senderInfo.zip || ""),
         
-        // FIXED: Now accurately passes the finalized cloud document target links
-        senderIdFront: String(finalFrontUrl), 
-        senderIdBack: String(finalBackUrl),
+        senderIdFront: String(finalFrontUrl), // 🛑 Kept exactly as you had it
+        receiverIdUrl: String(finalReceiverUrl), // 🌟 Updated key payload property target
         
         billingMethod: String(billingInfo.method || ""),
         billingSubtotal: String(billingInfo.subtotal || "0"),
@@ -551,7 +616,7 @@ const confirmShipment = async () => {
         receiverCity: String(receiverInfo.city || ""),
         receiverAddress: String(receiverInfo.fullAddress || ""),
         receiverState: String(receiverInfo.state || ""),
-        receiverZip: String(receiverInfo.zipcode || ""),
+        receiverZip: String(receiverInfo.zip || ""),
         receiverLandmark: String(receiverInfo.landmark || ""),
 
         weight: String(calculateGrandTotal() || "0"),
@@ -567,7 +632,7 @@ const confirmShipment = async () => {
         items: pkg.items.map((item) => ({
           desc: String(item.description || ""),
           weight: String(item.weight || "0"),
-          qty: Number(item.qty || 1), // Pass numeric configurations natively to align input hooks
+          qty: Number(item.qty || 1), 
           price: String(item.price || "0"),
           hsCode: String(item.hsCode || ""),
         })),
@@ -586,7 +651,7 @@ const confirmShipment = async () => {
       alert(`Success! ${result.message || "Shipment Saved"}`);
       
       if (stagedFiles.frontPreview) URL.revokeObjectURL(stagedFiles.frontPreview);
-      if (stagedFiles.backPreview) URL.revokeObjectURL(stagedFiles.backPreview);
+      if (stagedFiles.receiverPreview) URL.revokeObjectURL(stagedFiles.receiverPreview); // 🌟 Revoke the correct preview pointer
       
       handleReset(); 
     } else {
@@ -600,6 +665,117 @@ const confirmShipment = async () => {
     setLoading(false);
   }
 };
+
+// const confirmShipment = async () => {
+//   setLoading(true);
+
+//   try {
+//     let finalFrontUrl = senderInfo.idFrontUrl || "";
+//     let finalBackUrl = senderInfo.idBackUrl || "";
+
+//     // 1. AUTO-UPLOAD: If there are staged files that haven't been uploaded yet
+//     if (stagedFiles.frontFile) {
+//       const fileName = `${Date.now()}-front.${stagedFiles.frontFile.name.split('.').pop()}`;
+//       const { data, error } = await supabase.storage.from('documents').upload(`sender-ids/${fileName}`, stagedFiles.frontFile);
+//       if (error) throw new Error("Front ID upload failed");
+//       const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(`sender-ids/${fileName}`);
+//       finalFrontUrl = publicUrl;
+//     }
+
+//     if (stagedFiles.backFile) {
+//       const fileName = `${Date.now()}-back.${stagedFiles.backFile.name.split('.').pop()}`;
+//       const { data, error } = await supabase.storage.from('documents').upload(`sender-ids/${fileName}`, stagedFiles.backFile);
+//       if (error) throw new Error("Back ID upload failed");
+//       const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(`sender-ids/${fileName}`);
+//       finalBackUrl = publicUrl;
+//     }
+
+//     // Safety check: If userId is completely missing from props/state, protect the database
+//     const verifiedUserId = userId ? Number(userId) : null;
+//     if (!verifiedUserId || isNaN(verifiedUserId)) {
+//       alert("Error: Active User Session ID could not be identified. Please try logging in again.");
+//       setLoading(false);
+//       return;
+//     }
+
+//     // 2. Prepare the payload
+//     const payload = {
+//       userId: verifiedUserId, // Safe parsed absolute integer
+//       shipment: {
+//         trackingId: String(shipmentId || ""),
+//         senderType: String(senderInfo.senderType || ""),
+//         senderName: String(senderInfo.fullName || ""),
+//         senderCity: String(senderInfo.city || ""),
+//         senderIdType: String(senderInfo.idType || ""),
+//         senderAddress: String(senderInfo.address || ""),
+//         senderContact: String(senderInfo.contactNum || ""),
+//         senderCountry: String(senderInfo.country || ""),
+//         senderState: String(senderInfo.state || ""),
+//         senderZip: String(senderInfo.zip || ""),
+        
+//         // FIXED: Now accurately passes the finalized cloud document target links
+//         senderIdFront: String(finalFrontUrl), 
+//         senderIdBack: String(finalBackUrl),
+        
+//         billingMethod: String(billingInfo.method || ""),
+//         billingSubtotal: String(billingInfo.subtotal || "0"),
+//         billingTotal: String(billingInfo.total || "0"),
+
+//         receiverName: String(receiverInfo.fullName || ""),
+//         receiverContact: String(receiverInfo.contactNumber || ""),
+//         receiverCountry: String(receiverInfo.country || ""),
+//         receiverCity: String(receiverInfo.city || ""),
+//         receiverAddress: String(receiverInfo.fullAddress || ""),
+//         receiverState: String(receiverInfo.state || ""),
+//         receiverZip: String(receiverInfo.zip || ""),
+//         receiverLandmark: String(receiverInfo.landmark || ""),
+
+//         weight: String(calculateGrandTotal() || "0"),
+//         date: String(new Date().toISOString()),
+//       },
+//       packages: packages.map((pkg) => ({
+//         packageId: String(pkg.id || Date.now()),
+//         profile: String(pkg.profile || ""),
+//         type: String(pkg.type || "Box"),
+//         hasHollow: String(pkg.hasHollow || "No"),
+//         dims: String(`${pkg.dims?.l || 0}x${pkg.dims?.w || 0}x${pkg.dims?.h || 0}`),
+//         cbm: String(pkg.cbm || "0"),
+//         items: pkg.items.map((item) => ({
+//           desc: String(item.description || ""),
+//           weight: String(item.weight || "0"),
+//           qty: Number(item.qty || 1), // Pass numeric configurations natively to align input hooks
+//           price: String(item.price || "0"),
+//           hsCode: String(item.hsCode || ""),
+//         })),
+//       })),
+//     };
+
+//     // 3. Network Request to your MySQL Backend
+//     const response = await fetch('http://localhost:5000/api/shipments/confirm', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(payload),
+//     });
+
+//     if (response.ok) {
+//       const result = await response.json();
+//       alert(`Success! ${result.message || "Shipment Saved"}`);
+      
+//       if (stagedFiles.frontPreview) URL.revokeObjectURL(stagedFiles.frontPreview);
+//       if (stagedFiles.backPreview) URL.revokeObjectURL(stagedFiles.backPreview);
+      
+//       handleReset(); 
+//     } else {
+//       const errorData = await response.json();
+//       alert(`Error: ${errorData.error}`);
+//     }
+//   } catch (err) {
+//     console.error("Network Failure:", err);
+//     alert("Could not connect to the server.");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
 
 // reset the form after finishing shipment
@@ -826,7 +1002,21 @@ const confirmShipment = async () => {
 
                 <div className="input-field" style={{ marginTop: '40px' }}>
                   <label>Country:</label>
-                  <select defaultValue="Nepal">
+                  {/* <select >
+                    {countryList.map((country) => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select> */}
+                  <select 
+                    value={senderInfo.country || ''} 
+                    onChange={(e) => updateSender('country', e.target.value)}
+                    required
+                  >
+                    {/* Clean UX: Provide a disabled placeholder default option */}
+                    <option value="" disabled>-- Select a Country --</option>
+                    
                     {countryList.map((country) => (
                       <option key={country} value={country}>
                         {country}
@@ -907,6 +1097,70 @@ const confirmShipment = async () => {
           <option value="PASSPORT">PASSPORT</option>
         </select>
       </div>
+<div className="input-field id-upload-section" style={{ gridColumn: '1 / -1', marginTop: '10px', marginBottom: '15px' }}>
+        <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
+          Receiver ID Document Attachment:
+        </label>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <input 
+            type="file" 
+            onChange={(e) => handleFileSelect(e, 'receiver')} 
+            accept="image/*"
+            style={{ padding: '4px 0' }}
+          />
+          
+          {/* Clear button if file preview or saved link exists */}
+          {(stagedFiles.receiverPreview || receiverInfo.receiverIdUrl) && (
+            <button 
+              type="button" 
+              onClick={() => clearImage('receiver')} 
+              className="btn-cross"
+              style={{
+                background: '#dc3545',
+                color: '#fff',
+                border: 'none',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              ✕ Clear
+            </button>
+          )}
+        </div>
+
+        {/* Live Staged Preview Window */}
+        {stagedFiles.receiverPreview ? (
+          <div style={{ marginTop: '10px', background: '#fafafa', padding: '10px', border: '1px dashed #ccc', borderRadius: '4px' }}>
+            <span style={{ fontSize: '11px', color: '#666', display: 'block', marginBottom: '6px' }}>Staged Preview (Not Uploaded):</span>
+            <img 
+              src={stagedFiles.receiverPreview} 
+              alt="Receiver ID Preview" 
+              style={{ maxHeight: '120px', maxWidth: '100%', objectFit: 'contain', borderRadius: '4px', border: '1px solid #ddd' }} 
+            />
+            <button 
+              type="button" 
+              onClick={() => uploadToSupabase('receiver')}
+              style={{ display: 'block', marginTop: '8px', background: '#28a745', color: '#fff', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+            >
+              ☁️ Upload Receiver ID to Cloud
+            </button>
+          </div>
+        ) : receiverInfo.receiverIdUrl ? (
+          /* Already Uploaded Preview Window */
+          <div style={{ marginTop: '10px', background: '#f4fbf7', padding: '10px', border: '1px solid #28a745', borderRadius: '4px' }}>
+            <span style={{ fontSize: '11px', color: '#28a745', display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>✓ Saved to Supabase:</span>
+            <img 
+              src={receiverInfo.receiverIdUrl} 
+              alt="Saved Receiver ID" 
+              style={{ maxHeight: '120px', maxWidth: '100%', objectFit: 'contain', borderRadius: '4px', opacity: 0.9 }} 
+            />
+          </div>
+        ) : null}
+      </div>
+
 
       <div className="input-field">
         <label>Contact Number:</label>
@@ -951,7 +1205,7 @@ const confirmShipment = async () => {
             type="text" 
             placeholder="44600" 
             value={receiverInfo.zipCode}
-            onChange={(e) => handleReceiverUpdate('zipCode', e.target.value)} // UPDATED
+            onChange={(e) => handleReceiverUpdate('zip', e.target.value)} // UPDATED
           />
         </div>
       </div>
@@ -1165,12 +1419,15 @@ const confirmShipment = async () => {
           </table>
           
           <div className="package-footer-row">
-            <button className="add-item-btn" onClick={() => addItemToPackage(pkg.id)}>+ Add Item</button>
-            <div className="total-weight-display">
-              <span>Total Weight:</span>
-              <strong>{calculateTotalWeight(pkg.items)} kg</strong>
-            </div>
-          </div>
+  <button className="add-item-btn" onClick={() => addItemToPackage(pkg.id)}>+ Add Item</button>
+  <div className="total-weight-display">
+    <span>Total Weight:</span>
+    <strong>
+      {/* 🌟 FIXED: Plain sum array reduction. This ignores the qty multiplier for Step 3 view */}
+      {(pkg.items || []).reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0).toFixed(2)} kg
+    </strong>
+  </div>
+</div>
           </div>
         
           </div>
@@ -1188,7 +1445,65 @@ const confirmShipment = async () => {
           </button>
         </div>
       )}
-      {step === 4 && (
+      {/* {step === 4 && (
+  <div className="billing-container">
+  <h3 className="sub-header">Billing & Delivery Selection</h3>
+  
+  <div className="billing-table-wrapper">
+    <table className="billing-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Package Profile</th>
+          <th>Weight Details</th>
+          <th>Rate</th>
+          <th>Door to Door?</th>
+        </tr>
+      </thead>
+      <tbody>
+        {packages.map((pkg, index) => {
+          // 🌟 FIXED: Point this directly to your updated helper function!
+          const actualWt = calculateTotalWeight(pkg.items);
+          const chargeableWt = getChargeableWeight(actualWt);
+          const rate = getPricePerKg(chargeableWt);
+
+          return (
+            <tr key={pkg.id}>
+              <td className="pkg-num">Pkg {index + 1}</td>
+              <td>
+                <div className="pkg-profile-tag">{pkg.profile || "Standard"}</div>
+                <small className="pkg-type-text">{pkg.type}</small>
+              </td>
+              <td>
+                <div className="weight-info">
+                  <span>Actual: <strong>{actualWt.toFixed(2)}kg</strong></span>
+                  <span>Chargeable: <strong className="highlight-text">{chargeableWt}kg</strong></span>
+                </div>
+              </td>
+              <td>
+                <span className="rate-badge">Rs {rate}/kg</span>
+              </td>
+              <td className="checkbox-cell">
+                <label className="custom-checkbox">
+                  <input 
+                    type="checkbox" 
+                    checked={pkg.doorToDoor || false}
+                    onChange={(e) => toggleDoorToDoor(pkg.id, e.target.checked)}
+                  />
+                  <span className="checkmark"></span>
+                  <span className="checkbox-label">+Rs 500</span>
+                </label>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+
+  </div>
+)} */}
+{step === 4 && (
   <div className="billing-container">
     <h3 className="sub-header">Billing & Delivery Selection</h3>
     
@@ -1205,8 +1520,8 @@ const confirmShipment = async () => {
         </thead>
         <tbody>
           {packages.map((pkg, index) => {
-            // Helper logic to calculate weights for display
-            const actualWt = pkg.items.reduce((sum, i) => sum + (parseFloat(i.weight) || 0), 0);
+            // 🌟 FIXED: Sum the raw item weights exactly as typed, completely ignoring the item quantities
+            const actualWt = (pkg.items || []).reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0);
             const chargeableWt = getChargeableWeight(actualWt);
             const rate = getPricePerKg(chargeableWt);
 
@@ -1246,7 +1561,7 @@ const confirmShipment = async () => {
   </div>
 )}
 
-      {step === 5 && (
+      {/* {step === 5 && (
   <div className="invoice-display-container">
     <div id="printable-invoice" className="invoice-card">
       <div className="invoice-header">
@@ -1319,11 +1634,190 @@ const confirmShipment = async () => {
       <button className="print-btn" onClick={() => window.print()}>
         🖨️ Print Invoice
       </button>
-      {/* This is the  Done button */}
+      {/* This is the  Done button }
       <button className="done-btn" onClick={confirmShipment}>
         ✅ Done & Start New Shipment
       </button>
     </div>
+  </div>
+)} */}
+{step === 5 && (
+  <div className="invoice-display-container">
+    <div id="printable-invoice" className="invoice-card">
+      
+      {/* 🧾 Document Title & Meta Block */}
+      <h1 className="invoice-main-title">Invoice</h1>
+      <div className="invoice-meta-text">
+        <p><strong>Invoice #:</strong> {previewTrackingId}</p>
+        <p><strong>Package Number:</strong> {packages.length}</p>
+        <p><strong>Date:</strong> {new Date().toLocaleDateString('en-GB')}</p>
+        <p><strong>Payment mode:</strong> {billingInfo.method || "Cash"}</p>
+      </div>
+
+      {/* 👥 Split Address Banner Header Grid */}
+      {/* 🌟 FIXED: Swapped grid properties for flex styles to force multi-columns during physical document printing */}
+      <div style={{ display: 'flex', width: '100%' }}>
+        <div className="invoice-section-banner" style={{ flex: 1, textAlign: 'left' }}>Shipper Information</div>
+        <div className="invoice-section-banner" style={{ flex: 1, textAlign: 'left', borderLeft: '2px solid #fff' }}>Receiver Information</div>
+      </div>
+      
+      {/* 🌟 FIXED: Flex container guarantees columns stay side-by-side on paper instead of breaking vertically */}
+      <div className="info-split-grid" style={{ display: 'flex', width: '100%', marginTop: '10px' }}>
+        <div className="info-column" style={{ flex: 1, paddingRight: '15px', boxSizing: 'border-box' }}>
+          <p><strong>Shipper Name:</strong> {senderInfo.fullName || "N/A"}</p>
+          <p><strong>Address:</strong> {senderInfo.address || "N/A"}, {senderInfo.city}, {senderInfo.country}</p>
+          <p><strong>Phone:</strong> {senderInfo.contactNum || "N/A"}</p>
+          <p><strong>Email:</strong> {senderInfo.email || "N/A"}</p>
+        </div>
+        <div className="info-column" style={{ flex: 1, paddingLeft: '15px', borderLeft: '1px solid #ccc', boxSizing: 'border-box' }}>
+          <p><strong>Receiver Name:</strong> {receiverInfo.fullName || "N/A"}</p>
+          <p><strong>Address:</strong> {receiverInfo.fullAddress || "N/A"}, {receiverInfo.city}, {receiverInfo.country}</p>
+          <p><strong>Phone:</strong> {receiverInfo.contactNumber || "N/A"}</p>
+          <p><strong>Email:</strong> {receiverInfo.email || "N/A"}</p>
+        </div>
+      </div>
+
+      {/* 📦 Package Breakdown Section Banner */}
+      <div className="invoice-section-banner" style={{ marginTop: '25px', marginBottom: '0' }}>Package Details</div>
+      
+      <table className="corp-invoice-table">
+        <thead>
+          <tr>
+            <th style={{ width: '8%' }}>S.N</th>
+            <th>Description</th>
+            <th style={{ width: '25%' }}>HS CODE</th>
+            <th style={{ width: '15%' }}>Qty</th>
+          </tr>
+        </thead>
+        <tbody>
+          {packages.flatMap((pkg, pkgIdx) => 
+            (pkg.items || []).map((item, itemIdx) => (
+              <tr key={`${pkg.id}-${itemIdx}`}>
+                <td>{itemIdx + 1}</td>
+                <td className="text-left">
+                  {item.description || `${pkg.profile || "Cargo Item"} (${pkg.type || "Parcel"})`}
+                </td>
+                <td>{item.hsCode || "—"}</td>
+                <td>{item.qty || 1}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+
+      {/* 📋 Bottom Section: Terms & Totals Row */}
+      {/* 🌟 FIXED: Swapped to an inline flex wrapper to stop QR and calculations from dropping alignment layouts during print */}
+      <div className="invoice-footer-grid" style={{ display: 'flex', width: '100%', gap: '20px', marginTop: '20px' }}>
+        
+        {/* Left Side Column: Legal Terms Notes */}
+        <div className="comments-block" style={{ flex: 1.2 }}>
+          <div className="invoice-section-banner" style={{ fontSize: '11px', padding: '4px 8px' }}>Comments</div>
+          <ul>
+            {/* Legal compliance comments can safely be un-commented out here as needed */}
+          </ul>
+        </div>
+
+        {/* Right Side Column: Financial Aggregations combined with dynamic system Tracking QR */}
+        <div className="financials-block" style={{ flex: 0.8, background: '#f4f6f8', padding: '15px', borderRadius: '4px', boxSizing: 'border-box' }}>
+          {(() => {
+            const aggregateWeight = packages.reduce((sum, p) => {
+              const pWeight = (p.items || []).reduce((subSum, item) => subSum + (parseFloat(item.weight) || 0), 0);
+              return sum + pWeight;
+            }, 0);
+
+            const totalPayable = packages.reduce((sum, pkg) => {
+              const rawWeight = (pkg.items || []).reduce((subSum, item) => subSum + (parseFloat(item.weight) || 0), 0);
+              const chgWt = typeof getChargeableWeight === 'function' ? getChargeableWeight(rawWeight) : rawWeight;
+              const rate = typeof getPricePerKg === 'function' ? getPricePerKg(chgWt) : 0;
+              const doorToDoorCharge = pkg.doorToDoor ? 500 : 0;
+              
+              return sum + (chgWt * rate) + doorToDoorCharge;
+            }, 0);
+
+            return (
+              <>
+                <p><strong>Total Weight:</strong> {aggregateWeight.toFixed(2)} Kg</p>
+                <p><strong>Weight charge:</strong> {billingInfo.currency || "NPR"} {totalPayable.toLocaleString()}</p>
+                
+                <div className="grand-total-row" style={{ margin: '10px 0', padding: '5px 0', borderTop: '1px solid #ccc', borderBottom: '1px solid #ccc' }}>
+                  <span style={{ fontWeight: 'bold' }}>Total: </span>
+                  <span style={{ fontWeight: 'bold' }}>{billingInfo.currency || "NPR"} {totalPayable.toLocaleString()}</span>
+                </div>
+                
+                {/* 🌟 NEW: Live Embedded Tracking Identifier QR Code Component Block */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '15px', padding: '10px', background: '#ffffff', border: '1px solid #ddd', borderRadius: '4px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#555', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Scan to Track Shipment
+                  </span>
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(previewTrackingId || 'N/A')}`}
+                    alt="Tracking Invoice QR Code Matrix"
+                    style={{ width: '110px', height: '110px', display: 'block' }}
+                  />
+                  <span style={{ fontSize: '10px', fontFamily: 'monospace', marginTop: '4px', color: '#222', fontWeight: 'bold' }}>
+                    {previewTrackingId}
+                  </span>
+                </div>
+
+                <p className="thank-you-msg" style={{ textAlign: 'center', marginTop: '10px', fontStyle: 'italic', fontSize: '12px' }}>
+                  Thank you for your business!
+                </p>
+              </>
+            );
+          })()}
+        </div>
+
+      </div>
+    </div>
+
+    <div className="label-printable-target">
+  <ShippingLabel 
+    previewTrackingId={previewTrackingId}
+    packages={packages}
+    senderInfo={senderInfo}
+    receiverInfo={receiverInfo}
+    billingInfo={billingInfo}
+  />
+</div>
+
+{/* Action Control Buttons Row */}
+<div className="invoice-actions no-print" style={{ marginTop: '30px', display: 'flex', gap: '15px', justifyContent: 'center' }}>
+  
+  {/* 🖨️ Print Invoice Button */}
+  <button 
+    className="print-btn" 
+    onClick={() => {
+      document.body.classList.add('print-mode-invoice-only');
+      // 🌟 FIXED: Use setTimeout to allow the browser layout engine to paint before capturing print frame
+      setTimeout(() => {
+        window.print();
+        document.body.classList.remove('print-mode-invoice-only');
+      }, 50);
+    }} 
+    style={{ padding: '10px 20px', cursor: 'pointer', fontWeight: 'bold' }}
+  >
+    🖨️ Print Invoice
+  </button>
+  
+  {/* 🏷️ Print Label Button */}
+  <button 
+            className="print-btn" 
+            onClick={() => {
+              document.body.classList.add('print-mode-label-only');
+              setTimeout(() => {
+                window.print();
+                document.body.classList.remove('print-mode-label-only');
+              }, 50);
+            }} 
+            style={{ padding: '10px 20px', cursor: 'pointer', fontWeight: 'bold', background: '#e0a800', color: '#000', border: 'none', borderRadius: '4px' }}
+          >
+            🏷️ Print Label
+          </button>
+
+  <button className="done-btn" onClick={() => confirmShipment(previewTrackingId)} style={{ padding: '10px 20px', cursor: 'pointer', background: '#28a745', color: '#fff', border: 'none', fontWeight: 'bold' }}>
+    ✅ Done & Start New Shipment
+  </button>
+</div>
   </div>
 )}
 

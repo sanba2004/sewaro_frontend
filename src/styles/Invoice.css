@@ -1,0 +1,256 @@
+/* ==========================================================================
+   Corporate Invoice & Shipping Label Layout Sheet
+   ========================================================================== */
+
+.invoice-display-container {
+  padding: 20px;
+  background-color: #f4f6f8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px; /* Adds clean spacing between the Invoice and Label cards on screen */
+}
+
+.invoice-card {
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 40px;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  color: #000000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+/* 🖥️ Screen Layout style container wrapper for your label card component */
+.label-printable-target {
+  display: block; /* Kept fully visible on your monitor step 5 view panel */
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+/* Document Structure Layout Headers */
+.invoice-main-title {
+  font-size: 36px;
+  text-transform: uppercase;
+  margin: 0 0 20px 0;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-align: left;
+}
+
+.invoice-meta-text {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.invoice-meta-text p {
+  margin: 4px 0;
+}
+
+/* High-Contrast Section Banners */
+.invoice-section-banner {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 10px 14px;
+  font-weight: bold;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left;
+}
+
+/* Address Grid Setup */
+.info-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  padding: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: left;
+  background: #ffffff;
+  margin-bottom: 30px;
+}
+
+.info-column p {
+  margin: 6px 0;
+}
+
+/* Package Details Table Grid */
+.corp-invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+
+.corp-invoice-table th {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 10px;
+  font-size: 13px;
+  text-transform: uppercase;
+  border: 1px solid #000000;
+  font-weight: bold;
+}
+
+.corp-invoice-table td {
+  padding: 12px 10px;
+  border: 1px solid #000000;
+  font-size: 13px;
+  color: #000000;
+  text-align: center;
+}
+
+.corp-invoice-table td.text-left {
+  text-align: left;
+}
+
+/* Footer & Comments Layout */
+.invoice-footer-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
+  margin-top: 10px;
+}
+
+.comments-block {
+  text-align: left;
+}
+
+.comments-block ul {
+  padding-left: 18px;
+  margin: 12px 0;
+}
+
+.comments-block li {
+  font-size: 12px;
+  color: #333333;
+  margin-bottom: 8px;
+  line-height: 1.5;
+  list-style-type: disc;
+}
+
+/* Aggregation Panel Financial Alignment */
+.financials-block {
+  text-align: right;
+  font-size: 14px;
+  line-height: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.financials-block p {
+  margin: 2px 0;
+}
+
+.financials-block .grand-total-row {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 12px;
+  border-top: 1px solid #000000;
+  padding-top: 8px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.thank-you-msg {
+  margin-top: 25px;
+  font-style: italic;
+  font-size: 13px;
+  color: #000000;
+}
+@media print {
+  /* 1. Reset base canvas defaults */
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+  }
+
+  /* 2. Hide screen-specific interactive widgets */
+  .no-print, 
+  .invoice-actions, 
+  .form-footer, 
+  .wizard-steps-header {
+    display: none !important;
+  }
+
+  /* ==========================================================================
+     ⚙️ SCENARIO A: Printing the Invoice Document Only
+     ========================================================================== */
+  body.print-mode-invoice-only #printable-invoice {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+  }
+  body.print-mode-invoice-only .label-printable-target,
+  body.print-mode-invoice-only .label-printable-target * {
+    display: none !important;
+  }
+
+  /* ==========================================================================
+     ⚙️ SCENARIO B: Printing the Shipping Label Only (Bulletproof Selector)
+     ========================================================================== */
+  body.print-mode-label-only * {
+    /* 1. Set every single element on the page to completely invisible */
+    visibility: hidden !important;
+  }
+
+  body.print-mode-label-only .label-printable-target,
+  body.print-mode-label-only .label-printable-target * {
+    /* 2. Force ONLY the label component and its elements to turn back on */
+    visibility: visible !important;
+    display: block !important;
+  }
+
+  body.print-mode-label-only .label-printable-target {
+    /* 3. Snap it out of any collapsed tree to the top left of the paper */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 450px !important; /* Matches your structural label size */
+    margin: 0 auto !important;
+    padding: 0 !important;
+    z-index: 9999999 !important;
+  }
+}
+
+
+@media print {
+  /* Hide all buttons and header logic strips */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Force dashboard container to completely collapse during Label Printing Mode */
+  body.print-mode-label-only #dashboard-view-panel,
+  body.print-mode-label-only .screen-only-container {
+    display: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Make sure label-printable-target is completely clear of margins */
+  body.print-mode-label-only .label-printable-target {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

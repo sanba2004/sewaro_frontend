@@ -323,24 +323,136 @@
 
 
 
+// import React, { useState, useEffect } from 'react';
+// import "/src/styles/Dashboard.css";
+// import ShipmentStepper from '../components/ShipmentStepper'; 
+// import ManageAgents from './ManageAgents'; // Same folder (src/views/)
+
+// // ⚠️ Double check this one: If you named the file "ShipmentDetailView.jsx", use this:
+// import ViewShipments from './ViewShipments';
+
+// const Dashboard = ({ onLogout, user }) => {
+//   // Safe normalization of the role property
+//   const normalizedRole = user?.role?.toLowerCase() || '';
+  
+//   // Set default starting tab safely
+//   const [activeTab, setActiveTab] = useState('add-shipment');
+
+//   // Track the actual user ID structure over the console lifecycle
+//   useEffect(() => {
+//     console.log("📊 Active Dashboard Identity Trace:", user);
+//   }, [user]);
+
+//   // All menu configuration mappings
+//   const allMenuItems = [
+//     { id: 'overview', label: 'Dashboard Overview', icon: '📊', adminOnly: true },
+//     { id: 'add-shipment', label: 'Create Shipment', icon: '📦', adminOnly: false },
+//     { id: 'all-shipments', label: 'View Shipments', icon: '📋', adminOnly: false },
+//     { id: 'agents', label: 'Manage Agents', icon: '👥', adminOnly: true },
+//     { id: 'settings', label: 'Settings', icon: '⚙️', adminOnly: false },
+//   ];
+
+//   // Dynamic filter: Admin sees all tabs; Customers and Agents have Admin tabs removed
+//   const filteredMenuItems = allMenuItems.filter(item => {
+//     if (!item.adminOnly) return true;
+//     return normalizedRole === 'admin'; 
+//   });
+
+//   // Helper to cleanly determine subtitle banner text
+//   const getPanelSubtitle = () => {
+//     if (normalizedRole === 'admin') return 'Admin Dashboard';
+//     if (normalizedRole === 'agent') return 'Agent Control Panel';
+//     return 'Customer Portal';
+//   };
+
+//   return (
+//     <div className="dashboard-layout">
+//       <aside className="sidebar">
+//         <div className="sidebar-header">
+//           <h3>SEWA LOGISTICS</h3>
+//           <p>{getPanelSubtitle()}</p>
+//         </div>
+        
+//         <nav className="sidebar-nav">
+//           {filteredMenuItems.map((item) => (
+//             <button 
+//               key={item.id}
+//               className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
+//               onClick={() => setActiveTab(item.id)}
+//             >
+//               <span className="icon">{item.icon}</span>
+//               <span className="label">{item.label}</span>
+//             </button>
+//           ))}
+//         </nav>
+
+//         <div className="sidebar-footer">
+//           <button className="logout-btn" onClick={onLogout}>Logout Exit</button>
+//         </div>
+//       </aside>
+
+//       <main className="dashboard-content">
+//         <div className="content-body">
+//           {activeTab === 'add-shipment' ? (
+//             /* FIXED: Extracts 'id' but passes fallback string configuration parameters down cleanly */
+//             <ShipmentStepper userId={user?.id || user?.userId || localStorage.getItem('sewa_user_id')} />
+//           ) : activeTab === 'all-shipments' ? (
+//             <ViewShipments user={user} />
+//           ) : activeTab === 'agents' && normalizedRole === 'admin' ? ( 
+//             <ManageAgents />                                          
+//           ) :  (
+//             <div className="placeholder-view">
+//               {allMenuItems.find(i => i.id === activeTab)?.adminOnly && normalizedRole !== 'admin' ? (
+//                 <h2>Access Denied</h2>
+//               ) : (
+//                 <>
+//                   <h2>{activeTab.replace('-', ' ').toUpperCase()}</h2>
+//                   <p>This section is under construction.</p>
+//                 </>
+//               )}
+//             </div>
+//           )}
+//         </div>
+//       </main>
+//     </div>
+//   );
+// };
+
+// export default Dashboard;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
-import './Dashboard.css';
-import ShipmentStepper from './ShipmentStepper';
+import "/src/styles/Dashboard.css";
+import ShipmentStepper from '../components/ShipmentStepper'; 
+import ManageAgents from './ManageAgents'; 
 import ViewShipments from './ViewShipments';
+import DashboardOverview from './DashboardOverview'; // 📦 IMPORT NEW OVERVIEW COMPONENT
+import SettingsView from './SettingsView';
 
 const Dashboard = ({ onLogout, user }) => {
-  // Safe normalization of the role property
   const normalizedRole = user?.role?.toLowerCase() || '';
   
-  // Set default starting tab safely
-  const [activeTab, setActiveTab] = useState('add-shipment');
+  // ⚙️ ADJUSTED STARTING DEFAULT TAB: Admin launches into overview, others default to create shipment
+  const [activeTab, setActiveTab] = useState(
+    normalizedRole === 'admin' ? 'overview' : 'add-shipment'
+  );
 
-  // Track the actual user ID structure over the console lifecycle
   useEffect(() => {
     console.log("📊 Active Dashboard Identity Trace:", user);
   }, [user]);
 
-  // All menu configuration mappings
   const allMenuItems = [
     { id: 'overview', label: 'Dashboard Overview', icon: '📊', adminOnly: true },
     { id: 'add-shipment', label: 'Create Shipment', icon: '📦', adminOnly: false },
@@ -349,13 +461,11 @@ const Dashboard = ({ onLogout, user }) => {
     { id: 'settings', label: 'Settings', icon: '⚙️', adminOnly: false },
   ];
 
-  // Dynamic filter: Admin sees all tabs; Customers and Agents have Admin tabs removed
   const filteredMenuItems = allMenuItems.filter(item => {
     if (!item.adminOnly) return true;
     return normalizedRole === 'admin'; 
   });
 
-  // Helper to cleanly determine subtitle banner text
   const getPanelSubtitle = () => {
     if (normalizedRole === 'admin') return 'Admin Dashboard';
     if (normalizedRole === 'agent') return 'Agent Control Panel';
@@ -390,12 +500,19 @@ const Dashboard = ({ onLogout, user }) => {
 
       <main className="dashboard-content">
         <div className="content-body">
-          {activeTab === 'add-shipment' ? (
-            /* FIXED: Extracts 'id' but passes fallback string configuration parameters down cleanly */
+          {/* ⚡ ACTIVE TAB CONDITIONAL ROUTING RENDERING MATRIX */}
+          {activeTab === 'overview' && normalizedRole === 'admin' ? (
+            <DashboardOverview />
+          ) : activeTab === 'add-shipment' ? (
             <ShipmentStepper userId={user?.id || user?.userId || localStorage.getItem('sewa_user_id')} />
           ) : activeTab === 'all-shipments' ? (
             <ViewShipments user={user} />
-          ) : (
+          ) : activeTab === 'agents' && normalizedRole === 'admin' ? ( 
+            <ManageAgents />                                          
+          ) : activeTab === 'settings' ? (
+      <SettingsView user={user} /> // ⚙️ Renders the settings component cleanly
+    )
+          : (
             <div className="placeholder-view">
               {allMenuItems.find(i => i.id === activeTab)?.adminOnly && normalizedRole !== 'admin' ? (
                 <h2>Access Denied</h2>

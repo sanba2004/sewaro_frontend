@@ -1,5 +1,5 @@
 import React from 'react';
-import './SuccessModal.css';
+import "/src/styles/SuccessModal.css";
 
 const SuccessModal = ({ message, onConfirm }) => {
   return (

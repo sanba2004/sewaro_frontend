@@ -1,0 +1,183 @@
+/* --- Core Container Layout --- */
+.agents-container {
+  padding: 30px;
+  max-width: 1100px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #333333;
+}
+
+.agents-container h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #1a1f36;
+}
+
+/* --- Interactive Directory Table Structure --- */
+.table-card {
+  overflow-x: auto;
+  margin-bottom: 40px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e3e8ee;
+}
+
+.agents-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.agents-table th {
+  background-color: #f8fafc;
+  color: #4f5b66;
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 16px 20px;
+  border-bottom: 2px solid #e3e8ee;
+}
+
+.agents-table td {
+  padding: 16px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid #f1f3f5;
+  vertical-align: middle;
+}
+
+.agents-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Special styling for key database identifier labels */
+.agent-id-badge {
+  font-weight: 700;
+  color: #0d6efd;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* --- Status Badging --- */
+.status-badge-verified {
+  background-color: #e2f9ec;
+  color: #1f7a42;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.empty-state {
+  padding: 32px !important;
+  text-align: center;
+  color: #8792a2;
+  font-size: 15px;
+}
+
+/* --- Separation Line --- */
+.section-divider {
+  border: 0;
+  border-top: 1px solid #e3e8ee;
+  margin: 40px 0;
+}
+
+/* --- Creation Form Block panel --- */
+.form-card {
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 10px;
+  border: 1px solid #e3e8ee;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.form-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 6px;
+  color: #1a1f36;
+}
+
+.form-subtitle {
+  color: #697386;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* --- Form Field Elements --- */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #4f5b66;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px solid #c1c9d2;
+  font-size: 15px;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+/* --- Submissions Button Action --- */
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #24b47e;
+  color: #ffffff;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: background-color 0.15s ease;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  background-color: #1fa170;
+}
+
+.submit-btn:active {
+  background-color: #1a895f;
+}
+
+/* --- System Alert Banners --- */
+.alert-error {
+  color: #9e2124;
+  background-color: #fef0f0;
+  border-left: 4px solid #f27474;
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.alert-success {
+  color: #1f7a42;
+  background-color: #f0fbf4;
+  border-left: 4px solid #24b47e;
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}

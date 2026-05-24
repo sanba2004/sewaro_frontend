@@ -14,7 +14,9 @@
   justify-content: space-between;
   margin-bottom: 50px;
 }
-
+.invoice-display-container h1{
+  color: rgb(15, 14, 14);
+}
 .step-item {
   position: relative;
   display: flex;
