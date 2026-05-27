@@ -528,7 +528,7 @@ const ViewShipments = ({ user }) => {
   useEffect(() => {
     const fetchAgentsList = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/admin/agents');
+        const response = await fetch('https://sewaro-backend.onrender.com/api/admin/agents');
         if (response.ok) {
           const data = await response.json();
           setAgentsList(data);
@@ -545,7 +545,7 @@ const ViewShipments = ({ user }) => {
     const fetchShipments = async () => {
       setLoading(true);
       try {
-        let url = `http://localhost:5000/api/shipments/all?userId=${user?.id}&role=${user?.role}&page=${currentPage}&limit=${itemsPerPage}`;        if (dateFrom) url += `&dateFrom=${dateFrom}`;
+        let url = `https://sewaro-backend.onrender.com/api/shipments/all?userId=${user?.id}&role=${user?.role}&page=${currentPage}&limit=${itemsPerPage}`;        if (dateFrom) url += `&dateFrom=${dateFrom}`;
         if (dateTo) url += `&dateTo=${dateTo}`;
         if (status !== 'All') url += `&status=${status}`;
         if (isUserAdmin && selectedAgent !== 'All') url += `&agentId=${selectedAgent}`;

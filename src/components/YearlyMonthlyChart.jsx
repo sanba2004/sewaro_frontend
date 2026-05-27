@@ -27,7 +27,7 @@ const YearlyMonthChart = () => {
         setError(null);
         setChartMatrix(null); // Clean previous matrix
 
-        const response = await fetch(`http://localhost:5000/api/admin/analytics/volume-matrix?startYear=${startYear}&endYear=${endYear}`);
+        const response = await fetch(`https://sewaro-backend.onrender.com/api/admin/analytics/volume-matrix?startYear=${startYear}&endYear=${endYear}`);
         
         if (!response.ok) {
           throw new Error('Database analytics engine failure computing yearly matrix trace.');

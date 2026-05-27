@@ -170,7 +170,7 @@ const DashboardOverview = () => {
     const fetchOverviewData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/api/admin/overview');
+        const response = await fetch('https://sewaro-backend.onrender.com/api/admin/overview');
         if (!response.ok) throw new Error('Failed to fetch dashboard metrics');
         const result = await response.json();
         if (result.success) {

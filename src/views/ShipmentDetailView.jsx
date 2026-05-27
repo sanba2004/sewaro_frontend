@@ -2015,7 +2015,7 @@ export default function ShipmentDetailView({ trackingId, onClose, user }) {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`http://localhost:5000/api/shipments/track/${trackingId}`);
+        const response = await fetch(`https://sewaro-backend.onrender.com/api/shipments/track/${trackingId}`);
         
         if (!response.ok) {
           throw new Error(`Shipment data for token #${trackingId} could not be resolved.`);

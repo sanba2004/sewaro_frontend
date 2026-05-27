@@ -223,7 +223,88 @@
   cursor: not-allowed;
 }
 
+/* Container Box rules */
+.shipments-container {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
 
+/* Responsive Table Transform Formula Rule Matrix */
+@media (max-width: 768px) {
+  .shipments-container {
+    padding: 10px;
+  }
+
+  /* Deconstruct table wrappers into vertical stacking modules */
+  .shipments-table, 
+  .shipments-table thead, 
+  .shipments-table tbody, 
+  .shipments-table th, 
+  .shipments-table td, 
+  .shipments-table tr { 
+    display: block; 
+    width: 100%;
+  }
+  
+  /* Completely hide the header layout safely—preventing row collisions */
+  .shipments-table thead tr { 
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  /* Format table rows into clear card layouts */
+  .shipments-table tr {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+  
+  /* Align each table column cell horizontally with a pseudo-label format */
+  .shipments-table td { 
+    border: none;
+    border-bottom: 1px dashed #f1f5f9; 
+    position: relative;
+    padding-left: 45% !important; 
+    text-align: right !important;
+    font-size: 13px;
+    padding: 8px 5px;
+  }
+  
+  .shipments-table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Insert matching text column headers dynamically if using data attributes */
+  .shipments-table td::before { 
+    position: absolute;
+    top: 8px;
+    left: 6px;
+    width: 40%; 
+    padding-right: 10px; 
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+    color: #64748b;
+    content: attr(data-label); /* Reads string labels directly out of your JSX template mapping! */
+  }
+  
+  /* Filter control sections wrap vertically */
+  .filter-bar-container {
+    flex-direction: column !important;
+    gap: 10px;
+  }
+  
+  .filter-bar-container input, 
+  .filter-bar-container select {
+    width: 100% !important;
+  }
+}
 
 
 

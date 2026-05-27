@@ -2466,7 +2466,7 @@ import cargoStorageImg from './assets/cargostorage.png';
 import landTransportImg from './assets/landtransport.png';
 
 import Quote from './views/Quote';
-
+import CustomerService from './components/CustomerService'; 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -2492,7 +2492,7 @@ function App() {
   const [registerFormData, setRegisterFormData] = useState({ fullName: '', email: '', password: '', confirmPassword: '' });
   const menuItems = ["Home", "Customer Service", "Request a quote"];
   const scrollRef = useRef(null);
-
+const [showCustomerService, setShowCustomerService] = useState(false);
   const handleGoToRegister = () => setAuthMode('register');
   const handleBackToLogin = () => setAuthMode('login');
 
@@ -2614,7 +2614,7 @@ function App() {
     setPublicTrackingData(null);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/shipments/track/${trackingNumberInput.trim()}`);
+      const response = await fetch(`https://sewaro-backend.onrender.com/api/shipments/track/${trackingNumberInput.trim()}`);
       if (!response.ok) {
         throw new Error(`Tracking reference "${trackingNumberInput}" not found. Please enter a valid reference ID.`);
       }
@@ -2635,7 +2635,7 @@ function App() {
     setScanError('');
 
     try {
-      const response = await fetch(`http://localhost:5000/api/shipments/track/${detectedTrackingId}`);
+      const response = await fetch(`https://sewaro-backend.onrender.com/api/shipments/track/${detectedTrackingId}`);
       if (!response.ok) {
         throw new Error(`Tracking reference # {detectedTrackingId} is not correct. Please enter a valid Tracking number.`);
       }
@@ -2693,15 +2693,17 @@ function App() {
     );
   }
 
+
   return (
     <div className="layout">
       {!isLoggedIn && (
         <Navbar 
           menuItems={menuItems} 
-          onScannerClick={() => { setPublicLabelData(null); setShowQuote(false); setIsScannerOpen(true); }} 
-          onLoginClick={() => { setShowLogin(true); setAuthMode('login'); setIsLoggedIn(false); setPublicLabelData(null); setShowQuote(false); }} 
-          onHomeClick={() => { setShowLogin(false); setIsLoggedIn(false); setAuthMode('login'); setTempEmail(''); setPublicLabelData(null); setPublicTrackingData(null); setShowQuote(false); }}
-          onRequestQuoteClick={() => { setShowQuote(true); setShowLogin(false); setPublicLabelData(null); setPublicTrackingData(null); }}
+          onScannerClick={() => { setPublicLabelData(null); setShowQuote(false); setShowCustomerService(false); setIsScannerOpen(true); }} 
+          onLoginClick={() => { setShowLogin(true); setAuthMode('login'); setIsLoggedIn(false); setPublicLabelData(null); setShowQuote(false); setShowCustomerService(false); }} 
+          onHomeClick={() => { setShowLogin(false); setIsLoggedIn(false); setAuthMode('login'); setTempEmail(''); setPublicLabelData(null); setPublicTrackingData(null); setShowQuote(false); setShowCustomerService(false); }}
+          onRequestQuoteClick={() => { setShowQuote(true); setShowLogin(false); setPublicLabelData(null); setPublicTrackingData(null); setShowCustomerService(false); }}
+          onCustomerServiceClick={() => { setShowCustomerService(true); setShowQuote(false); setShowLogin(false); setPublicLabelData(null); setPublicTrackingData(null); }}
         />
       )}
 
@@ -2718,7 +2720,10 @@ function App() {
         </div>
       )}
       
-      {showQuote ? (
+      {/* 🚀 MAIN CONTENT VIEW ROUTER */}
+      {showCustomerService ? (
+        <CustomerService onBackClick={() => setShowCustomerService(false)} />
+      ) : showQuote ? (
         <Quote onBackHome={() => setShowQuote(false)} />
       ) : publicLabelData ? (
         <div className="public-label-viewer" style={{ padding: '40px 20px', backgroundColor: '#f1f3f5', minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -2763,7 +2768,7 @@ function App() {
                   maxWidth: '520px',
                   width: '90%',
                   margin: '25px auto 0 auto',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+                  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.15)',
                   boxSizing: 'border-box'
                 }}>
                   <input 
@@ -2778,7 +2783,7 @@ function App() {
                       padding: '12px 20px',
                       fontSize: '15px',
                       borderRadius: '30px 0 0 30px',
-                      color: '#000000'
+                      color: '#333'
                     }}
                   />
                   <button 
@@ -2796,13 +2801,11 @@ function App() {
                       transition: 'background 0.2s',
                       whiteSpace: 'nowrap'
                     }}
-                  >
-                    {isSearchingTrack ? 'Tracking...' : 'Track'}
-                  </button>
+                  />
                 </form>
 
                 {trackSearchError && (
-                  <div style={{ marginTop: '15px', color: '#ff8787', fontWeight: 'bold', fontSize: '14px' }}>
+                  <div style={{ marginTop: '15px', color: '#d6dc1c', fontWeight: 'bold', fontSize: '14px' }}>
                     ⚠️ {trackSearchError}
                   </div>
                 )}
@@ -3020,7 +3023,7 @@ function App() {
                 <div className="footer-map">
                   <iframe 
                     title="Sewa Logistics Location"
-                    src="https://maps.google.com/maps?q=Kathmandu,Nepal&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3491.0943471929686!2d85.34781241086367!3d27.70213112562245!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb1963398eb051%3A0x60b70a200d3f7e25!2sNamaste%20Sewaro%20Travels%20%26%20Tours%20Pvt.Ltd!5e1!3m2!1sen!2snp!4v1779859656600!5m2!1sen!2snp" 
                     width="100%" 
                     height="150" 
                     style={{ border: 0, borderRadius: "8px", marginTop: "15px" }} 
