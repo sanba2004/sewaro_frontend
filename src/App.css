@@ -605,7 +605,7 @@ body,
   color: #fff;
   border: none;
   padding: 4px 12px;
-  /* borderRadius: 4px; */
+  borderRadius: 4px;
   cursor: pointer;
 }
 
@@ -1057,54 +1057,3 @@ html, body {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
-/* ==========================================================================
-   🖥️ Desktop Views (Default style for laptop/monitors)
-   ========================================================================== */
-.hero-title {
-  font-size: 3rem; /* Large, bold headline (approx. 48px) */
-  font-weight: 800;
-  line-height: 1.2;
-  color: #ffffff;
-  margin-bottom: 20px;
-  letter-spacing: -0.5px;
-  text-align: center;
-}
-
-.hero-subtitle {
-  font-size: 1.25rem; /* Clean, highly readable body size (approx. 20px) */
-  line-height: 1.6;
-  color: #f1f3f5;
-  max-width: 600px; /* Restricts line-width so it doesn't stretch awkwardly across wide screens */
-  margin: 0 auto; /* Centers the text block horizontally */
-  text-align: center;
-}
-
-/* ==========================================================================
-   📱 Mobile Viewports (Screens 768px wide and smaller)
-   ========================================================================== */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2rem; /* Smoothly drops headline down to 32px to fit mobile screens perfectly */
-    margin-bottom: 12px;
-    letter-spacing: 0;
-    padding: 0 10px; /* Prevents text from touching edge of screen */
-  }
-
-  .hero-subtitle {
-    font-size: 1rem; /* Drops down to base size (16px) so it doesn't crowd mobile space */
-    line-height: 1.5;
-    max-width: 100%; /* Allows paragraph to use full safe container layout on mobile phones */
-    padding: 0 15px;
-  }
-}
-
-/* ==========================================================================
-   🎛️ Extra Small Screens (Compact phones 480px wide and smaller)
-   ========================================================================== */
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: 1.75rem; /* ~28px to ensure the phrase fits without looking cluttered on tiny screens */
-  }
-}
-
-

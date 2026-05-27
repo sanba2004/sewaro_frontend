@@ -2784,25 +2784,28 @@ const [showCustomerService, setShowCustomerService] = useState(false);
                       padding: '12px 20px',
                       fontSize: '15px',
                       borderRadius: '30px 0 0 30px',
-                      color: '#333'
+                      color: '#fffcfc'
                     }}
                   />
                   <button 
-                    type="submit" 
-                    disabled={isSearchingTrack}
-                    style={{
-                      background: '#0056b3',
-                      color: '#fff',
-                      border: 'none',
-                      padding: '12px 28px',
-                      borderRadius: '25px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      fontSize: '15px',
-                      transition: 'background 0.2s',
-                      whiteSpace: 'nowrap'
-                    }}
-                  />
+  type="submit" 
+  disabled={isSearchingTrack}
+  style={{
+    background: '#0056b3',
+    color: '#fff',
+    border: 'none',
+    padding: '12px 28px',
+    borderRadius: '25px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    fontSize: '15px',
+    transition: 'background 0.2s',
+    whiteSpace: 'nowrap'
+  }}
+>
+  {/* 🚀 Put the label text inside here instead of self-closing the tag */}
+  {isSearchingTrack ? 'Searching...' : 'Track Now'}
+</button>
                 </form>
 
                 {trackSearchError && (
