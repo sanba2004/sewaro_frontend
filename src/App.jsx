@@ -2456,10 +2456,10 @@ import VerifyOTP from './views/VerifyOTP';
 import SuccessModal from './components/SuccessModal';
 import BarcodeScannerModal from './components/BarcodeScannerModal'; 
 import ShippingLabel from './views/ShippingLabel'; 
-import secureImg from './assets/SECURE.png';
-import fastServiceImg from './assets/FAST SERVICE.PNG';
-import reliableImg from './assets/RELIABLE.PNG';
-import affordableImg from './assets/AFFORDABLE.png';
+import secureImg from './assets/secure.png';
+import fastServiceImg from './assets/fast_service.png';
+import reliableImg from './assets/reliable.png';
+import affordableImg from './assets/affordable.png';
 
 import airFreightImg from './assets/airfreight.png';
 import cargoStorageImg from './assets/cargostorage.png';
