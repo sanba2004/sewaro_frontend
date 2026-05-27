@@ -605,7 +605,7 @@ body,
   color: #fff;
   border: none;
   padding: 4px 12px;
-  borderRadius: 4px;
+  /* borderRadius: 4px; */
   cursor: pointer;
 }
 

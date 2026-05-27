@@ -75,7 +75,7 @@
   gap: 6px;
   font-weight: bold;
   color: #000;
-  fontSize: '13px';
+  /* fontSize: '13px'; */
   transition: background 0.2s ease;
 }
 
