@@ -2456,14 +2456,15 @@ import VerifyOTP from './views/VerifyOTP';
 import SuccessModal from './components/SuccessModal';
 import BarcodeScannerModal from './components/BarcodeScannerModal'; 
 import ShippingLabel from './views/ShippingLabel'; 
-import secureImg from './assets/secure.png';
-import fastServiceImg from './assets/fast_service.png';
-import reliableImg from './assets/reliable.png';
-import affordableImg from './assets/affordable.png';
 
-import airFreightImg from './assets/airfreight.png';
-import cargoStorageImg from './assets/cargostorage.png';
-import landTransportImg from './assets/landtransport.png';
+import secureimg from './assets/secure.png';
+import fastserviceimg from './assets/fast_service.png';
+import reliableimg from './assets/reliable.png';
+import affordableimg from './assets/affordable.png';
+
+import airfreightimg from './assets/airfreight.png';
+import cargostorageimg from './assets/cargostorage.png';
+import landtransportimg from './assets/landtransport.png';
 
 import Quote from './views/Quote';
 import CustomerService from './components/CustomerService'; 
@@ -2904,7 +2905,7 @@ const [showCustomerService, setShowCustomerService] = useState(false);
                 <div className="services-slider" ref={scrollRef}>
                   <div className="service-card">
                     <div className="service-img-wrapper">
-                      <img src={airFreightImg} alt="Air Freight" />
+                      <img src={airfreightimg} alt="Air Freight" />
                     </div>
                     <div className="service-info">
                       <h4>Air Freight Services</h4>
@@ -2914,7 +2915,7 @@ const [showCustomerService, setShowCustomerService] = useState(false);
 
                   <div className="service-card">
                     <div className="service-img-wrapper">
-                      <img src={landTransportImg} alt="Land Transport & Courier" />
+                      <img src={landtransportimg} alt="Land Transport & Courier" />
                     </div>
                     <div className="service-info">
                       <h4>Land Transport & Courier</h4>
@@ -2924,7 +2925,7 @@ const [showCustomerService, setShowCustomerService] = useState(false);
 
                   <div className="service-card">
                     <div className="service-img-wrapper">
-                      <img src={cargoStorageImg} alt="Cargo Storage" />
+                      <img src={cargostorageimg} alt="Cargo Storage" />
                     </div>
                     <div className="service-info">
                       <h4>Secure Cargo Storage</h4>
@@ -2943,7 +2944,7 @@ const [showCustomerService, setShowCustomerService] = useState(false);
           <section className="services-showcase-container">
             <div className="services-showcase-row">
               <div className="services-showcase-image-wrapper">
-                <img src={secureImg} alt="Secure Handling" />
+                <img src={secureimg} alt="Secure Handling" />
               </div>
               <div className="services-card-wrapper">
                 <span className="services-mini-badge">🛡️ SECURE STORAGE</span>
@@ -2958,7 +2959,7 @@ const [showCustomerService, setShowCustomerService] = useState(false);
 
             <div className="services-showcase-row row-reverse">
               <div className="services-showcase-image-wrapper">
-                <img src={fastServiceImg} alt="Fast Service" />
+                <img src={fastserviceimg} alt="Fast Service" />
               </div>
               <div className="services-card-wrapper">
                 <span className="services-mini-badge">⏱️ EXPRESS DELIVERY</span>
@@ -2973,7 +2974,7 @@ const [showCustomerService, setShowCustomerService] = useState(false);
 
             <div className="services-showcase-row">
               <div className="services-showcase-image-wrapper">
-                <img src={reliableImg} alt="Reliable Support" />
+                <img src={reliableimg} alt="Reliable Support" />
               </div>
               <div className="services-card-wrapper">
                 <span className="services-mini-badge">📞 24/7 AVAILABILITY</span>
@@ -2988,7 +2989,7 @@ const [showCustomerService, setShowCustomerService] = useState(false);
 
             <div className="services-showcase-row row-reverse">
               <div className="services-showcase-image-wrapper">
-                <img src={affordableImg} alt="Affordable Rates" />
+                <img src={affordableimg} alt="Affordable Rates" />
               </div>
               <div className="services-card-wrapper">
                 <span className="services-mini-badge">💰 COST EFFECTIVE</span>
