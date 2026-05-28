@@ -973,24 +973,7 @@ body,
 }
 
 /* Mobile Responsive Optimization fallback */
-@media (max-width: 768px) {
-  .services-showcase-row,
-  .services-showcase-container .services-showcase-row:nth-child(even) {
-    flex-direction: column !important; /* Stack vertically cleanly on phones */
-    gap: 20px;
-  }
 
-  .services-showcase-image-wrapper {
-    max-width: 80%;
-  }
-
-  .services-card-wrapper,
-  .services-showcase-container .services-showcase-row:nth-child(even) .services-card-wrapper {
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-  }
-}
 
 
 /* 🎯 THE GRID WRAPPER */
@@ -1059,34 +1042,74 @@ html, body {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+/* 📱 Native Mobile Media Queries Overlay */
 @media screen and (max-width: 600px) {
   /* Keeps the horizontal layout and ensures everything stays inside the white capsule */
   .search-track-form {
     display: flex !important;
-    flex-direction: row !important; /* Forces them to stay side-by-side */
-    background-color: #ffffff !important; /* Keeps the capsule background white */
-    border-radius: 30px !important; /* Maintains the rounded capsule look */
-    padding: 6px !important; /* Creates a clean internal cushion around the button */
-    width: 95%;
-    max-width: 450px;
-    margin: 20px auto 0 auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    flex-direction: row !important;      /* Forces them to stay perfectly side-by-side */
+    background-color: #ffffff !important; /* Keeps the capsule background pure white */
+    border-radius: 30px !important;       /* Maintains the rounded capsule look */
+    padding: 4px !important;              /* Sleek, thin internal cushion around the layout */
+    width: 95% !important;
+    max-width: 450px !important;
+    margin: 20px auto 0 auto !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
+    justify-content: space-between !important; /* Locks button to the right, stretching input */
   }
 
-  /* Shrinks the textbox text down slightly so it doesn't push the button out */
+  /* Shrinks the textbox text down slightly so it yields space for the button */
   .track-input-field {
+    flex: 1 !important;                   /* Forces input to shrink so button stays small */
+    min-width: 0 !important;              /* Keeps input from pushing past container bounds */
     font-size: 13px !important; 
-    padding: 10px 12px !important;
-    text-align: left !important; /* Left aligns text to maximize horizontal space */
+    padding: 8px 12px !important;
+    text-align: left !important;          /* Maximizes space for long digits */
     border-radius: 30px 0 0 30px !important;
-    min-width: 0; /* Prevents input from blowing out the flex container */
   }
 
   /* Adjusts the button sizing to fit perfectly inside the capsule beside the text */
   .track-submit-btn {
+    flex: 0 0 auto !important;            /* Absolutely prevents button from stretching wide */
     font-size: 13px !important;
-    padding: 10px 18px !important; /* Compact padding for mobile thumbs */
-    border-radius: 25px !important; /* Clean rounded edges inside the white container */
-    white-space: nowrap !important; /* Prevents the 'Track Now' text from breaking into two rows */
+    padding: 8px 16px !important;         /* Perfectly compact mobile width padding */
+    border-radius: 25px !important;       /* Clean standalone rounded edges inside white field */
+    white-space: nowrap !important;       /* Forces 'Track' onto a single row line */
+    width: auto !important;               /* FIX: Overrides the 100% width glitch causing bloating */
+  }
+
+  /* --- Keeping your other structural timeline rules intact --- */
+  .card-header-status-block {
+    text-align: left;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .tracking-timeline-flow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding-left: 20px;
+  }
+
+  .timeline-progress-bar {
+    top: 15px;
+    left: 35px;
+    right: auto;
+    width: 4px;
+    height: calc(100% - 30px);
+  }
+
+  .timeline-step-node {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+  }
+
+  .node-label {
+    margin-top: 0;
+    text-align: left;
+    font-size: 14px;
   }
 }

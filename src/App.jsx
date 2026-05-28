@@ -2813,14 +2813,15 @@ const [showCustomerService, setShowCustomerService] = useState(false);
   style={{
     display: 'flex',
     backgroundColor: '#ffffff',
-    padding: '6px',
+    padding: '4px', /* 🌟 Slightly snugger padding for mobile symmetry */
     borderRadius: '30px',
     maxWidth: '520px',
     width: '90%',
     margin: '25px auto 0 auto',
     boxShadow: '0 4px 15px rgba(0, 0, 0, 0.15)',
     boxSizing: 'border-box',
-    alignItems: 'center' /* 🌟 Ensures vertical alignment stays centered */
+    alignItems: 'center',
+    justifyContent: 'space-between' /* 🚀 Pulls the button clean to the right edge */
   }}
 >
   <input 
@@ -2830,11 +2831,11 @@ const [showCustomerService, setShowCustomerService] = useState(false);
     value={trackingNumberInput}
     onChange={(e) => setTrackingNumberInput(e.target.value)}
     style={{
-      flex: '1 1 auto', /* 🌟 Tells the input field to greedily grow and occupy all available space */
-      minWidth: '0',    /* 🚀 CRUCIAL: Allows flexbox to shrink the input properly on tiny phone screens */
+      flex: '1',          /* 🚀 FIX: Allows input to fluidly shrink without breaking layout */
+      minWidth: '0',      
       border: 'none',
       outline: 'none',
-      padding: '10px 15px',
+      padding: '8px 12px', /* 🌟 Sleeker padding to maximize room */
       fontSize: '14px',
       borderRadius: '30px 0 0 30px',
       color: '#1a1a1a' 
@@ -2845,20 +2846,20 @@ const [showCustomerService, setShowCustomerService] = useState(false);
     className="track-submit-btn"
     disabled={isSearchingTrack}
     style={{
-      flex: '0 0 auto',   /* 🌟 Prevents the button from growing or hogging space */
+      flex: '0 0 auto',   
       background: '#0056b3',
       color: '#fff',
       border: 'none',
-      padding: '10px 18px', /* 🌟 Reduced horizontal padding so it looks sleek on mobile */
+      padding: '10px 20px', /* 🌟 Keeps the button small, uniform, and compact */
       borderRadius: '25px',
       fontWeight: 'bold',
       cursor: 'pointer',
-      fontSize: '14px',    /* 🌟 Kept clean and legible without ballooning */
+      fontSize: '14px',    
       transition: 'background 0.2s',
       whiteSpace: 'nowrap'
     }}
   >
-    {isSearchingTrack ? '...' : 'Track'} {/* 🌟 'Track' is much cleaner for mobile space than 'Track Now' */}
+    {isSearchingTrack ? '...' : 'Track'}
   </button>
 </form>
 

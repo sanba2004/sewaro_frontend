@@ -877,9 +877,9 @@ const confirmShipment = async () => {
 
   try {
     let finalFrontUrl = senderInfo.idFrontUrl || "";
-    let finalReceiverUrl = receiverInfo.receiverIdUrl || ""; // 🌟 Updated fallback from receiverInfo cache
+    let finalReceiverUrl = receiverInfo.receiverIdUrl || ""; 
 
-    // 1. AUTO-UPLOAD (Front File - UNTOUCHED)
+    // 1. AUTO-UPLOAD (Front File)
     if (stagedFiles.frontFile) {
       const fileName = `${Date.now()}-front.${stagedFiles.frontFile.name.split('.').pop()}`;
       const { data, error } = await supabase.storage.from('documents').upload(`sender-ids/${fileName}`, stagedFiles.frontFile);
@@ -888,7 +888,7 @@ const confirmShipment = async () => {
       finalFrontUrl = publicUrl;
     }
 
-    // 🌟 AUTO-UPLOAD (Receiver File - CHANGED FROM BACKFILE)
+    // AUTO-UPLOAD (Receiver File)
     if (stagedFiles.receiverFile) {
       const fileName = `${Date.now()}-receiver.${stagedFiles.receiverFile.name.split('.').pop()}`;
       const { data, error } = await supabase.storage.from('documents').upload(`receiver-ids/${fileName}`, stagedFiles.receiverFile);
@@ -904,18 +904,24 @@ const confirmShipment = async () => {
       return;
     }
 
-    // 🌟 STEP 3 CALCULATION OVERWRITE: Determine if we use the edited browser cache value or fallback total
-    // Calculate totalPayable dynamically to match step 5 calculations exactly if manual override is absent
-    const totalPayable = packages.reduce((sum, pkg) => {
-      const rawWeight = parseFloat(pkg.total_weight) || 0;
-      const chgWt = typeof getChargeableWeight === 'function' ? getChargeableWeight(rawWeight) : rawWeight;
-      const rate = typeof getPricePerKg === 'function' ? getPricePerKg(chgWt) : 0;
-      const doorToDoorCharge = pkg.doorToDoor ? 500 : 0;
-      return sum + (chgWt * rate) + doorToDoorCharge;
-    }, 0);
+    // 🌟 ROLE SECURITY CHECK: Grab role from localStorage to authenticate editing permission
+    const storedUser = localStorage.getItem('user');
+    let currentRole = "";
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        currentRole = parsedUser.role || "";
+      } catch (e) {
+        console.error("Failed to safely read stored identity context object:", e);
+      }
+    }
+    const userHasEditingPrivileges = ['admin', 'agent'].includes(currentRole.toLowerCase());
 
-    // Pick manual modification if present, otherwise fall back to system calculations
-    const resolvedFinalPrice = manualPriceOverride !== null ? manualPriceOverride : totalPayable;
+    // 🌟 SECURE PRICE ASSIGNMENT SHORTCUT: 
+    // If they are authorized and typed an override, use it. Otherwise, use system billing total.
+    const resolvedFinalPrice = (userHasEditingPrivileges && manualPriceOverride !== null) 
+      ? manualPriceOverride 
+      : (billingInfo.total || "0");
 
     // 2. Prepare the payload
     const payload = {
@@ -932,13 +938,13 @@ const confirmShipment = async () => {
         senderState: String(senderInfo.state || ""),
         senderZip: String(senderInfo.zip || ""),
         
-        senderIdFront: String(finalFrontUrl), // 🛑 Kept exactly as you had it
-        receiverIdUrl: String(finalReceiverUrl), // 🌟 Updated key payload property target
+        senderIdFront: String(finalFrontUrl), 
+        receiverIdUrl: String(finalReceiverUrl), 
         
         billingMethod: String(billingInfo.method || ""),
         billingSubtotal: String(billingInfo.subtotal || "0"),
         
-        // 🌟 OVERWRITE HERE: Replaced billingInfo.total with the resolved browser cache price
+        // 🌟 FINALIZED TARGET VALUE OVERWRITE
         billingTotal: String(resolvedFinalPrice),
 
         receiverName: String(receiverInfo.fullName || ""),
@@ -982,9 +988,9 @@ const confirmShipment = async () => {
       alert(`Success! ${result.message || "Shipment Saved"}`);
       
       if (stagedFiles.frontPreview) URL.revokeObjectURL(stagedFiles.frontPreview);
-      if (stagedFiles.receiverPreview) URL.revokeObjectURL(stagedFiles.receiverPreview); // 🌟 Revoke the correct preview pointer
+      if (stagedFiles.receiverPreview) URL.revokeObjectURL(stagedFiles.receiverPreview); 
       
-      // 🌟 CLEAN UP MANUAL OVERWRITE CACHE: Resets price memory back to clean state before resetting wizard step
+      // 🌟 CLEAN UP MANUAL OVERWRITE CACHE AFTER SUCCESS
       if (typeof setManualPriceOverride === 'function') {
          setManualPriceOverride(null);
       }
@@ -1001,7 +1007,6 @@ const confirmShipment = async () => {
     setLoading(false);
   }
 };
-
 
 // reset the form after finishing shipment
   const handleReset = () => {
@@ -2188,7 +2193,7 @@ const confirmShipment = async () => {
                 <p><strong>Weight charge:</strong> {billingInfo.currency || "NPR"} {currentActivePrice.toLocaleString()}</p>
                 
                 {/* 🌟 EDITABLE GRAND TOTAL INPUT SECTION */}
-                <div className="grand-total-row" style={{ margin: '10px 0', padding: '5px 0', borderTop: '1px solid #ccc', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {/* <div className="grand-total-row" style={{ margin: '10px 0', padding: '5px 0', borderTop: '1px solid #ccc', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold' }}>Total: </span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ fontWeight: 'bold' }}>{billingInfo.currency || "NPR"} </span>
@@ -2213,8 +2218,81 @@ const confirmShipment = async () => {
                       }}
                     />
                   </div>
-                </div>
-                
+                </div> */}
+               
+{/* 🌟 ROLE-RESTRICTED GRAND TOTAL SECTION */}
+<div className="grand-total-row" style={{ margin: '10px 0', padding: '5px 0', borderTop: '1px solid #ccc', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  
+  <style>{`
+    .invoice-price-override-field::-webkit-outer-spin-button,
+    .invoice-price-override-field::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .invoice-price-override-field {
+      -moz-appearance: textfield;
+    }
+  `}</style>
+
+  <span style={{ fontWeight: 'bold' }}>Total: </span>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <span style={{ fontWeight: 'bold' }}>{billingInfo.currency || "NPR"} </span>
+    
+    {(() => {
+      // 🌟 Step 1: Check the component prop first (most accurate React state)
+      let currentRole = user?.role || "";
+      
+      // Step 2: Fall back to 'sewa_user' local cache if the prop is empty
+      if (!currentRole) {
+        const storedUser = localStorage.getItem('sewa_user');
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            currentRole = parsedUser.role || "";
+          } catch (e) {
+            console.error("Error parsing user from localStorage", e);
+          }
+        }
+      }
+
+      // 🛡️ Safe string manipulation prevents runtime crashes if role is null/undefined
+      const normalizedRole = String(currentRole || '').toLowerCase().trim();
+      const userHasEditingPrivileges = ['admin', 'agent'].includes(normalizedRole);
+
+      if (userHasEditingPrivileges) {
+        return (
+          <input 
+            type="number"
+            className="invoice-price-override-field"
+            value={manualPriceOverride !== null ? manualPriceOverride : totalPayable}
+            onChange={(e) => {
+              const val = e.target.value;
+              setManualPriceOverride(val === '' ? '' : parseFloat(val));
+            }}
+            style={{
+              width: '140px', 
+              fontWeight: 'bold',
+              border: '1px dashed #0250a3',
+              background: '#fff',
+              padding: '4px 8px', 
+              textAlign: 'right',
+              fontSize: '14px',
+              color: '#0250a3',
+              borderRadius: '3px',
+              outline: 'none'
+            }}
+          />
+        );
+      } else {
+        return (
+          <span style={{ fontWeight: 'bold', fontSize: '14px', paddingRight: '6px' }}>
+            {currentActivePrice.toLocaleString()}
+          </span>
+        );
+      }
+    })()}
+  </div>
+</div>
                 {/* 🌟 Live Tracking QR Component Block */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '15px', padding: '10px', background: '#ffffff', border: '1px solid #ddd', borderRadius: '4px' }}>
                   <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#555', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
