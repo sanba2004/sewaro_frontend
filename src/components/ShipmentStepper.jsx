@@ -1250,7 +1250,7 @@ const confirmShipment = async () => {
       </div>
 
       <div className="input-field">
-        <label>Verification ID*:</label>
+        <label>Verification ID:</label>
         <select 
           value={receiverInfo.idType || ""}
           onChange={(e) => handleReceiverUpdate('idType', e.target.value)} // UPDATED
@@ -1262,7 +1262,7 @@ const confirmShipment = async () => {
       </div>
 <div className="input-field id-upload-section" style={{ gridColumn: '1 / -1', marginTop: '10px', marginBottom: '15px' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
-          Receiver ID Document *:
+          Receiver ID Document :
         </label>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1350,7 +1350,7 @@ const confirmShipment = async () => {
 
       <div className="form-grid-inner" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
         <div className="input-field">
-          <label>State*:</label>
+          <label>State:</label>
           <input 
             type="text" 
             placeholder="Bagmati" 
@@ -1359,7 +1359,7 @@ const confirmShipment = async () => {
           />
         </div>
         <div className="input-field">
-  <label>Zip Code*:</label>
+  <label>Zip Code:</label>
   <input  
     type="text"  
     placeholder="44600"  
