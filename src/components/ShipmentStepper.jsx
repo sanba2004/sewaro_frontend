@@ -94,8 +94,8 @@ const ShipmentStepper = ({userId}) => {
     const fullName = (senderInfo.fullName || '').trim();
     const contactNum = (senderInfo.contactNum || '').trim();
     const country = senderInfo.country || '';
-    const zip = (senderInfo.zip || '').trim();
-    const state = (senderInfo.state || '').trim();
+    //const zip = (senderInfo.zip || '').trim();
+    //const state = (senderInfo.state || '').trim();
     const city = (senderInfo.city || '').trim();
     const address = (senderInfo.address || '').trim();
 
@@ -105,8 +105,8 @@ const ShipmentStepper = ({userId}) => {
     if (!fullName) emptyFields.push("Full Name");
     if (!contactNum) emptyFields.push("Contact Number");
     if (!country) emptyFields.push("Country");
-    if (!zip) emptyFields.push("Zip Code");
-    if (!state) emptyFields.push("State");
+   // if (!zip) emptyFields.push("Zip Code");
+    //if (!state) emptyFields.push("State");
     if (!city) emptyFields.push("City");
     if (!address) emptyFields.push("Full Address");
 
@@ -1180,7 +1180,7 @@ const confirmShipment = async () => {
         </div>
 
         <div className="input-field">
-          <label>Zip Code: *</label>
+          <label>Zip Code: </label>
           <input 
             type="text" 
             value={senderInfo.zip || ""} 
@@ -1189,7 +1189,7 @@ const confirmShipment = async () => {
         </div>
         
         <div className="input-field">
-          <label>State: *</label>
+          <label>State: </label>
           <input 
             type="text" 
             value={senderInfo.state || ""} 
