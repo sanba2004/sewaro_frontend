@@ -114,7 +114,7 @@ export default function ShippingLabel({ previewTrackingId, packages, senderInfo,
         <div style={{ display: 'flex', borderBottom: '2px solid #000000', paddingBottom: '10px' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', paddingRight: '10px', borderRight: '2px solid #000000' }}>
             <h2 style={{ margin: '0 0 2px 0', fontSize: '22px', color: '#040404',fontWeight: '900', letterSpacing: '-0.5px', textTransform: 'uppercase' }}>
-              Sewa Logistics
+              Namaste Sewaro Cargo
             </h2>
             <span style={{ fontSize: '9px', color: '#000000', fontWeight: 'bold' }}>Cargo & Courier Services Worldwide</span>
           </div>
