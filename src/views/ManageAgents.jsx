@@ -179,7 +179,7 @@ const ManageAgents = () => {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/admin/agents/create', {
+      const response = await fetch('https://sewaro-backend.onrender.com/api/admin/agents/create', {
         style: { contentType: 'application/json' },
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -211,7 +211,7 @@ const ManageAgents = () => {
     setSuccessMessage('');
 
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/agents/${agentId}`, {
+      const response = await fetch(`https://sewaro-backend.onrender.com/api/admin/agents/${agentId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       });
