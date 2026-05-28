@@ -2280,7 +2280,21 @@ const confirmShipment = async () => {
       >
         🏷️ Print Label
       </button>
-
+<button 
+    className="back-btn" 
+    onClick={() => setStep(4)} 
+    style={{ 
+      padding: '10px 20px', 
+      cursor: 'pointer', 
+      fontWeight: 'bold', 
+      background: '#6c757d', 
+      color: '#fff', 
+      border: 'none', 
+      borderRadius: '4px' 
+    }}
+  >
+    ⬅️ Back to Step 4
+  </button>
       {/* Pass the state cache downward on confirmation trigger handler */}
       <button 
         className="done-btn" 
