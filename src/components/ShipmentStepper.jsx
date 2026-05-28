@@ -56,6 +56,9 @@ const ShipmentStepper = ({userId}) => {
   const [pricingTiers, setPricingTiers] = useState([]);
 
   const [validationError, setValidationError] = useState('');// Tracks error message content
+
+
+  const [manualPriceOverride, setManualPriceOverride] = useState(null);
   // const handleProceedToStepTwo = (e) => {
   //   e.preventDefault(); // Stop alternative anchor behaviors
     
@@ -757,6 +760,118 @@ const clearImage = (side) => {
 // };
 
 
+// const confirmShipment = async () => {
+//   setLoading(true);
+
+//   try {
+//     let finalFrontUrl = senderInfo.idFrontUrl || "";
+//     let finalReceiverUrl = receiverInfo.receiverIdUrl || ""; // 🌟 Updated fallback from receiverInfo cache
+
+//     // 1. AUTO-UPLOAD (Front File - UNTOUCHED)
+//     if (stagedFiles.frontFile) {
+//       const fileName = `${Date.now()}-front.${stagedFiles.frontFile.name.split('.').pop()}`;
+//       const { data, error } = await supabase.storage.from('documents').upload(`sender-ids/${fileName}`, stagedFiles.frontFile);
+//       if (error) throw new Error("Front ID upload failed");
+//       const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(`sender-ids/${fileName}`);
+//       finalFrontUrl = publicUrl;
+//     }
+
+//     // 🌟 AUTO-UPLOAD (Receiver File - CHANGED FROM BACKFILE)
+//     if (stagedFiles.receiverFile) {
+//       const fileName = `${Date.now()}-receiver.${stagedFiles.receiverFile.name.split('.').pop()}`;
+//       const { data, error } = await supabase.storage.from('documents').upload(`receiver-ids/${fileName}`, stagedFiles.receiverFile);
+//       if (error) throw new Error("Receiver ID upload failed");
+//       const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(`receiver-ids/${fileName}`);
+//       finalReceiverUrl = publicUrl;
+//     }
+
+//     const verifiedUserId = userId ? Number(userId) : null;
+//     if (!verifiedUserId || isNaN(verifiedUserId)) {
+//       alert("Error: Active User Session ID could not be identified. Please try logging in again.");
+//       setLoading(false);
+//       return;
+//     }
+
+//     // 2. Prepare the payload
+//     const payload = {
+//       userId: verifiedUserId, 
+//       shipment: {
+//         trackingId: String(shipmentId || ""),
+//         senderType: String(senderInfo.senderType || ""),
+//         senderName: String(senderInfo.fullName || ""),
+//         senderCity: String(senderInfo.city || ""),
+//         senderIdType: String(senderInfo.idType || ""),
+//         senderAddress: String(senderInfo.address || ""),
+//         senderContact: String(senderInfo.contactNum || ""),
+//         senderCountry: String(senderInfo.country || ""),
+//         senderState: String(senderInfo.state || ""),
+//         senderZip: String(senderInfo.zip || ""),
+        
+//         senderIdFront: String(finalFrontUrl), // 🛑 Kept exactly as you had it
+//         receiverIdUrl: String(finalReceiverUrl), // 🌟 Updated key payload property target
+        
+//         billingMethod: String(billingInfo.method || ""),
+//         billingSubtotal: String(billingInfo.subtotal || "0"),
+//         billingTotal: String(billingInfo.total || "0"),
+
+//         receiverName: String(receiverInfo.fullName || ""),
+//         receiverContact: String(receiverInfo.contactNumber || ""),
+//         receiverCountry: String(receiverInfo.country || ""),
+//         receiverCity: String(receiverInfo.city || ""),
+//         receiverAddress: String(receiverInfo.fullAddress || ""),
+//         receiverState: String(receiverInfo.state || ""),
+//         receiverZip: String(receiverInfo.zip || ""),
+//         receiverLandmark: String(receiverInfo.landmark || ""),
+
+//         weight: String(calculateGrandTotal() || "0"),
+//         date: String(new Date().toISOString()),
+//       },
+//       packages: packages.map((pkg) => ({
+//         packageId: String(pkg.id || Date.now()),
+//         profile: String(pkg.profile || ""),
+//         type: String(pkg.type || "Box"),
+//         hasHollow: String(pkg.hasHollow || "No"),
+//         dims: String(`${pkg.dims?.l || 0}x${pkg.dims?.w || 0}x${pkg.dims?.h || 0}`),
+//         cbm: String(pkg.cbm || "0"),
+//         items: pkg.items.map((item) => ({
+//           desc: String(item.description || ""),
+//           weight: String(item.weight || "0"),
+//           qty: Number(item.qty || 1), 
+//           price: String(item.price || "0"),
+//           hsCode: String(item.hsCode || ""),
+//         })),
+//       })),
+//     };
+
+//     // 3. Network Request to your MySQL Backend
+//     const response = await fetch('https://sewaro-backend.onrender.com/api/shipments/confirm', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(payload),
+//     });
+
+//     if (response.ok) {
+//       const result = await response.json();
+//       alert(`Success! ${result.message || "Shipment Saved"}`);
+      
+//       if (stagedFiles.frontPreview) URL.revokeObjectURL(stagedFiles.frontPreview);
+//       if (stagedFiles.receiverPreview) URL.revokeObjectURL(stagedFiles.receiverPreview); // 🌟 Revoke the correct preview pointer
+      
+//       handleReset(); 
+//     } else {
+//       const errorData = await response.json();
+//       alert(`Error: ${errorData.error}`);
+//     }
+//   } catch (err) {
+//     console.error("Network Failure:", err);
+//     alert("Could not connect to the server.");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+
+
 const confirmShipment = async () => {
   setLoading(true);
 
@@ -789,6 +904,19 @@ const confirmShipment = async () => {
       return;
     }
 
+    // 🌟 STEP 3 CALCULATION OVERWRITE: Determine if we use the edited browser cache value or fallback total
+    // Calculate totalPayable dynamically to match step 5 calculations exactly if manual override is absent
+    const totalPayable = packages.reduce((sum, pkg) => {
+      const rawWeight = parseFloat(pkg.total_weight) || 0;
+      const chgWt = typeof getChargeableWeight === 'function' ? getChargeableWeight(rawWeight) : rawWeight;
+      const rate = typeof getPricePerKg === 'function' ? getPricePerKg(chgWt) : 0;
+      const doorToDoorCharge = pkg.doorToDoor ? 500 : 0;
+      return sum + (chgWt * rate) + doorToDoorCharge;
+    }, 0);
+
+    // Pick manual modification if present, otherwise fall back to system calculations
+    const resolvedFinalPrice = manualPriceOverride !== null ? manualPriceOverride : totalPayable;
+
     // 2. Prepare the payload
     const payload = {
       userId: verifiedUserId, 
@@ -809,7 +937,9 @@ const confirmShipment = async () => {
         
         billingMethod: String(billingInfo.method || ""),
         billingSubtotal: String(billingInfo.subtotal || "0"),
-        billingTotal: String(billingInfo.total || "0"),
+        
+        // 🌟 OVERWRITE HERE: Replaced billingInfo.total with the resolved browser cache price
+        billingTotal: String(resolvedFinalPrice),
 
         receiverName: String(receiverInfo.fullName || ""),
         receiverContact: String(receiverInfo.contactNumber || ""),
@@ -854,6 +984,11 @@ const confirmShipment = async () => {
       if (stagedFiles.frontPreview) URL.revokeObjectURL(stagedFiles.frontPreview);
       if (stagedFiles.receiverPreview) URL.revokeObjectURL(stagedFiles.receiverPreview); // 🌟 Revoke the correct preview pointer
       
+      // 🌟 CLEAN UP MANUAL OVERWRITE CACHE: Resets price memory back to clean state before resetting wizard step
+      if (typeof setManualPriceOverride === 'function') {
+         setManualPriceOverride(null);
+      }
+
       handleReset(); 
     } else {
       const errorData = await response.json();
@@ -866,117 +1001,6 @@ const confirmShipment = async () => {
     setLoading(false);
   }
 };
-
-// const confirmShipment = async () => {
-//   setLoading(true);
-
-//   try {
-//     let finalFrontUrl = senderInfo.idFrontUrl || "";
-//     let finalBackUrl = senderInfo.idBackUrl || "";
-
-//     // 1. AUTO-UPLOAD: If there are staged files that haven't been uploaded yet
-//     if (stagedFiles.frontFile) {
-//       const fileName = `${Date.now()}-front.${stagedFiles.frontFile.name.split('.').pop()}`;
-//       const { data, error } = await supabase.storage.from('documents').upload(`sender-ids/${fileName}`, stagedFiles.frontFile);
-//       if (error) throw new Error("Front ID upload failed");
-//       const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(`sender-ids/${fileName}`);
-//       finalFrontUrl = publicUrl;
-//     }
-
-//     if (stagedFiles.backFile) {
-//       const fileName = `${Date.now()}-back.${stagedFiles.backFile.name.split('.').pop()}`;
-//       const { data, error } = await supabase.storage.from('documents').upload(`sender-ids/${fileName}`, stagedFiles.backFile);
-//       if (error) throw new Error("Back ID upload failed");
-//       const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(`sender-ids/${fileName}`);
-//       finalBackUrl = publicUrl;
-//     }
-
-//     // Safety check: If userId is completely missing from props/state, protect the database
-//     const verifiedUserId = userId ? Number(userId) : null;
-//     if (!verifiedUserId || isNaN(verifiedUserId)) {
-//       alert("Error: Active User Session ID could not be identified. Please try logging in again.");
-//       setLoading(false);
-//       return;
-//     }
-
-//     // 2. Prepare the payload
-//     const payload = {
-//       userId: verifiedUserId, // Safe parsed absolute integer
-//       shipment: {
-//         trackingId: String(shipmentId || ""),
-//         senderType: String(senderInfo.senderType || ""),
-//         senderName: String(senderInfo.fullName || ""),
-//         senderCity: String(senderInfo.city || ""),
-//         senderIdType: String(senderInfo.idType || ""),
-//         senderAddress: String(senderInfo.address || ""),
-//         senderContact: String(senderInfo.contactNum || ""),
-//         senderCountry: String(senderInfo.country || ""),
-//         senderState: String(senderInfo.state || ""),
-//         senderZip: String(senderInfo.zip || ""),
-        
-//         // FIXED: Now accurately passes the finalized cloud document target links
-//         senderIdFront: String(finalFrontUrl), 
-//         senderIdBack: String(finalBackUrl),
-        
-//         billingMethod: String(billingInfo.method || ""),
-//         billingSubtotal: String(billingInfo.subtotal || "0"),
-//         billingTotal: String(billingInfo.total || "0"),
-
-//         receiverName: String(receiverInfo.fullName || ""),
-//         receiverContact: String(receiverInfo.contactNumber || ""),
-//         receiverCountry: String(receiverInfo.country || ""),
-//         receiverCity: String(receiverInfo.city || ""),
-//         receiverAddress: String(receiverInfo.fullAddress || ""),
-//         receiverState: String(receiverInfo.state || ""),
-//         receiverZip: String(receiverInfo.zip || ""),
-//         receiverLandmark: String(receiverInfo.landmark || ""),
-
-//         weight: String(calculateGrandTotal() || "0"),
-//         date: String(new Date().toISOString()),
-//       },
-//       packages: packages.map((pkg) => ({
-//         packageId: String(pkg.id || Date.now()),
-//         profile: String(pkg.profile || ""),
-//         type: String(pkg.type || "Box"),
-//         hasHollow: String(pkg.hasHollow || "No"),
-//         dims: String(`${pkg.dims?.l || 0}x${pkg.dims?.w || 0}x${pkg.dims?.h || 0}`),
-//         cbm: String(pkg.cbm || "0"),
-//         items: pkg.items.map((item) => ({
-//           desc: String(item.description || ""),
-//           weight: String(item.weight || "0"),
-//           qty: Number(item.qty || 1), // Pass numeric configurations natively to align input hooks
-//           price: String(item.price || "0"),
-//           hsCode: String(item.hsCode || ""),
-//         })),
-//       })),
-//     };
-
-//     // 3. Network Request to your MySQL Backend
-//     const response = await fetch('http://localhost:5000/api/shipments/confirm', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify(payload),
-//     });
-
-//     if (response.ok) {
-//       const result = await response.json();
-//       alert(`Success! ${result.message || "Shipment Saved"}`);
-      
-//       if (stagedFiles.frontPreview) URL.revokeObjectURL(stagedFiles.frontPreview);
-//       if (stagedFiles.backPreview) URL.revokeObjectURL(stagedFiles.backPreview);
-      
-//       handleReset(); 
-//     } else {
-//       const errorData = await response.json();
-//       alert(`Error: ${errorData.error}`);
-//     }
-//   } catch (err) {
-//     console.error("Network Failure:", err);
-//     alert("Could not connect to the server.");
-//   } finally {
-//     setLoading(false);
-//   }
-// };
 
 
 // reset the form after finishing shipment
@@ -2048,6 +2072,29 @@ const confirmShipment = async () => {
 
 {step === 5 && (
   <div className="invoice-display-container">
+    {/* 🖨️ CSS Print Layout Injection: Automatically strips borders and lines when printing */}
+    <style>{`
+      @media print {
+        .no-print { display: none !important; }
+        .invoice-price-override-field {
+          border: none !important;
+          background: transparent !important;
+          padding: 0 !important;
+          width: auto !important;
+          font-weight: bold !important;
+          color: #000 !important;
+          text-align: right !important;
+          appearance: textfield !important;
+          -moz-appearance: textfield !important;
+        }
+        .invoice-price-override-field::-webkit-outer-spin-button,
+        .invoice-price-override-field::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+      }
+    `}</style>
+
     <div id="printable-invoice" className="invoice-card">
       
       {/* 🧾 Document Title & Meta Block */}
@@ -2095,7 +2142,7 @@ const confirmShipment = async () => {
         <tbody>
           {packages.flatMap((pkg, pkgIdx) => 
             (pkg.items || []).map((item, itemIdx) => (
-              <tr key={`${pkg.id}-${itemIdx}`}>
+              <tr key={`${pkg.id || pkgIdx}-${itemIdx}`}>
                 <td>{itemIdx + 1}</td>
                 <td className="text-left">
                   {item.description || `${pkg.profile || "Cargo Item"} (${pkg.type || "Parcel"})`}
@@ -2115,36 +2162,57 @@ const confirmShipment = async () => {
         <div className="comments-block" style={{ flex: 1.2 }}>
           <div className="invoice-section-banner" style={{ fontSize: '11px', padding: '4px 8px' }}>Comments</div>
           <ul>
-            {/* Legal compliance comments can safely go here */}
+            <li>Declared package parameters are subject to regular weight re-evaluation audits.</li>
           </ul>
         </div>
 
-        {/* Right Side Column: Financial Aggregations using the manually entered weight values */}
+        {/* Right Side Column: Financial Aggregations */}
         <div className="financials-block" style={{ flex: 0.8, background: '#f4f6f8', padding: '15px', borderRadius: '4px', boxSizing: 'border-box' }}>
           {(() => {
-            // 🌟 FIXED: Target custom manual package weights for overall sum compilation
-            const aggregateWeight = packages.reduce((sum, p) => {
-              return sum + (parseFloat(p.total_weight) || 0);
-            }, 0);
+            const aggregateWeight = packages.reduce((sum, p) => sum + (parseFloat(p.total_weight) || 0), 0);
 
-            // 🌟 FIXED: Recalculate financial breakdown using custom total_weight records
             const totalPayable = packages.reduce((sum, pkg) => {
               const rawWeight = parseFloat(pkg.total_weight) || 0;
               const chgWt = typeof getChargeableWeight === 'function' ? getChargeableWeight(rawWeight) : rawWeight;
               const rate = typeof getPricePerKg === 'function' ? getPricePerKg(chgWt) : 0;
               const doorToDoorCharge = pkg.doorToDoor ? 500 : 0;
-              
               return sum + (chgWt * rate) + doorToDoorCharge;
             }, 0);
+
+            // 🌟 Use the edited layout price if present, otherwise fall back to system calculations
+            const currentActivePrice = manualPriceOverride !== null ? manualPriceOverride : totalPayable;
 
             return (
               <>
                 <p><strong>Total Weight:</strong> {aggregateWeight.toFixed(2)} Kg</p>
-                <p><strong>Weight charge:</strong> {billingInfo.currency || "NPR"} {totalPayable.toLocaleString()}</p>
+                <p><strong>Weight charge:</strong> {billingInfo.currency || "NPR"} {currentActivePrice.toLocaleString()}</p>
                 
-                <div className="grand-total-row" style={{ margin: '10px 0', padding: '5px 0', borderTop: '1px solid #ccc', borderBottom: '1px solid #ccc' }}>
+                {/* 🌟 EDITABLE GRAND TOTAL INPUT SECTION */}
+                <div className="grand-total-row" style={{ margin: '10px 0', padding: '5px 0', borderTop: '1px solid #ccc', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontWeight: 'bold' }}>Total: </span>
-                  <span style={{ fontWeight: 'bold' }}>{billingInfo.currency || "NPR"} {totalPayable.toLocaleString()}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontWeight: 'bold' }}>{billingInfo.currency || "NPR"} </span>
+                    <input 
+                      type="number"
+                      className="invoice-price-override-field"
+                      value={manualPriceOverride !== null ? manualPriceOverride : totalPayable}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setManualPriceOverride(val === '' ? '' : parseFloat(val));
+                      }}
+                      style={{
+                        width: '100px',
+                        fontWeight: 'bold',
+                        border: '1px dashed #0250a3',
+                        background: '#fff',
+                        padding: '2px 6px',
+                        textAlign: 'right',
+                        fontSize: '14px',
+                        color: '#0250a3',
+                        borderRadius: '3px'
+                      }}
+                    />
+                  </div>
                 </div>
                 
                 {/* 🌟 Live Tracking QR Component Block */}
@@ -2213,7 +2281,12 @@ const confirmShipment = async () => {
         🏷️ Print Label
       </button>
 
-      <button className="done-btn" onClick={() => confirmShipment(previewTrackingId)} style={{ padding: '10px 20px', cursor: 'pointer', background: '#28a745', color: '#fff', border: 'none', fontWeight: 'bold' }}>
+      {/* Pass the state cache downward on confirmation trigger handler */}
+      <button 
+        className="done-btn" 
+        onClick={() => confirmShipment(previewTrackingId)} 
+        style={{ padding: '10px 20px', cursor: 'pointer', background: '#28a745', color: '#fff', border: 'none', fontWeight: 'bold' }}
+      >
         ✅ Done & Start New Shipment
       </button>
     </div>

@@ -113,10 +113,10 @@ export default function ShippingLabel({ previewTrackingId, packages, senderInfo,
         {/* Corporate Header & Shipper Context */}
         <div style={{ display: 'flex', borderBottom: '2px solid #000000', paddingBottom: '10px' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', paddingRight: '10px', borderRight: '2px solid #000000' }}>
-            <h2 style={{ margin: '0 0 2px 0', fontSize: '22px', fontWeight: '900', letterSpacing: '-0.5px', textTransform: 'uppercase' }}>
+            <h2 style={{ margin: '0 0 2px 0', fontSize: '22px', color: '#040404',fontWeight: '900', letterSpacing: '-0.5px', textTransform: 'uppercase' }}>
               Sewa Logistics
             </h2>
-            <span style={{ fontSize: '9px', color: '#333', fontWeight: 'bold' }}>Cargo & Courier Services Worldwide</span>
+            <span style={{ fontSize: '9px', color: '#000000', fontWeight: 'bold' }}>Cargo & Courier Services Worldwide</span>
           </div>
 
           <div style={{ flex: 1, paddingLeft: '12px', fontSize: '11px', lineHeight: '1.4' }}>
