@@ -2761,7 +2761,7 @@ const [showCustomerService, setShowCustomerService] = useState(false);
                 <h1>Reliable Logistics for Nepal</h1>
                 <p>Fast, secure, and real-time tracking for all your shipments.</p>
                 
-                <form onSubmit={handlePublicTrackSearch} style={{
+                {/* <form onSubmit={handlePublicTrackSearch} style={{
                   display: 'flex',
                   backgroundColor: '#ffffff',
                   padding: '6px',
@@ -2803,10 +2803,64 @@ const [showCustomerService, setShowCustomerService] = useState(false);
     whiteSpace: 'nowrap'
   }}
 >
-  {/* 🚀 Put the label text inside here instead of self-closing the tag */}
+}
   {isSearchingTrack ? 'Searching...' : 'Track Now'}
 </button>
-                </form>
+                </form> */}
+                <form 
+  onSubmit={handlePublicTrackSearch} 
+  className="search-track-form"
+  style={{
+    display: 'flex',
+    backgroundColor: '#ffffff',
+    padding: '6px',
+    borderRadius: '30px',
+    maxWidth: '520px',
+    width: '90%',
+    margin: '25px auto 0 auto',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.15)',
+    boxSizing: 'border-box',
+    alignItems: 'center' /* 🌟 Ensures vertical alignment stays centered */
+  }}
+>
+  <input 
+    type="text" 
+    placeholder="Enter Tracking Number..." 
+    className="track-input-field"
+    value={trackingNumberInput}
+    onChange={(e) => setTrackingNumberInput(e.target.value)}
+    style={{
+      flex: '1 1 auto', /* 🌟 Tells the input field to greedily grow and occupy all available space */
+      minWidth: '0',    /* 🚀 CRUCIAL: Allows flexbox to shrink the input properly on tiny phone screens */
+      border: 'none',
+      outline: 'none',
+      padding: '10px 15px',
+      fontSize: '14px',
+      borderRadius: '30px 0 0 30px',
+      color: '#1a1a1a' 
+    }}
+  />
+  <button 
+    type="submit" 
+    className="track-submit-btn"
+    disabled={isSearchingTrack}
+    style={{
+      flex: '0 0 auto',   /* 🌟 Prevents the button from growing or hogging space */
+      background: '#0056b3',
+      color: '#fff',
+      border: 'none',
+      padding: '10px 18px', /* 🌟 Reduced horizontal padding so it looks sleek on mobile */
+      borderRadius: '25px',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      fontSize: '14px',    /* 🌟 Kept clean and legible without ballooning */
+      transition: 'background 0.2s',
+      whiteSpace: 'nowrap'
+    }}
+  >
+    {isSearchingTrack ? '...' : 'Track'} {/* 🌟 'Track' is much cleaner for mobile space than 'Track Now' */}
+  </button>
+</form>
 
                 {trackSearchError && (
                   <div style={{ marginTop: '15px', color: '#d6dc1c', fontWeight: 'bold', fontSize: '14px' }}>

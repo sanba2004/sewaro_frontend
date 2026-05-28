@@ -132,15 +132,15 @@ const ShipmentStepper = ({userId}) => {
   // ==========================================
   else if (step === 2) {
   const recName = (receiverInfo.fullName || '').trim();
-  const idType = receiverInfo.idType || '';
+  //const idType = receiverInfo.idType || '';
   
   // 🛡️ CHANGED: Checks for an already saved cloud link OR a browser cached file
-  const hasIdAttachment = !!receiverInfo.receiverIdUrl || !!stagedFiles.receiverFile;
+ // const hasIdAttachment = !!receiverInfo.receiverIdUrl || !!stagedFiles.receiverFile;
   
   const recContact = (receiverInfo.contactNumber || '').trim();
   const recCountry = receiverInfo.country || '';
-  const recState = (receiverInfo.state || '').trim();
-  const recZip = (receiverInfo.zip || '').trim(); // Target DB 'zip' key
+  //const recState = (receiverInfo.state || '').trim();
+  //const recZip = (receiverInfo.zip || '').trim(); // Target DB 'zip' key
   const recCity = (receiverInfo.city || '').trim();
   const recLandmark = (receiverInfo.landmark || '').trim();
   const recAddress = (receiverInfo.fullAddress || '').trim();
@@ -148,12 +148,12 @@ const ShipmentStepper = ({userId}) => {
   // Track exactly what is empty based on mandatory indicators
   const emptyFields = [];
   if (!recName) emptyFields.push("Receiver's Full Name");
-  if (!idType) emptyFields.push("Verification ID Type");
-  if (!hasIdAttachment) emptyFields.push("Receiver ID Document Attachment"); // Tracks staged or uploaded
+  //if (!idType) emptyFields.push("Verification ID Type");
+  //if (!hasIdAttachment) emptyFields.push("Receiver ID Document Attachment"); // Tracks staged or uploaded
   if (!recContact) emptyFields.push("Contact Number");
   if (!recCountry) emptyFields.push("Country");
-  if (!recState) emptyFields.push("State");
-  if (!recZip) emptyFields.push("Zip Code");
+  //if (!recState) emptyFields.push("State");
+  //if (!recZip) emptyFields.push("Zip Code");
   if (!recCity) emptyFields.push("City");
   if (!recLandmark) emptyFields.push("Area / Landmark");
   if (!recAddress) emptyFields.push("Full Address");
@@ -343,7 +343,7 @@ const calculateGrandTotal = () => {
 const [previewTrackingId, setPreviewTrackingId] = useState(() => {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  return `SHP-${dateStr}-${randomSuffix}`;
+  return `NSC-${dateStr}-${randomSuffix}`;
 });
 
 

@@ -142,10 +142,12 @@ body,
   padding: 0 20px;
 }
 
-.hero-content h1 {
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 2.2rem;   /* Scales the font down gracefully so it doesn't crowd small viewports */
+    line-height: 1.25;   /* 🚀 Crucial: Keeps your text from smashing together vertically */
+    margin-bottom: 0.8rem;
+  }
 }
 
 .hero-content p {
@@ -1056,4 +1058,35 @@ html, body {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+@media screen and (max-width: 600px) {
+  /* Keeps the horizontal layout and ensures everything stays inside the white capsule */
+  .search-track-form {
+    display: flex !important;
+    flex-direction: row !important; /* Forces them to stay side-by-side */
+    background-color: #ffffff !important; /* Keeps the capsule background white */
+    border-radius: 30px !important; /* Maintains the rounded capsule look */
+    padding: 6px !important; /* Creates a clean internal cushion around the button */
+    width: 95%;
+    max-width: 450px;
+    margin: 20px auto 0 auto;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+
+  /* Shrinks the textbox text down slightly so it doesn't push the button out */
+  .track-input-field {
+    font-size: 13px !important; 
+    padding: 10px 12px !important;
+    text-align: left !important; /* Left aligns text to maximize horizontal space */
+    border-radius: 30px 0 0 30px !important;
+    min-width: 0; /* Prevents input from blowing out the flex container */
+  }
+
+  /* Adjusts the button sizing to fit perfectly inside the capsule beside the text */
+  .track-submit-btn {
+    font-size: 13px !important;
+    padding: 10px 18px !important; /* Compact padding for mobile thumbs */
+    border-radius: 25px !important; /* Clean rounded edges inside the white container */
+    white-space: nowrap !important; /* Prevents the 'Track Now' text from breaking into two rows */
+  }
 }
