@@ -905,7 +905,7 @@ const confirmShipment = async () => {
     }
 
     // 🌟 ROLE SECURITY CHECK: Grab role from localStorage to authenticate editing permission
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem('sewa_user');
     let currentRole = "";
     if (storedUser) {
       try {
@@ -2221,6 +2221,7 @@ const confirmShipment = async () => {
                 </div> */}
                
 {/* 🌟 ROLE-RESTRICTED GRAND TOTAL SECTION */}
+{/* 🌟 ROLE-RESTRICTED GRAND TOTAL SECTION */}
 <div className="grand-total-row" style={{ margin: '10px 0', padding: '5px 0', borderTop: '1px solid #ccc', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
   
   <style>{`
@@ -2239,23 +2240,20 @@ const confirmShipment = async () => {
     <span style={{ fontWeight: 'bold' }}>{billingInfo.currency || "NPR"} </span>
     
     {(() => {
-      // 🌟 Step 1: Check the component prop first (most accurate React state)
-      let currentRole = user?.role || "";
+      // 🛡️ Error-proof initialization: Read directly from local storage cache
+      let currentRole = "";
       
-      // Step 2: Fall back to 'sewa_user' local cache if the prop is empty
-      if (!currentRole) {
-        const storedUser = localStorage.getItem('sewa_user');
-        if (storedUser) {
-          try {
-            const parsedUser = JSON.parse(storedUser);
-            currentRole = parsedUser.role || "";
-          } catch (e) {
-            console.error("Error parsing user from localStorage", e);
-          }
+      const storedUser = localStorage.getItem('sewa_user');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          currentRole = parsedUser.role || "";
+        } catch (e) {
+          console.error("Error parsing user from localStorage", e);
         }
       }
 
-      // 🛡️ Safe string manipulation prevents runtime crashes if role is null/undefined
+      // Safe string manipulation prevents runtime crashes if role is null/undefined
       const normalizedRole = String(currentRole || '').toLowerCase().trim();
       const userHasEditingPrivileges = ['admin', 'agent'].includes(normalizedRole);
 

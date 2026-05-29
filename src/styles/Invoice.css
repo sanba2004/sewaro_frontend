@@ -254,3 +254,64 @@
     padding: 0 !important;
   }
 }
+
+
+
+
+
+
+
+
+
+
+/* ==========================================================================
+   📦 CUSTOM SPACING FIX: FORCES DENSE LAYOUT COHESION ON HALF A4 PAGE
+   ========================================================================== */
+@media print {
+  body.print-mode-label-only .label-printable-target {
+    max-width: 140mm !important; /* Perfect scaling envelope for A5 / Half-A4 */
+    font-size: 11px !important;   /* Slightly drops font baseline for compact layout */
+  }
+
+  /* 🛠️ RESTORE LAYOUT CONTAINERS: Stop things from stacking vertically */
+  body.print-mode-label-only .shipping-label-standalone-print-wrapper > div {
+    display: block !important; /* Outer container wrapper remains a block asset */
+    padding: 10px !important;  /* Tighter edge padding layout boundaries */
+  }
+
+  /* Restore the horizontal structure of your corporate Header columns */
+  body.print-mode-label-only .shipping-label-standalone-print-wrapper div[style*="display: flex"],
+  body.print-mode-label-only .shipping-label-standalone-print-wrapper div[style*="flex"] {
+    display: flex !important; /* Forces layout rows to stay horizontal, side-by-side */
+  }
+
+  /* ⏱️ TIGHTEN ELEMENT BOUNDARIES */
+  body.print-mode-label-only .label-printable-target h1 {
+    font-size: 17px !important;
+    margin: 1px 0 !important;
+  }
+  
+  body.print-mode-label-only .label-printable-target h2 {
+    font-size: 16px !important;
+    margin: 0 0 2px 0 !important;
+  }
+
+  body.print-mode-label-only .label-printable-target h3 {
+    font-size: 13px !important;
+    margin: 4px 0 0 0 !important;
+    letter-spacing: 1px !important;
+  }
+
+  body.print-mode-label-only .label-printable-target p {
+    margin: 1px 0 !important; /* Reduces vertical gaps between shipping address fields */
+    line-height: 1.2 !important;
+  }
+
+  /* 🖼️ RESIZE GRAPHICS METRIC SCANNER */
+  body.print-mode-label-only .label-printable-target img {
+    display: block !important;
+    width: 90px !important;  /* Scales the tracking QR code down cleanly */
+    height: 90px !important; 
+    margin: 4px auto !important;
+  }
+}

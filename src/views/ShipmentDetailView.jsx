@@ -1989,6 +1989,283 @@
 
 
 
+// import React, { useState, useEffect } from 'react';
+// import ShippingLabel from './ShippingLabel'; 
+// import "/src/styles/Invoice.css";
+// import "/src/styles/ShipmentDetail.css";
+
+// export default function ShipmentDetailView({ trackingId, onClose, user }) {
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [data, setData] = useState(null);
+//   const [updating, setUpdating] = useState(false);
+
+//   const isAdmin = user?.role === 'admin';
+//   const isCustomer = user?.role === 'customer';
+//   const hasAccess = isAdmin || isCustomer;
+
+//   useEffect(() => {
+//     // 1. Guard against missing ID or unauthorized access
+//     if (!trackingId || !hasAccess) return;
+
+//     // 2. Define the controller
+//     let isMounted = true;
+
+//     const fetchFullShipmentGraph = async () => {
+//       try {
+//         setLoading(true);
+//         setError(null);
+//         const response = await fetch(`https://sewaro-backend.onrender.com/api/shipments/track/${trackingId}`);
+        
+//         if (!response.ok) {
+//           throw new Error(`Shipment data for token #${trackingId} could not be resolved.`);
+//         }
+        
+//         const jsonResult = await response.json();
+        
+//         // 3. Only update state if component is still mounted
+//         if (isMounted) {
+//           setData(jsonResult);
+//         }
+//       } catch (err) {
+//         if (isMounted) {
+//           setError(err.message || "Failed to establish database synchronization link.");
+//         }
+//       } finally {
+//         if (isMounted) {
+//           setLoading(false);
+//         }
+//       }
+//     };
+
+//     fetchFullShipmentGraph();
+
+//     // 4. Cleanup function to prevent memory leaks/state updates on unmounted components
+//     return () => {
+//       isMounted = false;
+//     };
+    
+//     // DEPENDENCY FIXED: Only trackingId is required here. 
+//     // Access is validated at the top of the effect.
+//   }, [trackingId]);
+
+//   const handleInputChange = (field, value, targetArray = null, index = null, nestedItemIndex = null) => {
+//     setData(prev => {
+//       if (!prev) return prev;
+//       const updated = { ...prev };
+      
+//       if (targetArray === 'shipment_package' && nestedItemIndex !== null) {
+//         const updatedPackages = [...(updated.shipment_package || [])];
+//         const updatedItems = [...(updatedPackages[index]?.shipment_item || [])];
+//         if (updatedItems[nestedItemIndex]) {
+//           updatedItems[nestedItemIndex] = { ...updatedItems[nestedItemIndex], [field]: value };
+//           updatedPackages[index].shipment_item = updatedItems;
+//           updated.shipment_package = updatedPackages;
+//         }
+//       } else if (targetArray === 'shipment_package') {
+//         const updatedPackages = [...(updated.shipment_package || [])];
+//         if (updatedPackages[index]) {
+//           updatedPackages[index] = { ...updatedPackages[index], [field]: value };
+//           updated.shipment_package = updatedPackages;
+//         }
+//       } else {
+//         updated[field] = value;
+//       }
+//       return updated;
+//     });
+//   };
+
+//   const handleSaveChanges = async (e) => {
+//     e.preventDefault();
+//     try {
+//       setUpdating(true);
+//       const response = await fetch(`http://localhost:5000/api/shipments/update/${trackingId}`, {
+//         method: 'PUT',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(data)
+//       });
+
+//       if (!response.ok) throw new Error("The operational core rejected your modifications payload data.");
+//       alert("✨ Database records updated and synchronized cleanly!");
+//     } catch (err) {
+//       alert(`❌ Transaction Denied: ${err.message}`);
+//     } finally {
+//       setUpdating(false);
+//     }
+//   };
+
+//   // Guard Clauses: Prevent rendering until state is ready
+//   if (!hasAccess) return <div style={{ padding: '40px', textAlign: 'center' }}>🚫 System Access Authorization Denied</div>;
+//   if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>🔄 Querying live dataset layers for tracking #{trackingId}...</div>;
+//   if (error || !data) return <div style={{ padding: '40px', color: 'red', textAlign: 'center' }}>❌ Connection Error: {error}</div>;
+
+//   // Now safe to access data
+//   const mappedSenderInfo = {
+//     fullName: data?.shipper_name,
+//     contactNum: data?.shipper_phone,
+//     address: data?.shipper_address,
+//     city: data?.shipper_city,
+//     country: data?.shipper_country
+//   };
+
+//   const mappedReceiverInfo = {
+//     fullName: data?.receiver_name,
+//     contactNumber: data?.receiver_phone,
+//     fullAddress: data?.receiver_address,
+//     city: data?.receiver_city,
+//     country: data?.receiver_country,
+//     email: data?.receiver_email || 'N/A'
+//   };
+
+//   const mappedBillingInfo = {
+//     method: data?.payment_method || 'N/A',
+//     currency: data?.currency || 'NPR'
+//   };
+
+//   const mappedPackages = (data?.shipment_package || []).map(pkg => ({
+//     id: pkg.id,
+//     package_id: pkg.id,
+//     profile: pkg.profile,
+//     type: pkg.type,
+//     cbm: Number(pkg.cbm || 0),
+//     items: (pkg.shipment_item || []).map(item => ({
+//       id: item.id,
+//       description: item.description,
+//       weight: Number(item.weight || 0),
+//       qty: Number(item.qty || 0)
+//     }))
+//   }));
+
+//   const inputStyle = { width: '100%', padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', fontSize: '14px', color: '#000000', background: '#ffffff', marginTop: '4px', display: 'block' };
+
+//   return (
+//     <div className="invoice-display-container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
+//       <div className="no-print" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginBottom: '20px' }}>
+//         <button type="button" onClick={onClose} style={{ marginRight: 'auto', background: '#333', color: '#fff', border: 'none', padding: '10px 20px', cursor: 'pointer', fontWeight: 'bold' }}>← Back to Dashboard</button>
+//         <button type="button" onClick={() => { document.body.classList.add('print-mode-label-only'); setTimeout(() => { window.print(); document.body.classList.remove('print-mode-label-only'); }, 50); }} style={{ background: '#e0a800', color: '#000', border: 'none', padding: '10px 20px', cursor: 'pointer', fontWeight: 'bold', borderRadius: '4px' }}>🏷️ Print Shipping Label</button>
+//       </div>
+
+//       <form onSubmit={handleSaveChanges}>
+//         <div id="dashboard-view-panel" className="invoice-card" style={{ padding: '30px', background: '#fff', border: '1px solid #000' }}>
+//           <div style={{ borderBottom: '2px solid #000', paddingBottom: '15px', marginBottom: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+//             <div>
+//               <h1 style={{ margin: '0 0 5px 0', fontSize: '24px', textTransform: 'uppercase' }}>{isAdmin ? '🔧 Admin Operations Module' : 'Customer Tracking Console'}</h1>
+//               <p style={{ margin: 0 }}><strong>Tracking key reference:</strong> {data?.tracking_id}</p>
+//             </div>
+//             {isAdmin && (
+//               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+//                 <label style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', color: '#040404' }}>Shipment Status</label>
+//                 <select value={data?.status || 'Confirmed'} onChange={(e) => handleInputChange('status', e.target.value)} style={{ padding: '8px 16px', fontSize: '14px', fontWeight: 'bold', borderRadius: '4px', border: '2px solid #e9e0e0', background: '#0c0b0b', cursor: 'pointer', outline: 'none' }}>
+//                   <option value="Confirmed">Confirmed</option>
+//                   <option value="In Transit">In Transit</option>
+//                   <option value="Landed">Landed</option>
+//                   <option value="Ready to Collect">Ready to Collect</option>
+//                   <option value="Collected">Collected</option>
+//                 </select>
+//               </div>
+//             )}
+//           </div>
+
+//           <div style={{ background: '#000', color: '#fff', padding: '6px 12px', fontWeight: 'bold' }}>1. Sender Information</div>
+//           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', marginTop: '15px', marginBottom: '30px', background: '#fcfcfc', padding: '15px', border: '1px solid #eee' }}>
+//             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+//               <label><strong>Full Name:</strong> {isAdmin ? <input style={inputStyle} type="text" value={data?.shipper_name || ''} onChange={(e) => handleInputChange('shipper_name', e.target.value)} /> : <span> {data?.shipper_name}</span>}</label>
+//               <label><strong>Contact number:</strong> {isAdmin ? <input style={inputStyle} type="text" value={data?.shipper_phone || ''} onChange={(e) => handleInputChange('shipper_phone', e.target.value)} /> : <span> {data?.shipper_phone}</span>}</label>
+//               <label><strong>Full Address:</strong> {isAdmin ? <input style={inputStyle} type="text" value={data?.shipper_address || ''} onChange={(e) => handleInputChange('shipper_address', e.target.value)} /> : <span> {data?.shipper_address}</span>}</label>
+//               <div style={{ display: 'flex', gap: '10px' }}>
+//                 <label style={{ flex: 1 }}><strong>City:</strong> {isAdmin ? <input style={inputStyle} type="text" value={data?.shipper_city || ''} onChange={(e) => handleInputChange('shipper_city', e.target.value)} /> : <span> {data?.shipper_city}</span>}</label>
+//                 <label style={{ flex: 1 }}><strong>Country:</strong> {isAdmin ? <input style={inputStyle} type="text" value={data?.shipper_country || ''} onChange={(e) => handleInputChange('shipper_country', e.target.value)} /> : <span> {data?.shipper_country}</span>}</label>
+//               </div>
+//             </div>
+//             <div style={{ textAlign: 'center' }}>
+//               <div style={{ border: '1px dashed #999', padding: '12px', background: '#fafafa', height: '100%' }}>
+//                 {data?.sender_id_front_url ? <img src={data.sender_id_front_url} alt="ID Front Proof" style={{ width: '100%', maxHeight: '180px', objectFit: 'contain' }} /> : 'No Identity Documents Uploaded'}
+//               </div>
+//             </div>
+//           </div>
+
+//           <div style={{ background: '#000', color: '#fff', padding: '6px 12px', fontWeight: 'bold' }}>2. Receiver Information</div>
+//           <div style={{ marginTop: '15px', marginBottom: '30px', background: '#fcfcfc', padding: '15px', border: '1px solid #eee', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px' }}>
+//             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+//               <label><strong>Receiver Name:</strong> {isAdmin ? <input style={inputStyle} type="text" value={data?.receiver_name || ''} onChange={(e) => handleInputChange('receiver_name', e.target.value)} /> : <span> {data?.receiver_name}</span>}</label>
+//               <label><strong>Primary Contact:</strong> {isAdmin ? <input style={inputStyle} type="text" value={data?.receiver_phone || ''} onChange={(e) => handleInputChange('receiver_phone', e.target.value)} /> : <span> {data?.receiver_phone}</span>}</label>
+//               <label><strong>Street Address:</strong> {isAdmin ? <input style={inputStyle} type="text" value={data?.receiver_address || ''} onChange={(e) => handleInputChange('receiver_address', e.target.value)} /> : <span> {data?.receiver_address}</span>}</label>
+//               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+//                 <label><strong>City / Town:</strong> {isAdmin ? <input style={inputStyle} type="text" value={data?.receiver_city || ''} onChange={(e) => handleInputChange('receiver_city', e.target.value)} /> : <span> {data?.receiver_city}</span>}</label>
+//                 <label><strong>Country:</strong> {isAdmin ? <input style={inputStyle} type="text" value={data?.receiver_country || ''} onChange={(e) => handleInputChange('receiver_country', e.target.value)} /> : <span> {data?.receiver_country}</span>}</label>
+//               </div>
+//             </div>
+//             <div style={{ border: '1px dashed #bbb', padding: '12px', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+//               {data?.receiver_id_url ? <img src={data.receiver_id_url} alt="Receiver Proof" style={{ width: '100%', maxHeight: '180px', objectFit: 'contain' }} /> : 'No Secondary Identification Provided'}
+//             </div>
+//           </div>
+
+//           <div style={{ background: '#000', color: '#fff', padding: '6px 12px', fontWeight: 'bold' }}>3. Package Metrics</div>
+//           <div style={{ marginTop: '15px', marginBottom: '30px' }}>
+//             {(data?.shipment_package || []).map((pkg, idx) => (
+//               <div key={pkg.id || idx} style={{ border: '1px solid #ccc', padding: '12px', marginBottom: '10px', background: '#fff' }}>
+//                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 'bold', fontSize: '13px', borderBottom: '1px solid #eee', paddingBottom: '6px', marginBottom: '10px' }}>
+//                   <span>📦 Box Container Grid #{idx + 1} ({pkg.profile || 'General Item Set'})</span>
+//                   {isAdmin ? (
+//                     <div style={{ display: 'flex', gap: '10px', fontWeight: 'normal' }}>
+//                       <label>Type: <input style={{ ...inputStyle, width: '95px', display: 'inline-block' }} type="text" value={pkg.type || ''} onChange={(e) => handleInputChange('type', e.target.value, 'shipment_package', idx)} /></label>
+//                       <label>CBM: <input style={{ ...inputStyle, width: '95px', display: 'inline-block' }} type="number" step="0.0001" value={pkg.cbm || 0} onChange={(e) => handleInputChange('cbm', parseFloat(e.target.value) || 0, 'shipment_package', idx)} /></label>
+//                     </div>
+//                   ) : (
+//                     <span>Container Class: {pkg.type} | Volume Metrics: {pkg.cbm} CBM</span>
+//                   )}
+//                 </div>
+//                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+//                   <thead><tr style={{ background: '#f4f4f4' }}><th style={{ padding: '6px', textAlign: 'left', border: '1px solid #ddd' }}>Item Name Description</th><th style={{ padding: '6px', width: '15%', border: '1px solid #ddd' }}>Count Qty</th><th style={{ padding: '6px', width: '20%', border: '1px solid #ddd' }}>Net Weight</th></tr></thead>
+//                   <tbody>
+//                     {(pkg.shipment_item || []).map((item, iIdx) => (
+//                       <tr key={item.id || iIdx}>
+//                         <td style={{ padding: '6px', border: '1px solid #ddd' }}>{isAdmin ? <input style={inputStyle} type="text" value={item.description || ''} onChange={(e) => handleInputChange('description', e.target.value, 'shipment_package', idx, iIdx)} /> : item.description}</td>
+//                         <td style={{ padding: '6px', border: '1px solid #ddd', textAlign: 'center' }}>{isAdmin ? <input style={{ ...inputStyle, textAlign: 'center' }} type="number" value={item.qty || 0} onChange={(e) => handleInputChange('qty', parseInt(e.target.value) || 0, 'shipment_package', idx, iIdx)} /> : item.qty}</td>
+//                         <td style={{ padding: '6px', border: '1px solid #ddd', textAlign: 'right' }}>{isAdmin ? <input style={{ ...inputStyle, textAlign: 'right' }} type="number" step="0.01" value={item.weight || 0} onChange={(e) => handleInputChange('weight', parseFloat(e.target.value) || 0, 'shipment_package', idx, iIdx)} /> : `${item.weight} Kg`}</td>
+//                       </tr>
+//                     ))}
+//                   </tbody>
+//                 </table>
+//               </div>
+//             ))}
+//           </div>
+
+//           <div style={{ background: '#000', color: '#fff', padding: '6px 12px', fontWeight: 'bold' }}>4. Billing Matrix Ledger</div>
+//           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', marginTop: '15px' }}>
+//             <div style={{ fontSize: '11px', color: '#555', border: '1px solid #eee', padding: '10px', background: '#fbfbfb' }}><strong>Operational Note:</strong> Modifications submitted directly update downstream layout configurations across database targets.</div>
+//             <div style={{ background: '#f4f6f8', padding: '15px', border: '1px solid #000', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+//               <span>Grand Billing Value Total:</span>
+//               {isAdmin ? (
+//                 <div style={{ display: 'flex', gap: '5px', width: '70%' }}>
+//                   <input style={{ ...inputStyle, width: '60px' }} type="text" value={data?.currency || 'NPR'} onChange={(e) => handleInputChange('currency', e.target.value.toUpperCase())} />
+//                   <input style={inputStyle} type="number" value={data?.total_amount || 0} onChange={(e) => handleInputChange('total_amount', parseFloat(e.target.value) || 0)} />
+//                 </div>
+//               ) : (
+//                 <strong>{data?.currency || 'NPR'} {Number(data?.total_amount || 0).toLocaleString()}</strong>
+//               )}
+//             </div>
+//           </div>
+
+//           {isAdmin && (
+//             <div style={{ marginTop: '30px', borderTop: '2px dashed #000', paddingTop: '20px', textAlign: 'right' }}>
+//               <button type="submit" disabled={updating} style={{ background: updating ? '#666' : '#28a745', color: '#fff', border: 'none', padding: '14px 35px', cursor: updating ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '15px', borderRadius: '4px' }}>
+//                 {updating ? '⏳ Executing System Transaction Rewrite...' : '💾 Edit & Replace Values in Database'}
+//               </button>
+//             </div>
+//           )}
+//         </div>
+//       </form>
+
+//       <div className="label-printable-target">
+//         <ShippingLabel previewTrackingId={data?.tracking_id} packages={mappedPackages} senderInfo={mappedSenderInfo} receiverInfo={mappedReceiverInfo} billingInfo={mappedBillingInfo} />
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
 import React, { useState, useEffect } from 'react';
 import ShippingLabel from './ShippingLabel'; 
 import "/src/styles/Invoice.css";
@@ -2232,14 +2509,13 @@ export default function ShipmentDetailView({ trackingId, onClose, user }) {
           </div>
 
           <div style={{ background: '#000', color: '#fff', padding: '6px 12px', fontWeight: 'bold' }}>4. Billing Matrix Ledger</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', marginTop: '15px' }}>
-            <div style={{ fontSize: '11px', color: '#555', border: '1px solid #eee', padding: '10px', background: '#fbfbfb' }}><strong>Operational Note:</strong> Modifications submitted directly update downstream layout configurations across database targets.</div>
-            <div style={{ background: '#f4f6f8', padding: '15px', border: '1px solid #000', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '15px' }}>
+            <div style={{ background: '#f4f6f8', padding: '15px', border: '1px solid #000', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '450px', boxSizing: 'border-box' }}>
               <span>Grand Billing Value Total:</span>
               {isAdmin ? (
-                <div style={{ display: 'flex', gap: '5px', width: '70%' }}>
-                  <input style={{ ...inputStyle, width: '60px' }} type="text" value={data?.currency || 'NPR'} onChange={(e) => handleInputChange('currency', e.target.value.toUpperCase())} />
-                  <input style={inputStyle} type="number" value={data?.total_amount || 0} onChange={(e) => handleInputChange('total_amount', parseFloat(e.target.value) || 0)} />
+                <div style={{ display: 'flex', gap: '5px', width: '75%' }}>
+                  <input style={{ ...inputStyle, width: '65px' }} type="text" value={data?.currency || 'NPR'} onChange={(e) => handleInputChange('currency', e.target.value.toUpperCase())} />
+                  <input style={{ ...inputStyle, flex: 1 }} type="number" value={data?.total_amount || 0} onChange={(e) => handleInputChange('total_amount', parseFloat(e.target.value) || 0)} />
                 </div>
               ) : (
                 <strong>{data?.currency || 'NPR'} {Number(data?.total_amount || 0).toLocaleString()}</strong>

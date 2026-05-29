@@ -119,28 +119,64 @@ export default function ShippingLabel({ previewTrackingId, packages, senderInfo,
             <span style={{ fontSize: '9px', color: '#000000', fontWeight: 'bold' }}>Cargo & Courier Services Worldwide</span>
           </div>
 
-          <div style={{ flex: 1, paddingLeft: '12px', fontSize: '11px', lineHeight: '1.4' }}>
+          {/* <div style={{ flex: 1, paddingLeft: '12px', fontSize: '11px', lineHeight: '1.4' }}>
             <span style={{ display: 'block', fontWeight: 'bold', fontSize: '11px', textTransform: 'uppercase', marginBottom: '2px' }}>Sender:</span>
             <p style={{ margin: '0' }}><strong>Name:</strong> {senderInfo.fullName || "N/A"}</p>
             <p style={{ margin: '0' }}><strong>Phone:</strong> {senderInfo.contactNum || "N/A"}</p>
             <p style={{ margin: '0' }}><strong>Address:</strong> {senderInfo.address || "N/A"}, {senderInfo.city}, {senderInfo.country}</p>
-          </div>
+          </div> */}
+          <div style={{ padding: '10px 0', borderBottom: '1px solid #000000', fontSize: '12px', lineHeight: '1.4', textAlign: 'left' }}>
+  <span style={{ display: 'block', fontWeight: 'bold', fontSize: '11px', textTransform: 'uppercase', marginBottom: '5px' }}>Sender:</span>
+  
+  <p style={{ margin: '0', display: 'inline-flex !important', flexWrap: 'nowrap', gap: '6px', width: '100%' }}>
+    <strong style={{ display: 'inline !important', whiteSpace: 'nowrap' }}>Name:</strong> 
+    <span style={{ display: 'inline !important' }}>{senderInfo.fullName || "N/A"}</span>
+  </p>
+  
+  <p style={{ margin: '0', display: 'inline-flex !important', flexWrap: 'nowrap', gap: '6px', width: '100%' }}>
+    <strong style={{ display: 'inline !important', whiteSpace: 'nowrap' }}>Phone:</strong> 
+    <span style={{ display: 'inline !important' }}>{senderInfo.contactNum || "N/A"}</span>
+  </p>
+  
+  <p style={{ margin: '0', display: 'inline-flex !important', flexWrap: 'nowrap', gap: '6px', width: '100%' }}>
+    <strong style={{ display: 'inline !important', whiteSpace: 'nowrap' }}>Address:</strong> 
+    <span style={{ display: 'inline !important' }}>{senderInfo.address || "N/A"}, {senderInfo.city}, {senderInfo.country}</span>
+  </p>
+</div>
         </div>
 
         {/* Receiver Delivery Specifics */}
-        <div style={{ padding: '10px 0', borderBottom: '2px solid #000000', fontSize: '12px', lineHeight: '1.4' }}>
-          <span style={{ display: 'block', fontWeight: 'bold', fontSize: '11px', textTransform: 'uppercase', marginBottom: '3px' }}>Receiver:</span>
-          <p style={{ margin: '0' }}><strong>Name:</strong> {receiverInfo.fullName || "N/A"}</p>
-          <p style={{ margin: '0' }}><strong>Phone:</strong> {receiverInfo.contactNumber || "N/A"}</p>
-          <p style={{ margin: '0' }}><strong>Address:</strong> {receiverInfo.fullAddress || "N/A"}, {receiverInfo.city}, {receiverInfo.country}</p>
-          <p style={{ margin: '0' }}><strong>Email:</strong> {receiverInfo.email || "N/A"}</p>
-          
-          <div style={{ display: 'flex', gap: '15px', marginTop: '6px', paddingTop: '4px', borderTop: '1px dashed #000' }}>
-            <span><strong>Package Weight:</strong> {aggregateWeight.toFixed(2)} Kg</span>
-            <span><strong>Date:</strong> {new Date().toLocaleDateString('en-GB')}</span>
-          </div>
-          <p style={{ margin: '2px 0 0 0' }}><strong>Payment Mode:</strong> {billingInfo.method || "Cash"}</p>
-        </div>
+        <div style={{ padding: '10px 0', borderBottom: '2px solid #000000', fontSize: '12px', lineHeight: '1.4', textAlign: 'left' }}>
+  <span style={{ display: 'block', fontWeight: 'bold', fontSize: '11px', textTransform: 'uppercase', marginBottom: '5px', textAlign: 'left' }}>Receiver:</span>
+  
+  {/* 🛠️ display: 'flex' with inline non-breaking text overrides the global block print selector */}
+  <p style={{ margin: '0', display: 'flex', gap: '4px', textAlign: 'left' }}>
+    <strong style={{ display: 'inline !important' }}>Name:</strong> 
+    <span>{receiverInfo.fullName || "N/A"}</span>
+  </p>
+  
+  <p style={{ margin: '0', display: 'flex', gap: '4px', textAlign: 'left' }}>
+    <strong style={{ display: 'inline !important' }}>Phone:</strong> 
+    <span>{receiverInfo.contactNumber || "N/A"}</span>
+  </p>
+  
+  <p style={{ margin: '0', display: 'flex', gap: '4px', textAlign: 'left' }}>
+    <strong style={{ display: 'inline !important' }}>Address:</strong> 
+    <span>{receiverInfo.fullAddress || "N/A"}, {receiverInfo.city}, {receiverInfo.country}</span>
+  </p>
+  
+  <p style={{ margin: '0', display: 'flex', gap: '4px', textAlign: 'left' }}>
+    <strong style={{ display: 'inline !important' }}>Email:</strong> 
+    <span>{receiverInfo.email || "N/A"}</span>
+  </p>
+  
+  {/* Metrics Row (Weight, Date, Payment Mode) */}
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', paddingTop: '4px', borderTop: '1px dashed #000' }}>
+    <span><strong>Package Weight:</strong> {aggregateWeight.toFixed(2)} Kg</span>
+    <span><strong>Date:</strong> {new Date().toLocaleDateString('en-GB')}</span>
+    <span><strong>Payment Mode:</strong> {billingInfo.method || "Cash"}</span>
+  </div>
+</div>
 
         {/* Barcode-Replacing Automated Tracking QR Code */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 0', borderBottom: '2px solid #000000' }}>
