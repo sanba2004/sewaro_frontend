@@ -501,10 +501,225 @@
 
 
 
+// import React, { useEffect, useState } from 'react';
+// import ShipmentDetailView from './views/ShipmentDetailView'; 
+
+// import"/src/styles/ViewShipments.css";
+
+// const ViewShipments = ({ user }) => {
+//   const [shipments, setShipments] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [activeTrackingId, setActiveTrackingId] = useState(null);
+
+//   // 🎛️ Filter and Pagination State
+//   const [dateFrom, setDateFrom] = useState('');
+//   const [dateTo, setDateTo] = useState('');
+//   const [status, setStatus] = useState('All');
+//   const [selectedAgent, setSelectedAgent] = useState('All');
+//   const [agentsList, setAgentsList] = useState([]);
+
+//   // Pagination states
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [totalItems, setTotalItems] = useState(0);
+//   const itemsPerPage = 50; // Matching Gmail's 50 threshold
+
+//   const isUserAdmin = user?.role?.toLowerCase() === 'admin';
+
+//   useEffect(() => {
+//     const fetchAgentsList = async () => {
+//       try {
+//         const response = await fetch('https://sewaro-backend.onrender.com/api/admin/agents');
+//         if (response.ok) {
+//           const data = await response.json();
+//           setAgentsList(data);
+//         }
+//       } catch (err) {
+//         console.error("Failed downloading agent database list:", err);
+//       }
+//     };
+//     if (isUserAdmin) fetchAgentsList();
+//   }, [isUserAdmin]);
+
+//   // Fetch shipments when user, filters, OR current page changes
+//   useEffect(() => {
+//     const fetchShipments = async () => {
+//       setLoading(true);
+//       try {
+//         let url = `https://sewaro-backend.onrender.com/api/shipments/all?userId=${user?.id}&role=${user?.role}&page=${currentPage}&limit=${itemsPerPage}`;        if (dateFrom) url += `&dateFrom=${dateFrom}`;
+//         if (dateTo) url += `&dateTo=${dateTo}`;
+//         if (status !== 'All') url += `&status=${status}`;
+//         if (isUserAdmin && selectedAgent !== 'All') url += `&agentId=${selectedAgent}`;
+
+//         const response = await fetch(url);
+//         if (!response.ok) throw new Error('Failed to fetch');
+        
+//         const data = await response.json();
+        
+//         // Handle the new response object structure
+//         setShipments(Array.isArray(data.shipments) ? data.shipments : []);
+//         setTotalItems(data.totalItems || 0);
+//       } catch (error) {
+//         console.error("Error fetching data:", error);
+//         setShipments([]); 
+//         setTotalItems(0);
+//       } finally {
+//         setLoading(false); 
+//       }
+//     };
+
+//     if (user) fetchShipments();
+//   }, [user, dateFrom, dateTo, status, selectedAgent, isUserAdmin, currentPage]);
+
+//   // Reset page to 1 whenever filters change
+//   const handleFilterChange = (setter, value) => {
+//     setter(value);
+//     setCurrentPage(1);
+//   };
+
+//   const handleResetFilters = () => {
+//     setDateFrom('');
+//     setDateTo('');
+//     setStatus('All');
+//     setSelectedAgent('All');
+//     setCurrentPage(1);
+//   };
+
+//   // Pagination Helper Values
+//   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+//   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+//   if (activeTrackingId) {
+//     return (
+//       <ShipmentDetailView 
+//         trackingId={activeTrackingId} 
+//         onClose={() => setActiveTrackingId(null)} 
+//         user={user}
+//       />
+//     );
+//   }
+
+//   return (
+//     <div className="view-shipments-container">
+//       <h2>📦 Shipment History</h2>
+      
+//       {/* 🛠️ Dynamic Controls Dashboard Section */}
+//       <div className="filters-control-panel">
+//         <div className="filter-group">
+//           <label>Date From:</label>
+//           <input type="date" value={dateFrom} onChange={(e) => handleFilterChange(setDateFrom, e.target.value)} />
+//         </div>
+//         <div className="filter-group">
+//           <label>Date To:</label>
+//           <input type="date" value={dateTo} onChange={(e) => handleFilterChange(setDateTo, e.target.value)} />
+//         </div>
+//         <div className="filter-group">
+//           <label>Status:</label>
+//           <select value={status} onChange={(e) => handleFilterChange(setStatus, e.target.value)}>
+//             <option value="All">All Statuses</option>
+//             <option value="Confirmed">Confirmed</option>
+//             <option value="In Transit">In Transit</option>
+//             <option value="Landed">Landed</option>
+//             <option value="Ready to Collect">Ready to Collect</option>
+//             <option value="Collected">Collected</option>
+//           </select>
+//         </div>
+
+//         {isUserAdmin && (
+//           <div className="filter-group">
+//             <label>By Agent:</label>
+//             <select value={selectedAgent} onChange={(e) => handleFilterChange(setSelectedAgent, e.target.value)}>
+//               <option value="All">All Agents</option>
+//               {agentsList.map(agent => (
+//                 <option key={agent.id} value={agent.id}>{agent.full_name}</option>
+//               ))}
+//             </select>
+//           </div>
+//         )}
+
+//         <button className="reset-filters-btn" onClick={handleResetFilters}>🔄 Reset Filters</button>
+//       </div>
+
+//       {loading ? (
+//         <div className="loader">Loading Shipments...</div>
+//       ) : (
+//         <>
+//           <div className="table-responsive">
+//             <table className="shipment-table">
+//               <thead>
+//                 <tr>
+//                   <th>Invoice #</th>
+//                   <th>Date</th>
+//                   <th>Sender</th>
+//                   <th>Sender Contact</th>            
+//                   <th>Receiver</th>
+//                   <th>Receiver Contact</th>
+//                   <th>Status</th>
+//                   <th>Action</th>
+//                   <th>User</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {shipments.length > 0 ? (
+//                   shipments.map((s) => (
+//                     <tr key={s.id}>
+//                       <td>{s.tracking_id || 'N/A'}</td> 
+//                       <td>{s.created_at ? new Date(s.created_at).toLocaleDateString() : 'N/A'}</td>
+//                       <td>{s.sender_name || '—'}</td>
+//                       <td>{s.sender_contact_num || '—'}</td>
+//                       <td>{s.receiver_name || '—'}</td>
+//                       <td>{s.receiver_contact || '—'}</td>
+//                       <td><span className="badge-status">{s.status || 'Pending'}</span></td>
+//                       <td>
+//                         <button className="view-btn" onClick={() => setActiveTrackingId(s.tracking_id)}>👁️ Details</button>
+//                       </td>
+//                     </tr>
+//                   ))
+//                 ) : (
+//                   <tr><td colSpan="8" style={{ textAlign: 'center', padding: '20px' }}>No shipments found.</td></tr>
+//                 )}
+//               </tbody>
+//             </table>
+//           </div>
+
+//           {/* 🔘 Gmail Style Pagination Controls */}
+//           <div className="pagination-container">
+//             <span className="pagination-info">
+//               {startItem}–{endItem} of {totalItems.toLocaleString()}
+//             </span>
+//             <div className="pagination-buttons">
+//               <button 
+//                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+//                 disabled={currentPage === 1}
+//                 className="pagination-btn"
+//               >
+//                 ‹
+//               </button>
+//               <button 
+//                 onClick={() => setCurrentPage(prev => (endItem < totalItems ? prev + 1 : prev))}
+//                 disabled={endItem >= totalItems}
+//                 className="pagination-btn"
+//               >
+//                 ›
+//               </button>
+//             </div>
+//           </div>
+//         </>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default ViewShipments;
+
+
+
+
+
+
 import React, { useEffect, useState } from 'react';
 import ShipmentDetailView from './ShipmentDetailView'; 
 
-import"/src/styles/ViewShipments.css";
+import "/src/styles/ViewShipments.css";
 
 const ViewShipments = ({ user }) => {
   const [shipments, setShipments] = useState([]);
@@ -545,7 +760,8 @@ const ViewShipments = ({ user }) => {
     const fetchShipments = async () => {
       setLoading(true);
       try {
-        let url = `https://sewaro-backend.onrender.com/api/shipments/all?userId=${user?.id}&role=${user?.role}&page=${currentPage}&limit=${itemsPerPage}`;        if (dateFrom) url += `&dateFrom=${dateFrom}`;
+        let url = `https://sewaro-backend.onrender.com/api/shipments/all?userId=${user?.id}&role=${user?.role}&page=${currentPage}&limit=${itemsPerPage}`;        
+        if (dateFrom) url += `&dateFrom=${dateFrom}`;
         if (dateTo) url += `&dateTo=${dateTo}`;
         if (status !== 'All') url += `&status=${status}`;
         if (isUserAdmin && selectedAgent !== 'All') url += `&agentId=${selectedAgent}`;
@@ -648,6 +864,7 @@ const ViewShipments = ({ user }) => {
               <thead>
                 <tr>
                   <th>Invoice #</th>
+                  {/* <th>Created By</th> */}
                   <th>Date</th>
                   <th>Sender</th>
                   <th>Sender Contact</th>            
@@ -662,6 +879,9 @@ const ViewShipments = ({ user }) => {
                   shipments.map((s) => (
                     <tr key={s.id}>
                       <td>{s.tracking_id || 'N/A'}</td> 
+                      {/* <td style={{ fontWeight: '500', color: '#333' }}>
+                        {s.User?.full_name ? s.User.full_name : (s.user_id ? `User ID: ${s.user_id}` : 'System')}
+                      </td> */}
                       <td>{s.created_at ? new Date(s.created_at).toLocaleDateString() : 'N/A'}</td>
                       <td>{s.sender_name || '—'}</td>
                       <td>{s.sender_contact_num || '—'}</td>
@@ -674,7 +894,11 @@ const ViewShipments = ({ user }) => {
                     </tr>
                   ))
                 ) : (
-                  <tr><td colSpan="8" style={{ textAlign: 'center', padding: '20px' }}>No shipments found.</td></tr>
+                  <tr>
+                    <td colSpan="9" style={{ textAlign: 'center', padding: '20px' }}>
+                      No shipments found.
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
@@ -709,7 +933,6 @@ const ViewShipments = ({ user }) => {
 };
 
 export default ViewShipments;
-
 
 
 

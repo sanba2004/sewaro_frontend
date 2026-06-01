@@ -897,3 +897,168 @@ th {
 
 
 
+/* ==========================================================================
+   MOBILE-RESPONSIVE FIXES FOR MULTI-STEP SHIPPING FORM (Max Width: 768px)
+   ========================================================================== */
+
+@media screen and (max-width: 768px) {
+  
+  /* -------------------------------------------------------------
+     STEP 3: Transform Items Table to Vertical Stack Cards
+     ------------------------------------------------------------- */
+  .items-table-container .package-table {
+    display: block;
+    width: 100%;
+    border: none;
+  }
+
+  /* Hide traditional table headers safely for accessibility */
+  .items-table-container .package-table thead {
+    display: none;
+  }
+
+  .items-table-container .package-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  /* Make every row look like an individual, stacked product card */
+  .items-table-container .package-table tr {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+
+  .items-table-container .package-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border: none;
+    width: 100% !important; /* Overrides column width assignments */
+    box-sizing: border-box;
+  }
+
+  /* Add descriptive row labels dynamically via CSS pseudo-elements */
+  .items-table-container .package-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 13px;
+    color: #555555;
+    flex: 0 0 35%; /* Fixed label area width */
+    text-align: left;
+  }
+
+  /* Ensure inputs adjust neatly beside the dynamic labels */
+  .items-table-container .package-table td .auto-grow-input,
+  .items-table-container .package-table td .lengthy-input {
+    flex: 1;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+  }
+
+  /* Handle Description row specially so textareas can take full width block under label */
+  .items-table-container .package-table td.desc-cell {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .items-table-container .package-table td.desc-cell::before {
+    margin-bottom: 2px;
+  }
+
+  /* Center or align the action delete button cleanly */
+  .items-table-container .package-table td:last-child {
+    justify-content: flex-end;
+    border-top: 1px dashed #eee;
+    margin-top: 4px;
+    padding-top: 10px;
+  }
+  .items-table-container .package-table td:last-child::before {
+    content: "Action"; /* Provide label context on mobile */
+    margin-right: auto;
+  }
+
+  /* Make row controls under the table stack naturally */
+  .package-footer-row {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch !important;
+  }
+  .total-weight-display {
+    justify-content: space-between;
+  }
+
+
+  /* -------------------------------------------------------------
+     STEP 4: Fix Hidden Rate & Door-To-Door Visibility Overflows
+     ------------------------------------------------------------- */
+  .billing-table-wrapper {
+    overflow-x: auto; /* Enable safe touch scrolling track */
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -15px; /* Pull boundary to screen edge for extra breathing room */
+    padding: 0 15px;
+  }
+
+  .billing-table {
+    min-width: 600px; /* Forces structure to keep layout legible instead of breaking scales */
+  }
+
+
+  /* -------------------------------------------------------------
+     STEP 5: Invoice Layout Mobile Structural Conversion
+     ------------------------------------------------------------- */
+  /* Break up explicit side-by-side flex setups to vertical blocks */
+  .invoice-card div[style*="display: 'flex'"],
+  .invoice-card div[style*="display: flex"],
+  .info-split-grid,
+  .invoice-footer-grid {
+    flex-direction: column !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  /* Clean up border/padding lines from sender/receiver information headers */
+  .invoice-card div[style*="borderLeft"],
+  .info-column {
+    border-left: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-bottom: 15px;
+  }
+
+  /* Ensure package details breakdown tables fit inside the responsive preview frame */
+  .corp-invoice-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Give financial block full layout width below comments */
+  .financials-block {
+    flex: none !important;
+    width: 100% !important;
+    margin-top: 15px;
+    box-sizing: border-box;
+  }
+
+  /* Wrap action controls cleanly so buttons aren't sliced off */
+  .invoice-actions {
+    flex-direction: column !important;
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+  }
+  .invoice-actions button {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+}
