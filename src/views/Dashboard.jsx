@@ -660,6 +660,135 @@
 
 
 
+// import React, { useState, useEffect } from 'react';
+// import "/src/styles/Dashboard.css";
+// import ShipmentStepper from '../components/ShipmentStepper'; 
+// import ManageAgents from './ManageAgents'; 
+// import ViewShipments from './ViewShipments';
+// import DashboardOverview from './DashboardOverview'; // 📦 IMPORT NEW OVERVIEW COMPONENT
+// import SettingsView from './SettingsView';
+// // 🌟 IMPORT THE PRICING MANAGEMENT COMPONENT
+// import PricingManagement from './PricingManagement'; 
+
+// const Dashboard = ({ onLogout, user }) => {
+//   const normalizedRole = user?.role?.toLowerCase() || '';
+  
+//   // State to track if sidebar is collapsed
+//   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+//   const [activeTab, setActiveTab] = useState(
+//     normalizedRole === 'admin' ? 'overview' : 'add-shipment'
+//   );
+
+//   useEffect(() => {
+//     console.log("📊 Active Dashboard Identity Trace:", user);
+//   }, [user]);
+
+//   const allMenuItems = [
+//     { id: 'overview', label: 'Dashboard Overview', icon: '📊', adminOnly: true },
+//     { id: 'add-shipment', label: 'Create Shipment', icon: '📦', adminOnly: false },
+//     { id: 'all-shipments', label: 'View Shipments', icon: '📋', adminOnly: false },
+//     { id: 'agents', label: 'Manage Agents', icon: '👥', adminOnly: true },
+//     // 🌟 ADDED: Dynamic Pricing Configuration item mapped strictly to admins
+//     { id: 'pricing', label: 'Shipping Pricing', icon: '💰', adminOnly: true },
+//     { id: 'settings', label: 'Settings', icon: '⚙️', adminOnly: false },
+//   ];
+
+//   const filteredMenuItems = allMenuItems.filter(item => {
+//     if (!item.adminOnly) return true;
+//     return normalizedRole === 'admin'; 
+//   });
+
+//   const getPanelSubtitle = () => {
+//     if (normalizedRole === 'admin') return 'Admin Dashboard';
+//     if (normalizedRole === 'agent') return 'Agent Control Panel';
+//     return 'Customer Portal';
+//   };
+
+//   return (
+//     <div className={`dashboard-layout ${isSidebarCollapsed ? 'sidebar-hidden' : ''}`}>
+      
+//       {/* 1. Toggle Button on top header line */}
+//       <button 
+//         type="button" 
+//         className="sidebar-toggle-btn" 
+//         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+//         aria-label="Toggle Sidebar"
+//       >
+//         {isSidebarCollapsed ? '☰' : '✕'}
+//       </button>
+
+//       <aside className={`sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+//         <div className="sidebar-header">
+//           <h3>SEWA LOGISTICS</h3>
+//           <p>{getPanelSubtitle()}</p>
+//         </div>
+        
+//         <nav className="sidebar-nav">
+//           {filteredMenuItems.map((item) => (
+//             <button 
+//               key={item.id}
+//               className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
+//               onClick={() => setActiveTab(item.id)}
+//             >
+//               <span className="icon">{item.icon}</span>
+//               <span className="label">{item.label}</span>
+//             </button>
+//           ))}
+//         </nav>
+
+//         <div className="sidebar-footer">
+//           <button className="logout-btn" onClick={onLogout}>Logout</button>
+//         </div>
+//       </aside>
+
+//       <main className="dashboard-content">
+//         <div className="content-body">
+//           {/* ⚡ ACTIVE TAB CONDITIONAL ROUTING RENDERING MATRIX */}
+//           {activeTab === 'overview' && normalizedRole === 'admin' ? (
+//             <DashboardOverview />
+//           ) : activeTab === 'add-shipment' ? (
+//             <ShipmentStepper userId={user?.id || user?.userId || localStorage.getItem('sewa_user_id')} />
+//           ) : activeTab === 'all-shipments' ? (
+//             <ViewShipments user={user} />
+//           ) : activeTab === 'agents' && normalizedRole === 'admin' ? ( 
+//             <ManageAgents />                                          
+//           ) : activeTab === 'pricing' && normalizedRole === 'admin' ? (
+//             /* 🌟 RENDER THE PRICING TABLE COMPONENT SAFELY HERE */
+//             <PricingManagement />
+//           ) : activeTab === 'settings' ? (
+//             <SettingsView user={user} /> 
+//           ) : (
+//             <div className="placeholder-view">
+//               {allMenuItems.find(i => i.id === activeTab)?.adminOnly && normalizedRole !== 'admin' ? (
+//                 <h2>Access Denied</h2>
+//               ) : (
+//                 <>
+//                   <h2>{activeTab.replace('-', ' ').toUpperCase()}</h2>
+//                   <p>This section is under construction.</p>
+//                 </>
+//               )}
+//             </div>
+//           )}
+//         </div>
+//       </main>
+//     </div>
+//   );
+// };
+
+// export default Dashboard;
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import "/src/styles/Dashboard.css";
 import ShipmentStepper from '../components/ShipmentStepper'; 
@@ -679,6 +808,10 @@ const Dashboard = ({ onLogout, user }) => {
   const [activeTab, setActiveTab] = useState(
     normalizedRole === 'admin' ? 'overview' : 'add-shipment'
   );
+
+  // 🌟 ADDED: A reset key state. When clicked, it forces the child component 
+  // to completely remount, which clears any internally open detail views!
+  const [shipmentsResetKey, setShipmentsResetKey] = useState(0);
 
   useEffect(() => {
     console.log("📊 Active Dashboard Identity Trace:", user);
@@ -705,6 +838,16 @@ const Dashboard = ({ onLogout, user }) => {
     return 'Customer Portal';
   };
 
+  // 🌟 ADDED: Centralized click handler for the menu navigation items
+  const handleMenuClick = (itemId) => {
+    // If they are already looking at a shipment detail view and click "View Shipments" again,
+    // we change the key state to instantly bounce them out back to the main list table!
+    if (itemId === 'all-shipments') {
+      setShipmentsResetKey(prev => prev + 1);
+    }
+    setActiveTab(itemId);
+  };
+
   return (
     <div className={`dashboard-layout ${isSidebarCollapsed ? 'sidebar-hidden' : ''}`}>
       
@@ -729,7 +872,7 @@ const Dashboard = ({ onLogout, user }) => {
             <button 
               key={item.id}
               className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => handleMenuClick(item.id)} // 🌟 ALTERED: Custom click wrapper logic running here
             >
               <span className="icon">{item.icon}</span>
               <span className="label">{item.label}</span>
@@ -750,9 +893,10 @@ const Dashboard = ({ onLogout, user }) => {
           ) : activeTab === 'add-shipment' ? (
             <ShipmentStepper userId={user?.id || user?.userId || localStorage.getItem('sewa_user_id')} />
           ) : activeTab === 'all-shipments' ? (
-            <ViewShipments user={user} />
+            /* 🌟 FIXED: Appended unique reset key so it closes any open open detail modal panels instantly when clicked */
+            <ViewShipments user={user} key={`shipments-table-${shipmentsResetKey}`} />
           ) : activeTab === 'agents' && normalizedRole === 'admin' ? ( 
-            <ManageAgents />                                          
+            <ManageAgents />                                                  
           ) : activeTab === 'pricing' && normalizedRole === 'admin' ? (
             /* 🌟 RENDER THE PRICING TABLE COMPONENT SAFELY HERE */
             <PricingManagement />

@@ -1010,6 +1010,150 @@ const clearImage = (side) => {
 
 
 
+// const confirmShipment = async () => {
+//   setLoading(true);
+
+//   try {
+//     let finalFrontUrl = senderInfo.idFrontUrl || "";
+//     let finalReceiverUrl = receiverInfo.receiverIdUrl || ""; 
+
+//     // 1. AUTO-UPLOAD (Front File)
+//     if (stagedFiles.frontFile) {
+//       const fileName = `${Date.now()}-front.${stagedFiles.frontFile.name.split('.').pop()}`;
+//       const { data, error } = await supabase.storage.from('documents').upload(`sender-ids/${fileName}`, stagedFiles.frontFile);
+//       if (error) throw new Error("Front ID upload failed");
+//       const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(`sender-ids/${fileName}`);
+//       finalFrontUrl = publicUrl;
+//     }
+
+//     // AUTO-UPLOAD (Receiver File)
+//     if (stagedFiles.receiverFile) {
+//       const fileName = `${Date.now()}-receiver.${stagedFiles.receiverFile.name.split('.').pop()}`;
+//       const { data, error } = await supabase.storage.from('documents').upload(`receiver-ids/${fileName}`, stagedFiles.receiverFile);
+//       if (error) throw new Error("Receiver ID upload failed");
+//       const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(`receiver-ids/${fileName}`);
+//       finalReceiverUrl = publicUrl;
+//     }
+
+//     const verifiedUserId = userId ? Number(userId) : null;
+//     if (!verifiedUserId || isNaN(verifiedUserId)) {
+//       alert("Error: Active User Session ID could not be identified. Please try logging in again.");
+//       setLoading(false);
+//       return;
+//     }
+
+//     // ROLE SECURITY CHECK
+//     const storedUser = localStorage.getItem('sewa_user');
+//     let currentRole = "";
+//     if (storedUser) {
+//       try {
+//         const parsedUser = JSON.parse(storedUser);
+//         currentRole = parsedUser.role || "";
+//       } catch (e) {
+//         console.error("Failed to safely read stored identity context object:", e);
+//       }
+//     }
+//     const userHasEditingPrivileges = ['admin', 'agent'].includes(currentRole.toLowerCase());
+
+//     // 🌟 1. FIX: Calculate the system total on-the-fly exactly like Step 5 does
+//     const systemCalculatedTotal = packages.reduce((sum, pkg) => {
+//       const rawWeight = (pkg.items || []).reduce((itemSum, item) => itemSum + (parseFloat(item.weight) || 0), 0);
+//       const chgWt = typeof getChargeableWeight === 'function' ? getChargeableWeight(rawWeight) : rawWeight;
+//       const rate = typeof getPricePerKg === 'function' ? getPricePerKg(chgWt) : 0;
+//       const doorToDoorCharge = pkg.doorToDoor ? 500 : 0;
+//       return sum + (chgWt * rate) + doorToDoorCharge;
+//     }, 0);
+
+//     // 🌟 2. FIX: Safely fallback to our dynamic calculation instead of billingInfo.total
+//     const resolvedFinalPrice = (userHasEditingPrivileges && manualPriceOverride !== null) 
+//       ? manualPriceOverride 
+//       : (systemCalculatedTotal || 0);
+
+//     // 2. Prepare the payload
+//     const payload = {
+//       userId: verifiedUserId, 
+//       shipment: {
+//         trackingId: String(shipmentId || ""),
+//         senderType: String(senderInfo.senderType || ""),
+//         senderName: String(senderInfo.fullName || ""),
+//         senderCity: String(senderInfo.city || ""),
+//         senderIdType: String(senderInfo.idType || ""),
+//         senderAddress: String(senderInfo.address || ""),
+//         senderContact: String(senderInfo.contactNum || ""),
+//         senderCountry: String(senderInfo.country || ""),
+//         senderState: String(senderInfo.state || ""),
+//         senderZip: String(senderInfo.zip || ""),
+        
+//         senderIdFront: String(finalFrontUrl), 
+//         receiverIdUrl: String(finalReceiverUrl), 
+        
+//         billingMethod: String(billingInfo.method || ""),
+//         billingSubtotal: String(billingInfo.subtotal || "0"),
+        
+//         // 🌟 NOW CORRECTLY POPULATED UNDER ALL CIRCUMSTANCES
+//         billingTotal: String(resolvedFinalPrice),
+
+//         receiverName: String(receiverInfo.fullName || ""),
+//         receiverContact: String(receiverInfo.contactNumber || ""),
+//         receiverCountry: String(receiverInfo.country || ""),
+//         receiverCity: String(receiverInfo.city || ""),
+//         receiverAddress: String(receiverInfo.fullAddress || ""),
+//         receiverState: String(receiverInfo.state || ""),
+//         receiverZip: String(receiverInfo.zip || ""),
+//         receiverLandmark: String(receiverInfo.landmark || ""),
+
+//         weight: String(calculateGrandTotal() || "0"),
+//         date: String(new Date().toISOString()),
+//       },
+//       packages: packages.map((pkg) => ({
+//         packageId: String(pkg.id || Date.now()),
+//         profile: String(pkg.profile || ""),
+//         type: String(pkg.type || "Box"),
+//         hasHollow: String(pkg.hasHollow || "No"),
+//         dims: String(`${pkg.dims?.l || 0}x${pkg.dims?.w || 0}x${pkg.dims?.h || 0}`),
+//         cbm: String(pkg.cbm || "0"),
+//         items: pkg.items.map((item) => ({
+//           desc: String(item.description || ""),
+//           weight: String(item.weight || "0"),
+//           qty: Number(item.qty || 1), 
+//           price: String(item.price || "0"),
+//           hsCode: String(item.hsCode || ""),
+//         })),
+//       })),
+//     };
+
+//     // 3. Network Request to your MySQL Backend
+//     const response = await fetch('https://sewaro-backend.onrender.com/api/shipments/confirm', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(payload),
+//     });
+
+//     if (response.ok) {
+//       const result = await response.json();
+//       alert(`Success! ${result.message || "Shipment Saved"}`);
+      
+//       if (stagedFiles.frontPreview) URL.revokeObjectURL(stagedFiles.frontPreview);
+//       if (stagedFiles.receiverPreview) URL.revokeObjectURL(stagedFiles.receiverPreview); 
+      
+//       if (typeof setManualPriceOverride === 'function') {
+//          setManualPriceOverride(null);
+//       }
+
+//       handleReset(); 
+//     } else {
+//       const errorData = await response.json();
+//       alert(`Error: ${errorData.error}`);
+//     }
+//   } catch (err) {
+//     console.error("Network Failure:", err);
+//     alert("Could not connect to the server.");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+
 const confirmShipment = async () => {
   setLoading(true);
 
@@ -1055,21 +1199,25 @@ const confirmShipment = async () => {
     }
     const userHasEditingPrivileges = ['admin', 'agent'].includes(currentRole.toLowerCase());
 
-    // 🌟 1. FIX: Calculate the system total on-the-fly exactly like Step 5 does
+    // Calculate system total billing price based on package rows
     const systemCalculatedTotal = packages.reduce((sum, pkg) => {
-      const rawWeight = (pkg.items || []).reduce((itemSum, item) => itemSum + (parseFloat(item.weight) || 0), 0);
+      const rawWeight = parseFloat(pkg.total_weight) || 0; 
       const chgWt = typeof getChargeableWeight === 'function' ? getChargeableWeight(rawWeight) : rawWeight;
       const rate = typeof getPricePerKg === 'function' ? getPricePerKg(chgWt) : 0;
       const doorToDoorCharge = pkg.doorToDoor ? 500 : 0;
       return sum + (chgWt * rate) + doorToDoorCharge;
     }, 0);
 
-    // 🌟 2. FIX: Safely fallback to our dynamic calculation instead of billingInfo.total
     const resolvedFinalPrice = (userHasEditingPrivileges && manualPriceOverride !== null) 
       ? manualPriceOverride 
       : (systemCalculatedTotal || 0);
 
-    // 2. Prepare the payload
+    // 🌟 FIX: Calculate the master grand total weight from direct package data row models
+    const explicitGrandWeight = packages.reduce((sum, pkg) => {
+      return sum + (parseFloat(pkg.total_weight) || 0);
+    }, 0);
+
+    // 2. Prepare the completely aligned payload
     const payload = {
       userId: verifiedUserId, 
       shipment: {
@@ -1089,8 +1237,6 @@ const confirmShipment = async () => {
         
         billingMethod: String(billingInfo.method || ""),
         billingSubtotal: String(billingInfo.subtotal || "0"),
-        
-        // 🌟 NOW CORRECTLY POPULATED UNDER ALL CIRCUMSTANCES
         billingTotal: String(resolvedFinalPrice),
 
         receiverName: String(receiverInfo.fullName || ""),
@@ -1102,7 +1248,8 @@ const confirmShipment = async () => {
         receiverZip: String(receiverInfo.zip || ""),
         receiverLandmark: String(receiverInfo.landmark || ""),
 
-        weight: String(calculateGrandTotal() || "0"),
+        // 🌟 FIX: Replaced calculateGrandTotal() to ensure correct dashboard visualization metrics
+        weight: String(explicitGrandWeight.toFixed(2)),
         date: String(new Date().toISOString()),
       },
       packages: packages.map((pkg) => ({
@@ -1112,6 +1259,10 @@ const confirmShipment = async () => {
         hasHollow: String(pkg.hasHollow || "No"),
         dims: String(`${pkg.dims?.l || 0}x${pkg.dims?.w || 0}x${pkg.dims?.h || 0}`),
         cbm: String(pkg.cbm || "0"),
+        
+        // Securely mapped parameter key
+        total_weight: String(pkg.total_weight || "0.00"),
+
         items: pkg.items.map((item) => ({
           desc: String(item.description || ""),
           weight: String(item.weight || "0"),
@@ -1122,7 +1273,7 @@ const confirmShipment = async () => {
       })),
     };
 
-    // 3. Network Request to your MySQL Backend
+    // 3. Network Request to Backend API
     const response = await fetch('https://sewaro-backend.onrender.com/api/shipments/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2364,125 +2515,122 @@ const confirmShipment = async () => {
         </div>
 
         {/* Right Side Column: Financial Aggregations */}
-        {/* Right Side Column: Financial Aggregations */}
-<div className="financials-block" style={{ flex: 0.8, background: '#f4f6f8', padding: '15px', borderRadius: '4px', boxSizing: 'border-box' }}>
-  {(() => {
-    // 🌟 FIX: Calculate real total weight by reducing the inner items array safely
-    const aggregateWeight = packages.reduce((sum, p) => {
-      const packageItemsWeight = (p.items || []).reduce((itemSum, item) => itemSum + (parseFloat(item.weight) || 0), 0);
-      return sum + packageItemsWeight;
-    }, 0);
+        <div className="financials-block" style={{ flex: 0.8, background: '#f4f6f8', padding: '15px', borderRadius: '4px', boxSizing: 'border-box' }}>
+          {(() => {
+            // 🌟 FIXED: Sum database weight field directly from the package root row
+            const aggregateWeight = packages.reduce((sum, p) => {
+              return sum + (parseFloat(p.total_weight) || 0);
+            }, 0);
 
-    // 🌟 FIX: Apply the same item aggregation to the total payment calculator
-    const totalPayable = packages.reduce((sum, pkg) => {
-      // Calculate individual package raw weight dynamically from its inner item loops
-      const rawWeight = (pkg.items || []).reduce((itemSum, item) => itemSum + (parseFloat(item.weight) || 0), 0);
-      
-      const chgWt = typeof getChargeableWeight === 'function' ? getChargeableWeight(rawWeight) : rawWeight;
-      const rate = typeof getPricePerKg === 'function' ? getPricePerKg(chgWt) : 0;
-      const doorToDoorCharge = pkg.doorToDoor ? 500 : 0;
-      
-      return sum + (chgWt * rate) + doorToDoorCharge;
-    }, 0);
+            // 🌟 FIXED: Use package level weight field for calculating rates safely
+            const totalPayable = packages.reduce((sum, pkg) => {
+              const rawWeight = parseFloat(pkg.total_weight) || 0;
+              
+              const chgWt = typeof getChargeableWeight === 'function' ? getChargeableWeight(rawWeight) : rawWeight;
+              const rate = typeof getPricePerKg === 'function' ? getPricePerKg(chgWt) : 0;
+              const doorToDoorCharge = pkg.doorToDoor ? 500 : 0;
+              
+              return sum + (chgWt * rate) + doorToDoorCharge;
+            }, 0);
 
-    // Use the edited override price if present, otherwise fall back to system calculations
-    const currentActivePrice = manualPriceOverride !== null ? manualPriceOverride : totalPayable;
+            // Use the edited override price if present, otherwise fall back to system calculations
+            const currentActivePrice = manualPriceOverride !== null ? manualPriceOverride : totalPayable;
 
-    return (
-      <>
-        <p><strong>Total Weight:</strong> {aggregateWeight.toFixed(2)} Kg</p>
-        <p><strong>Weight charge:</strong> {billingInfo.currency || "NPR"} {currentActivePrice.toLocaleString()}</p>
-        
-        {/* ROLE-RESTRICTED GRAND TOTAL SECTION */}
-        <div className="grand-total-row" style={{ margin: '10px 0', padding: '5px 0', borderTop: '1px solid #ccc', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          
-          <style>{`
-            .invoice-price-override-field::-webkit-outer-spin-button,
-            .invoice-price-override-field::-webkit-inner-spin-button {
-              -webkit-appearance: none;
-              margin: 0;
-            }
-            .invoice-price-override-field {
-              -moz-appearance: textfield;
-            }
-          `}</style>
+            return (
+              <>
+                <p><strong>Total Weight:</strong> {aggregateWeight.toFixed(2)} Kg</p>
+                <p><strong>Weight charge:</strong> {billingInfo.currency || "NPR"} {currentActivePrice.toLocaleString()}</p>
+                
+                {/* ROLE-RESTRICTED GRAND TOTAL SECTION */}
+                <div className="grand-total-row" style={{ margin: '10px 0', padding: '5px 0', borderTop: '1px solid #ccc', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  
+                  <style>{`
+                    .invoice-price-override-field::-webkit-outer-spin-button,
+                    .invoice-price-override-field::-webkit-inner-spin-button {
+                      -webkit-appearance: none;
+                      margin: 0;
+                    }
+                    .invoice-price-override-field {
+                      -moz-appearance: textfield;
+                    }
+                  `}</style>
 
-          <span style={{ fontWeight: 'bold' }}>Total: </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ fontWeight: 'bold' }}>{billingInfo.currency || "NPR"} </span>
-            
-            {(() => {
-              let currentRole = "";
-              const storedUser = localStorage.getItem('sewa_user');
-              if (storedUser) {
-                try {
-                  const parsedUser = JSON.parse(storedUser);
-                  currentRole = parsedUser.role || "";
-                } catch (e) {
-                  console.error("Error parsing user from localStorage", e);
-                }
-              }
+                  <span style={{ fontWeight: 'bold' }}>Total: </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontWeight: 'bold' }}>{billingInfo.currency || "NPR"} </span>
+                    
+                    {(() => {
+                      let currentRole = "";
+                      const storedUser = localStorage.getItem('sewa_user');
+                      if (storedUser) {
+                        try {
+                          const parsedUser = JSON.parse(storedUser);
+                          currentRole = parsedUser.role || "";
+                        } catch (e) {
+                          console.error("Error parsing user from localStorage", e);
+                        }
+                      }
 
-              const normalizedRole = String(currentRole || '').toLowerCase().trim();
-              const userHasEditingPrivileges = ['admin', 'agent'].includes(normalizedRole);
+                      const normalizedRole = String(currentRole || '').toLowerCase().trim();
+                      const userHasEditingPrivileges = ['admin', 'agent'].includes(normalizedRole);
 
-              if (userHasEditingPrivileges) {
-                return (
-                  <input 
-                    type="number"
-                    className="invoice-price-override-field"
-                    value={manualPriceOverride !== null ? manualPriceOverride : totalPayable}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setManualPriceOverride(val === '' ? '' : parseFloat(val));
-                    }}
-                    style={{
-                      width: '140px', 
-                      fontWeight: 'bold',
-                      border: '1px dashed #0250a3',
-                      background: '#fff',
-                      padding: '4px 8px', 
-                      textAlign: 'right',
-                      fontSize: '14px',
-                      color: '#0250a3',
-                      borderRadius: '3px',
-                      outline: 'none'
-                    }}
-                  />
-                );
-              } else {
-                return (
-                  <span style={{ fontWeight: 'bold', fontSize: '14px', paddingRight: '6px' }}>
-                    {currentActivePrice.toLocaleString()}
+                      if (userHasEditingPrivileges) {
+                        return (
+                          <input 
+                            type="number"
+                            className="invoice-price-override-field"
+                            value={manualPriceOverride !== null ? manualPriceOverride : totalPayable}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setManualPriceOverride(val === '' ? '' : parseFloat(val));
+                            }}
+                            style={{
+                              width: '140px', 
+                              fontWeight: 'bold',
+                              border: '1px dashed #0250a3',
+                              background: '#fff',
+                              padding: '4px 8px', 
+                              textAlign: 'right',
+                              fontSize: '14px',
+                              color: '#0250a3',
+                              borderRadius: '3px',
+                              outline: 'none'
+                            }}
+                          />
+                        );
+                      } else {
+                        return (
+                          <span style={{ fontWeight: 'bold', fontSize: '14px', paddingRight: '6px' }}>
+                            {currentActivePrice.toLocaleString()}
+                          </span>
+                        );
+                      }
+                    })()}
+                  </div>
+                </div>
+
+                {/* Live Tracking QR Component Block */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '15px', padding: '10px', background: '#ffffff', border: '1px solid #ddd', borderRadius: '4px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#555', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Scan to Track Shipment
                   </span>
-                );
-              }
-            })()}
-          </div>
-        </div>
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(previewTrackingId || 'N/A')}`}
+                    alt="Tracking Invoice QR Code Matrix"
+                    style={{ width: '110px', height: '110px', display: 'block' }}
+                  />
+                  <span style={{ fontSize: '10px', fontFamily: 'monospace', marginTop: '4px', color: '#222', fontWeight: 'bold' }}>
+                    {previewTrackingId}
+                  </span>
+                </div>
 
-        {/* Live Tracking QR Component Block */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '15px', padding: '10px', background: '#ffffff', border: '1px solid #ddd', borderRadius: '4px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#555', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Scan to Track Shipment
-          </span>
-          <img 
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(previewTrackingId || 'N/A')}`}
-            alt="Tracking Invoice QR Code Matrix"
-            style={{ width: '110px', height: '110px', display: 'block' }}
-          />
-          <span style={{ fontSize: '10px', fontFamily: 'monospace', marginTop: '4px', color: '#222', fontWeight: 'bold' }}>
-            {previewTrackingId}
-          </span>
+                <p className="thank-you-msg" style={{ textAlign: 'center', marginTop: '10px', fontStyle: 'italic', fontSize: '12px' }}>
+                  Thank you for your business!
+                </p>
+              </>
+            );
+          })()}
         </div>
-
-        <p className="thank-you-msg" style={{ textAlign: 'center', marginTop: '10px', fontStyle: 'italic', fontSize: '12px' }}>
-          Thank you for your business!
-        </p>
-      </>
-    );
-  })()}
-</div>
 
       </div>
     </div>
@@ -2526,22 +2674,23 @@ const confirmShipment = async () => {
       >
         🏷️ Print Label
       </button>
-<button 
-    className="back-btn" 
-    onClick={() => setStep(4)} 
-    style={{ 
-      padding: '10px 20px', 
-      cursor: 'pointer', 
-      fontWeight: 'bold', 
-      background: '#6c757d', 
-      color: '#fff', 
-      border: 'none', 
-      borderRadius: '4px' 
-    }}
-  >
-    ⬅️ Back to Step 4
-  </button>
-      {/* Pass the state cache downward on confirmation trigger handler */}
+      
+      <button 
+        className="back-btn" 
+        onClick={() => setStep(4)} 
+        style={{ 
+          padding: '10px 20px', 
+          cursor: 'pointer', 
+          fontWeight: 'bold', 
+          background: '#6c757d', 
+          color: '#fff', 
+          border: 'none', 
+          borderRadius: '4px' 
+        }}
+      >
+        ⬅️ Back to Step 4
+      </button>
+
       <button 
         className="done-btn" 
         onClick={() => confirmShipment(previewTrackingId)} 
@@ -2552,7 +2701,6 @@ const confirmShipment = async () => {
     </div>
   </div>
 )}
-
 
 
 
