@@ -20,7 +20,7 @@ export const countryList = [
   "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", 
   "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", 
   "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", 
-  "Greece", "Grenada", "Guatemala", "Guinea", "Guyana", "Haiti", "Honduras", 
+  "Greece", "Grenada", "Guatemala", "Guinea", "Guyana", "Haiti","hongkong", "Honduras", 
   "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", 
   "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", 
   "Korea, South", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", 
@@ -59,36 +59,8 @@ const ShipmentStepper = ({userId}) => {
 
 
   const [manualPriceOverride, setManualPriceOverride] = useState(null);
-  // const handleProceedToStepTwo = (e) => {
-  //   e.preventDefault(); // Stop alternative anchor behaviors
-    
-  //   // 1. Gather values
-  //   const senderType = senderInfo.senderType || '';
-  //   const fullName = (senderInfo.fullName || '').trim();
-  //   const contactNum = (senderInfo.contactNum || '').trim();
-  //   const country = senderInfo.country || '';
-  //   const zip = (senderInfo.zip || '').trim();
-  //   const state = (senderInfo.state || '').trim();
-  //   const city = (senderInfo.city || '').trim();
-  //   const address = (senderInfo.address || '').trim();
-
-  //   // 2. Strict Empty Fields Rule Check
-  //   if (!senderType || !fullName || !contactNum || !country || !zip || !state || !city || !address) {
-  //     setValidationError('Please complete all required fields before proceeding to the next section.');
-  //     return;
-  //   }
-
-  //   // 3. Contact Number Regex Rule Verification (Must be exactly 10 digits)
-  //   const digitRegex = /^\d{10}$/;
-  //   if (!digitRegex.test(contactNum)) {
-  //     setValidationError('The contact number must be exactly 10 numerical digits long.');
-  //     return;
-  //   }
-
-  //   // Clear validation state and progress forward safely
-  //   setValidationError('');
-  //   setStep(2);
-  // };
+  //const [invoiceNotes, setInvoiceNotes] = useState("");
+  
   const handleNextNavigation = (e) => {
   if (e) e.preventDefault();
 
@@ -265,7 +237,9 @@ const ShipmentStepper = ({userId}) => {
   const [receiverInfo, setReceiverInfo] = useState(() => 
     getSafeCache('shp_receiver', { fullName: '',state: '',zip: '',landmark: '', contactNumber: '', country: 'Nepal', city: '', fullAddress: '', receiverIdUrl:'' })
   );
-
+const [invoiceNotes, setInvoiceNotes] = useState(() => 
+    getSafeCache('shp_invoice_notes', '')
+  );
   const [billingInfo, setBillingInfo] = useState(() => 
   getSafeCache('shp_billing', { 
     method: 'Cash',   // e.g., Cash, Bank Transfer, Cheque
@@ -285,6 +259,7 @@ const ShipmentStepper = ({userId}) => {
         id: Date.now(),
         profile: '',
         type: '',
+        total_weight: '',
         doorToDoor: false, // Default value
         items: [{ id: Date.now() + 1, description: '', weight: 0, qty: 1, price: 0, hsCode: '' }]
       }
@@ -426,9 +401,16 @@ const [previewTrackingId, setPreviewTrackingId] = useState(() => {
   }));
 };
   const updatePackageField = (pkgId, field, value) => {
+    const updatedPackages = packages.map(pkg => 
+      pkg.id === pkgId ? { ...pkg, [field]: value } : pkg
+    );
+    savePackagesToCache(updatedPackages);
       setPackages(packages.map(p => p.id === pkgId ? { ...p, [field]: value } : p));
     };
-
+  const updateInvoiceNotes = (value) => {
+      setInvoiceNotes(value);
+      localStorage.setItem('shp_invoice_notes', value);
+    };
   const removePackage = (pkgId) => {
       if (packages.length > 1) {
         setPackages(packages.filter(p => p.id !== pkgId));
@@ -497,18 +479,10 @@ const [previewTrackingId, setPreviewTrackingId] = useState(() => {
     return Math.ceil(w); // Rounds up to nearest KG for weights > 1
   };
 
-  // const getPricePerKg = (totalWeight) => {
-  //   const w = parseFloat(totalWeight);
-  //   if (w >= 10 && w < 20) return 545;
-  //   if (w >= 20 && w < 50) return 500;
-  //   if (w >= 50 && w < 100) return 478;
-  //   if (w >= 100) return 445;
-  //   return 600; // Default for small weights
-  // };
 useEffect(() => {
   const fetchRates = async () => {
     try {
-      const response = await axios.get('https://sewaro-backend.onrender.com/api/pricing');
+      const response = await axios.get('https://sewaro-backend.onrender.com/api/pricing-shipments');
       setPricingTiers(response.data);
     } catch (err) {
       console.error("Error loading live pricing matrix parameters:", err);
@@ -517,63 +491,50 @@ useEffect(() => {
   fetchRates();
 }, []);
 
-// 🔄 THE DYNAMIC ENGINE: Replaces your old hardcoded logic completely!
-// 🔄 THE DYNAMIC ENGINE: Safely evaluates user weight against your database tiers
-// 🔄 THE PURE DATABASE ENGINE: No local values or hardcoded rules!
 const getPricePerKg = (totalWeight) => {
   const w = parseFloat(totalWeight) || 0;
+  
+  // 1. Sanitize input strings to match cleanly (removes weird white spacing and symbols)
+  const senderCountry = (senderInfo?.country || "").trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+  const receiverCountry = (receiverInfo?.country || "").trim().toLowerCase().replace(/[^a-z0-9]/g, '');
 
-  // 1. If pricing data has successfully loaded from the database
+  if (!senderCountry || !receiverCountry) {
+    return 0; 
+  }
+
   if (pricingTiers && pricingTiers.length > 0) {
     
-    // Search rows dynamically: checks if the weight is between the min and max columns
-    const matchedTier = pricingTiers.find(tier => 
-      w >= parseFloat(tier.min_weight) && w <= parseFloat(tier.max_weight)
+    // 2. Normalize database parameters down to alphanumeric strings to match "hongkong" with "Hong Kong"
+    const relevantTiers = pricingTiers.filter(tier => {
+      const dbOrigin = (tier.sender_country || "").trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      const dbDest = (tier.receiver_country || "").trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      return dbOrigin === senderCountry && dbDest === receiverCountry;
+    });
+
+    if (relevantTiers.length === 0) {
+      console.warn(`No explicit pricing matrix found for route: ${senderCountry} ➔ ${receiverCountry}`);
+      return 0; 
+    }
+
+    // 3. Match weight brackets
+    const matchedTier = relevantTiers.find(tier => 
+      w >= parseFloat(tier.min_weight || 0) && w <= parseFloat(tier.max_weight || 0)
     );
 
-    // If an exact range match is found, return its custom database rate
     if (matchedTier) {
       return parseFloat(matchedTier.rate_per_kg);
     }
 
-    // Safety Fallback: If weight exceeds the highest range found in the database, 
-    // fall back to the rate of the very last tier row (e.g., the 100-500kg tier rate).
-    return parseFloat(pricingTiers[pricingTiers.length - 1].rate_per_kg);
+    // 4. Over-bracket fallback calculation
+    const sortedTiers = [...relevantTiers].sort((a, b) => parseFloat(a.max_weight || 0) - parseFloat(b.max_weight || 0));
+    const highestTier = sortedTiers[sortedTiers.length - 1];
+    
+    return highestTier ? parseFloat(highestTier.rate_per_kg) : 0;
   }
 
-  // 2. Loading State Fallback
-  // Returns 0 or a base loading identifier while the asynchronous useEffect API call completes
   return 0; 
 };
-// const uploadToSupabase = async (side) => {
-//   // Select the correct file based on the 'side' passed ('front' or 'back')
-//   const file = side === 'front' ? stagedFiles.frontFile : stagedFiles.backFile;
-  
-//   if (!file) return alert("Please select a file first!");
 
-//   const fileName = `${Date.now()}-${side}.${file.name.split('.').pop()}`;
-//   const folderPath = side === 'front' ? 'sender-ids' : 'receiver-ids';
-//   try {
-//     const { data, error } = await supabase.storage
-//       .from('documents')
-//       .upload(`sender-ids/${fileName}`, file);
-
-//     if (error) throw error;
-
-//     const { data: { publicUrl } } = supabase.storage
-//       .from('documents')
-//       .getPublicUrl(`sender-ids/${fileName}`);
-
-//     setSenderInfo(prev => ({
-//       ...prev,
-//       [side === 'front' ? 'idFrontUrl' : 'idBackUrl']: publicUrl
-//     }));
-    
-//     alert(`${side.toUpperCase()} upload successful!`);
-//   } catch (err) {
-//     alert("Upload failed: " + err.message);
-//   }
-// };
 const uploadToSupabase = async (side) => {
   // Select 'frontFile' or 'receiverFile' depending on which step calls it
   const file = side === 'front' ? stagedFiles.frontFile : stagedFiles.receiverFile;
@@ -1251,6 +1212,7 @@ const confirmShipment = async () => {
         // 🌟 FIX: Replaced calculateGrandTotal() to ensure correct dashboard visualization metrics
         weight: String(explicitGrandWeight.toFixed(2)),
         date: String(new Date().toISOString()),
+        invoiceNotes: String(invoiceNotes || ""),
       },
       packages: packages.map((pkg) => ({
         packageId: String(pkg.id || Date.now()),
@@ -1309,7 +1271,8 @@ const confirmShipment = async () => {
     localStorage.removeItem('shp_receiver');
     localStorage.removeItem('shp_packages'); 
     localStorage.removeItem('shp_active_id');
-
+    localStorage.removeItem('shp_invoice_notes');
+    setInvoiceNotes("");
     // 2. Reset States to Empty
     setSenderInfo({ fullName: '', senderType: '', city: '', address: '', contactNum: '', idType: '' });
     setReceiverInfo({ fullName: '', contactNumber: '', country: 'Nepal', city: '', fullAddress: '' });
@@ -1546,14 +1509,7 @@ const confirmShipment = async () => {
 
     {/* Footer Navigation Button Row Section */}
     <div style={{ marginTop: '30px', textAlign: 'right' }}>
-      {/* <button 
-        type="button" 
-        onClick={handleProceedToStepTwo} 
-        className="btn-next"
-        style={{ padding: '10px 24px', cursor: 'pointer', fontWeight: 'bold' }}
-      >
-        Continue to Step 2
-      </button> */}
+      
     </div>
   </>
 )}
@@ -1853,61 +1809,7 @@ const confirmShipment = async () => {
               </tr>
             </thead>
             <tbody>
-              {/* {pkg.items && pkg.items.map((item) => (
-                <tr key={item.id}>
-                  <td className="desc-cell">
-                    <textarea 
-                      placeholder="Description" 
-                      className="auto-grow-input"
-                      value={item.description || ""} 
-                      onChange={(e) => {
-                        e.target.style.height = 'inherit';
-                        e.target.style.height = `${e.target.scrollHeight}px`;
-                        updateItem(pkg.id, item.id, 'description', e.target.value);
-                      }}
-                    />
-                  </td>
-                  <td>
-                    <input 
-                      type="number" 
-                      min="0" 
-                      className="lengthy-input" 
-                      value={item.qty || ""} 
-                      onChange={(e) => updateItem(pkg.id, item.id, 'qty', e.target.value)} 
-                    />
-                  </td>
-                  <td>
-                    <input 
-                      type="number" 
-                      min="0" 
-                      className="lengthy-input" 
-                      value={item.weight || ""} 
-                      onChange={(e) => updateItem(pkg.id, item.id, 'weight', e.target.value)} 
-                    />
-                  </td>
-                  <td>
-                    <input 
-                      type="number" 
-                      min="0" 
-                      className="lengthy-input" 
-                      value={item.price || ""} 
-                      onChange={(e) => updateItem(pkg.id, item.id, 'price', e.target.value)} 
-                    />
-                  </td>
-                  <td>
-                    <input 
-                      type="text" 
-                      className="lengthy-input" 
-                      value={item.hsCode || ""} 
-                      onChange={(e) => updateItem(pkg.id, item.id, 'hsCode', e.target.value)} 
-                    />
-                  </td>
-                  <td>
-                    <button className="delete-btn" onClick={() => removeItem(pkg.id, item.id)}>🗑️</button>
-                  </td>
-                </tr>
-              ))} */}
-              {/* Replace the dynamic items map wrapper inside <tbody> with this string label markup */}
+              
 {pkg.items && pkg.items.map((item) => (
   <tr key={item.id}>
     <td className="desc-cell" data-label="Description">
@@ -2504,25 +2406,18 @@ const confirmShipment = async () => {
       </table>
 
       {/* 📋 Bottom Section: Terms & Totals Row */}
+      {/* 📋 Bottom Section: Swapped Terms & Financials Layout Grid */}
       <div className="invoice-footer-grid" style={{ display: 'flex', width: '100%', gap: '20px', marginTop: '20px' }}>
         
-        {/* Left Side Column: Legal Terms Notes */}
-        <div className="comments-block" style={{ flex: 1.2 }}>
-          <div className="invoice-section-banner" style={{ fontSize: '11px', padding: '4px 8px' }}>Comments</div>
-          <ul>
-            <li>Declared package parameters are subject to regular weight re-evaluation audits.</li>
-          </ul>
-        </div>
-
-        {/* Right Side Column: Financial Aggregations */}
-        <div className="financials-block" style={{ flex: 0.8, background: '#f4f6f8', padding: '15px', borderRadius: '4px', boxSizing: 'border-box' }}>
+        {/* Left Side Column: Financial Aggregations & QR Tracking Engine */}
+        <div className="financials-block" style={{ flex: 1, background: '#f4f6f8', padding: '15px', borderRadius: '4px', boxSizing: 'border-box' }}>
           {(() => {
-            // 🌟 FIXED: Sum database weight field directly from the package root row
+            // 🌟 Sum database weight field directly from the package root rows
             const aggregateWeight = packages.reduce((sum, p) => {
               return sum + (parseFloat(p.total_weight) || 0);
             }, 0);
 
-            // 🌟 FIXED: Use package level weight field for calculating rates safely
+            // 🌟 Use package level weight field for calculating rates safely
             const totalPayable = packages.reduce((sum, pkg) => {
               const rawWeight = parseFloat(pkg.total_weight) || 0;
               
@@ -2630,6 +2525,55 @@ const confirmShipment = async () => {
               </>
             );
           })()}
+        </div>
+
+        {/* Right Side Column: Important Shipment Notes & Extra Audit Disclaimers */}
+        <div className="comments-block" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div className="invoice-section-banner" style={{ fontSize: '12px', padding: '6px 10px', marginBottom: '8px' }}>
+            Important Shipment Notes
+          </div>
+          
+          <textarea
+            className="dynamic-invoice-notes"
+            value={invoiceNotes || ""} 
+            placeholder="Optional: Type any custom tracking terms, fragile handling notes, or custom delivery instructions here..."
+            onChange={(e) => {
+              if (typeof setInvoiceNotes === 'function') {
+                setInvoiceNotes(e.target.value);
+              } else if (typeof updateInvoiceNotes === 'function') {
+                updateInvoiceNotes(e.target.value);
+              }
+              localStorage.setItem('shp_invoice_notes', e.target.value);
+              
+              // Dynamic auto-grow sizing engine
+              e.target.style.height = 'auto'; 
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            style={{
+              width: '100%',
+              flex: 1,
+              minHeight: '120px',
+              boxSizing: 'border-box',
+              border: '1px dashed #0250a3',
+              borderRadius: '4px',
+              padding: '10px',
+              fontSize: '13px',
+              lineHeight: '1.5',
+              resize: 'none',
+              overflow: 'hidden',
+              background: '#fff',
+              outline: 'none',
+              color: '#333',
+              fontFamily: 'sans-serif'
+            }}
+          />
+
+          <div style={{ marginTop: '15px', fontSize: '11px', color: '#666', lineHeight: '1.4' }}>
+            <strong style={{ color: '#000' }}>Comments:</strong>
+            <ul style={{ margin: '5px 0 0 15px', padding: 0 }}>
+              <li>Declared package parameters are subject to regular weight re-evaluation audits.</li>
+            </ul>
+          </div>
         </div>
 
       </div>

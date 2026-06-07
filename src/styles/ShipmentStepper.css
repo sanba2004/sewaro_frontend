@@ -1062,3 +1062,22 @@ th {
   }
 
 }
+@media print {
+  .no-print { display: none !important; }
+  .invoice-price-override-field {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    text-align: right !important;
+  }
+  /* 🖨️ Clean print styling for your new dynamic notes block */
+  .dynamic-invoice-notes {
+    border: none !important;
+    background: transparent !important;
+    resize: none !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    font-family: inherit !important;
+    color: #000 !important;
+  }
+}
