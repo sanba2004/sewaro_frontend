@@ -60,7 +60,7 @@ const ShipmentStepper = ({userId}) => {
 
   const [manualPriceOverride, setManualPriceOverride] = useState(null);
   //const [invoiceNotes, setInvoiceNotes] = useState("");
-  
+  const [showSuccessModal, setShowSuccessModal] = useState({ show: false, message: "" });
   const handleNextNavigation = (e) => {
   if (e) e.preventDefault();
 
@@ -1114,7 +1114,15 @@ const clearImage = (side) => {
 //   }
 // };
 
+// 🌟 Custom Dynamic Feedback Notifications State
+const [feedback, setFeedback] = useState(null); // { type: 'success' | 'error', message: '' }
 
+const showNotification = (type, message) => {
+  setFeedback({ type, message });
+  setTimeout(() => {
+    setFeedback(null);
+  }, 4500); // Automatically clear popup banner after 4.5 seconds
+};
 const confirmShipment = async () => {
   setLoading(true);
 
@@ -1142,7 +1150,8 @@ const confirmShipment = async () => {
 
     const verifiedUserId = userId ? Number(userId) : null;
     if (!verifiedUserId || isNaN(verifiedUserId)) {
-      alert("Error: Active User Session ID could not be identified. Please try logging in again.");
+      // 🌟 UPDATED: Replaced alert with React UI popup
+      showNotification('error', "❌ Active User Session ID could not be identified. Please try logging in again.");
       setLoading(false);
       return;
     }
@@ -1173,12 +1182,12 @@ const confirmShipment = async () => {
       ? manualPriceOverride 
       : (systemCalculatedTotal || 0);
 
-    // 🌟 FIX: Calculate the master grand total weight from direct package data row models
+    // Calculate the master grand total weight from direct package data row models
     const explicitGrandWeight = packages.reduce((sum, pkg) => {
       return sum + (parseFloat(pkg.total_weight) || 0);
     }, 0);
 
-    // 2. Prepare the completely aligned payload
+    // 2. Prepare payload
     const payload = {
       userId: verifiedUserId, 
       shipment: {
@@ -1209,7 +1218,6 @@ const confirmShipment = async () => {
         receiverZip: String(receiverInfo.zip || ""),
         receiverLandmark: String(receiverInfo.landmark || ""),
 
-        // 🌟 FIX: Replaced calculateGrandTotal() to ensure correct dashboard visualization metrics
         weight: String(explicitGrandWeight.toFixed(2)),
         date: String(new Date().toISOString()),
         invoiceNotes: String(invoiceNotes || ""),
@@ -1221,8 +1229,6 @@ const confirmShipment = async () => {
         hasHollow: String(pkg.hasHollow || "No"),
         dims: String(`${pkg.dims?.l || 0}x${pkg.dims?.w || 0}x${pkg.dims?.h || 0}`),
         cbm: String(pkg.cbm || "0"),
-        
-        // Securely mapped parameter key
         total_weight: String(pkg.total_weight || "0.00"),
 
         items: pkg.items.map((item) => ({
@@ -1244,7 +1250,12 @@ const confirmShipment = async () => {
 
     if (response.ok) {
       const result = await response.json();
-      alert(`Success! ${result.message || "Shipment Saved"}`);
+      
+      // 🌟 UPDATED: Replaced alert with React UI popup
+      setShowSuccessModal({
+        show: true,
+        message: result.message || "Shipment records have been permanently saved and compiled."
+      });
       
       if (stagedFiles.frontPreview) URL.revokeObjectURL(stagedFiles.frontPreview);
       if (stagedFiles.receiverPreview) URL.revokeObjectURL(stagedFiles.receiverPreview); 
@@ -1256,11 +1267,15 @@ const confirmShipment = async () => {
       handleReset(); 
     } else {
       const errorData = await response.json();
-      alert(`Error: ${errorData.error}`);
+      
+      // 🌟 UPDATED: Replaced alert with React UI popup
+      showNotification('error', `❌ Error: ${errorData.error || "Failed to save shipment."}`);
     }
   } catch (err) {
     console.error("Network Failure:", err);
-    alert("Could not connect to the server.");
+    
+    // 🌟 UPDATED: Replaced alert with React UI popup
+    showNotification('error', "📡 Could not connect to the server. Please check your network connection.");
   } finally {
     setLoading(false);
   }
@@ -1366,6 +1381,63 @@ const confirmShipment = async () => {
         onClose={() => setValidationError('')} 
       />
     )}
+    {/* NEW FEEDBACK NOTIFICATION BANNER*/}
+      {showSuccessModal.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyCenter: 'center',
+          justifyContent: 'center',
+          zIndex: 10000
+        }}>
+          <div style={{
+            backgroundColor: '#1e293b',
+            padding: '25px',
+            borderRadius: '8px',
+            maxWidth: '500px',
+            width: '90%',
+            border: '1px solid #334155',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '45px', marginBottom: '10px' }}>🎉</div>
+            <h3 style={{ color: '#34d399', marginTop: 0, fontSize: '18px', fontWeight: '600', letterSpacing: '0.5px' }}>
+              TRANSACTION COMPLETED SUCCESSFUL
+            </h3>
+            <p style={{ color: '#cbd5e1', fontSize: '14px', lineHeight: '1.6', margin: '15px 0' }}>
+              {showSuccessModal.message}
+            </p>
+            <p style={{ color: '#94a3b8', fontSize: '13px', fontStyle: 'italic', margin: '0 0 20px 0' }}>
+              The tracking profile, weights, and items are now active on your ledger dashboard.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+              <button 
+                type="button"
+                onClick={() => setShowSuccessModal({ show: false, message: "" })}
+                style={{ 
+                  padding: '10px 24px', 
+                  background: '#2563eb', 
+                  color: '#fff', 
+                  border: 'none', 
+                  borderRadius: '4px', 
+                  cursor: 'pointer', 
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#1d4ed8'}
+                onMouseLeave={(e) => e.target.style.background = '#2563eb'}
+              >
+                Dismiss Window
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="form-card">
         <h2 className="section-title">{steps[step - 1].label}</h2>
         
@@ -1412,7 +1484,7 @@ const confirmShipment = async () => {
             onChange={(e) => updateSender('contactNum', e.target.value)}
           />                  
         </div>
-        
+        {/* //upto here */}
         <div className="input-field inline">
           <div style={{ flex: 1 }}>
             <label>Verification ID (Optional):</label>
