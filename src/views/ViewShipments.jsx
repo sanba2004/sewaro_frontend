@@ -3507,6 +3507,9 @@
 
 // export default ViewShipments;
 
+
+
+
 import React, { useEffect, useState } from 'react';
 import ShipmentDetailView from './ShipmentDetailView'; 
 
@@ -3607,6 +3610,39 @@ const ViewShipments = ({ user }) => {
   }, [user, dateFrom, dateTo, status, selectedAgent, isUserAdmin, currentPage, activeSearch]);
 
   // 🚀 Inline Status Update Handler for Admins
+  // const handleInlineStatusChange = async (shipment, newStatus) => {
+  //   const trackingId = shipment.tracking_id;
+  //   if (!trackingId) return;
+
+  //   try {
+  //     setStatusUpdatingMap(prev => ({ ...prev, [trackingId]: true }));
+
+  //     const updatedPayload = {
+  //       ...shipment,
+  //       status: newStatus
+  //     };
+
+  //     const response = await fetch(`https://sewaro-backend.onrender.com/api/shipments/update/${trackingId}`, {
+  //       method: 'PUT',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(updatedPayload)
+  //     });
+
+  //     if (!response.ok) throw new Error("The operational backend core rejected your fast status modification.");
+
+  //     setShipments(prevShipments => 
+  //       prevShipments.map(s => s.tracking_id === trackingId ? { ...s, status: newStatus } : s)
+  //     );
+      
+  //     showNotification('success', `📈 Shipment ${trackingId} successfully transitioned to "${newStatus}".`);
+  //   } catch (err) {
+  //     console.error("Inline update failure:", err);
+  //     showNotification('error', `❌ Status Transition Failed: ${err.message}`);
+  //   } finally {
+  //     setStatusUpdatingMap(prev => ({ ...prev, [trackingId]: false }));
+  //   }
+  // };
+// 🚀 Inline Status Update Handler for Admins + Automated SMS Trigger
   const handleInlineStatusChange = async (shipment, newStatus) => {
     const trackingId = shipment.tracking_id;
     if (!trackingId) return;
@@ -3614,9 +3650,13 @@ const ViewShipments = ({ user }) => {
     try {
       setStatusUpdatingMap(prev => ({ ...prev, [trackingId]: true }));
 
+      // 🎯 Check if the state transitioned to "Ready to Collect"
+      const shouldSendSMS = newStatus === "Ready to Collect";
+
       const updatedPayload = {
         ...shipment,
-        status: newStatus
+        status: newStatus,
+        triggerSMS: shouldSendSMS // 👈 Flag sent to your Express backend
       };
 
       const response = await fetch(`https://sewaro-backend.onrender.com/api/shipments/update/${trackingId}`, {
@@ -3631,7 +3671,12 @@ const ViewShipments = ({ user }) => {
         prevShipments.map(s => s.tracking_id === trackingId ? { ...s, status: newStatus } : s)
       );
       
-      showNotification('success', `📈 Shipment ${trackingId} successfully transitioned to "${newStatus}".`);
+      let successMsg = `📈 Shipment ${trackingId} successfully transitioned to "${newStatus}".`;
+      if (shouldSendSMS) {
+        successMsg += " 💬 Automated collection notification dispatched via Nest SMS.";
+      }
+      
+      showNotification('success', successMsg);
     } catch (err) {
       console.error("Inline update failure:", err);
       showNotification('error', `❌ Status Transition Failed: ${err.message}`);
@@ -3640,12 +3685,43 @@ const ViewShipments = ({ user }) => {
     }
   };
 
+
   // Batch Status Updater for Selected Items
+  // const handleBatchStatusChange = async (newStatus) => {
+  //   if (selectedTrackingIds.length === 0) return;
+
+  //   setLoading(true);
+  //   try {
+  //     const updatePromises = selectedTrackingIds.map(async (id) => {
+  //       const fullShipmentObj = shipments.find(s => s.tracking_id === id);
+  //       if (!fullShipmentObj) return;
+
+  //       return fetch(`https://sewaro-backend.onrender.com/api/shipments/update/${id}`, {
+  //         method: 'PUT',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({ ...fullShipmentObj, status: newStatus })
+  //       });
+  //     });
+
+  //     await Promise.all(updatePromises);
+  //     showNotification('success', `🎉 Successfully synchronized status to "${newStatus}" across ${selectedTrackingIds.length} records!`);
+  //     setSelectedTrackingIds([]);
+  //     fetchShipments();
+  //   } catch (err) {
+  //     console.error("Batch update transaction anomaly:", err);
+  //     showNotification('error', "❌ Batch Status Update Action Failed.");
+  //     setLoading(false);
+  //   }
+  // };
+// Batch Status Updater for Selected Items
   const handleBatchStatusChange = async (newStatus) => {
     if (selectedTrackingIds.length === 0) return;
 
     setLoading(true);
     try {
+      // 🎯 Check if the target state is "Ready to Collect"
+      const shouldSendSMS = newStatus === "Ready to Collect";
+
       const updatePromises = selectedTrackingIds.map(async (id) => {
         const fullShipmentObj = shipments.find(s => s.tracking_id === id);
         if (!fullShipmentObj) return;
@@ -3653,12 +3729,22 @@ const ViewShipments = ({ user }) => {
         return fetch(`https://sewaro-backend.onrender.com/api/shipments/update/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...fullShipmentObj, status: newStatus })
+          body: JSON.stringify({ 
+            ...fullShipmentObj, 
+            status: newStatus,
+            triggerSMS: shouldSendSMS // 👈 Pass the flag down for every record
+          })
         });
       });
 
       await Promise.all(updatePromises);
-      showNotification('success', `🎉 Successfully synchronized status to "${newStatus}" across ${selectedTrackingIds.length} records!`);
+      
+      let successMsg = `🎉 Successfully synchronized status to "${newStatus}" across ${selectedTrackingIds.length} records!`;
+      if (shouldSendSMS) {
+        successMsg += " 💬 SMS customer alerts queued successfully.";
+      }
+
+      showNotification('success', successMsg);
       setSelectedTrackingIds([]);
       fetchShipments();
     } catch (err) {
@@ -3667,6 +3753,7 @@ const ViewShipments = ({ user }) => {
       setLoading(false);
     }
   };
+
 
   // 🌟 Batch Purge/Deletion Request Execution Core
   const handleBatchDeleteExecute = async () => {
