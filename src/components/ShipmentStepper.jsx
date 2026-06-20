@@ -235,7 +235,7 @@ const ShipmentStepper = ({userId}) => {
 
   // Step 2: Receiver
   const [receiverInfo, setReceiverInfo] = useState(() => 
-    getSafeCache('shp_receiver', { fullName: '',state: '',zip: '',landmark: '', contactNumber: '', country: 'Nepal', city: '', fullAddress: '', receiverIdUrl:'' })
+    getSafeCache('shp_receiver', { fullName: '',state: '',zip: '',landmark: '', contactNumber: '', country: 'Nepal', city: '', fullAddress: '', receiverIdUrl:'' , deliveryType: ''})
   );
 const [invoiceNotes, setInvoiceNotes] = useState(() => 
     getSafeCache('shp_invoice_notes', '')
@@ -1217,7 +1217,7 @@ const confirmShipment = async () => {
         receiverState: String(receiverInfo.state || ""),
         receiverZip: String(receiverInfo.zip || ""),
         receiverLandmark: String(receiverInfo.landmark || ""),
-
+        deliveryType: String(receiverInfo.deliveryType || ""),
         weight: String(explicitGrandWeight.toFixed(2)),
         date: String(new Date().toISOString()),
         invoiceNotes: String(invoiceNotes || ""),
@@ -1685,6 +1685,29 @@ const confirmShipment = async () => {
           onChange={(e) => handleReceiverUpdate('contactNumber', e.target.value)} // UPDATED
         />
       </div>
+      <div className="hollow-section delivery-type-section" style={{ marginTop: '15px' }}>
+  <label className="section-label" style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
+    Delivery Type*
+  </label>
+  <div className="button-toggle-group" style={{ display: 'flex', width: '100%', gap: '10px' }}>
+    <button 
+      type="button"
+      className={`tab-btn ${receiverInfo.deliveryType === 'Branch Delivery' ? 'active' : ''}`} 
+      onClick={() => handleReceiverUpdate('deliveryType', 'Branch Delivery')}
+      style={{ flex: 1, padding: '10px', cursor: 'pointer' }}
+    >
+      🏪 Branch Delivery
+    </button>
+    <button 
+      type="button"
+      className={`tab-btn ${receiverInfo.deliveryType === 'Home Delivery' ? 'active' : ''}`} 
+      onClick={() => handleReceiverUpdate('deliveryType', 'Home Delivery')}
+      style={{ flex: 1, padding: '10px', cursor: 'pointer' }}
+    >
+      🏠 Home Delivery
+    </button>
+  </div>
+</div>
     </div>
 
     {/* Right Column */}
