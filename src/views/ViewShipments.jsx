@@ -3643,20 +3643,61 @@ const ViewShipments = ({ user }) => {
   //   }
   // };
 // 🚀 Inline Status Update Handler for Admins + Automated SMS Trigger
-  const handleInlineStatusChange = async (shipment, newStatus) => {
+  // const handleInlineStatusChange = async (shipment, newStatus) => {
+  //   const trackingId = shipment.tracking_id;
+  //   if (!trackingId) return;
+
+  //   try {
+  //     setStatusUpdatingMap(prev => ({ ...prev, [trackingId]: true }));
+
+  //     // 🎯 Check if the state transitioned to "Ready to Collect"
+  //     const shouldSendSMS = newStatus === "Ready to Collect";
+
+  //     const updatedPayload = {
+  //       ...shipment,
+  //       status: newStatus,
+  //       triggerSMS: shouldSendSMS // 👈 Flag sent to your Express backend
+  //     };
+
+  //     const response = await fetch(`https://sewaro-backend.onrender.com/api/shipments/update/${trackingId}`, {
+  //       method: 'PUT',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(updatedPayload)
+  //     });
+
+  //     if (!response.ok) throw new Error("The operational backend core rejected your fast status modification.");
+
+  //     setShipments(prevShipments => 
+  //       prevShipments.map(s => s.tracking_id === trackingId ? { ...s, status: newStatus } : s)
+  //     );
+      
+  //     let successMsg = `📈 Shipment ${trackingId} successfully transitioned to "${newStatus}".`;
+  //     if (shouldSendSMS) {
+  //       successMsg += " 💬 Automated collection notification dispatched via Nest SMS.";
+  //     }
+      
+  //     showNotification('success', successMsg);
+  //   } catch (err) {
+  //     console.error("Inline update failure:", err);
+  //     showNotification('error', `❌ Status Transition Failed: ${err.message}`);
+  //   } finally {
+  //     setStatusUpdatingMap(prev => ({ ...prev, [trackingId]: false }));
+  //   }
+  // };
+const handleInlineStatusChange = async (shipment, newStatus) => {
     const trackingId = shipment.tracking_id;
     if (!trackingId) return;
 
     try {
       setStatusUpdatingMap(prev => ({ ...prev, [trackingId]: true }));
 
-      // 🎯 Check if the state transitioned to "Ready to Collect"
-      const shouldSendSMS = newStatus === "Ready to Collect";
+      // 🎯 Determine if the current transition qualifies for an SMS alert
+      const isSMSStatus = newStatus === "Ready to Collect" || newStatus === "Collected";
 
       const updatedPayload = {
         ...shipment,
         status: newStatus,
-        triggerSMS: shouldSendSMS // 👈 Flag sent to your Express backend
+        triggerSMS: isSMSStatus ? newStatus : null // 👈 Pass the target status string instead of boolean
       };
 
       const response = await fetch(`https://sewaro-backend.onrender.com/api/shipments/update/${trackingId}`, {
@@ -3672,8 +3713,8 @@ const ViewShipments = ({ user }) => {
       );
       
       let successMsg = `📈 Shipment ${trackingId} successfully transitioned to "${newStatus}".`;
-      if (shouldSendSMS) {
-        successMsg += " 💬 Automated collection notification dispatched via Nest SMS.";
+      if (isSMSStatus) {
+        successMsg += ` 💬 Automated "${newStatus}" notification dispatched via Nest SMS.`;
       }
       
       showNotification('success', successMsg);
@@ -3684,7 +3725,6 @@ const ViewShipments = ({ user }) => {
       setStatusUpdatingMap(prev => ({ ...prev, [trackingId]: false }));
     }
   };
-
 
   // Batch Status Updater for Selected Items
   // const handleBatchStatusChange = async (newStatus) => {
@@ -3714,13 +3754,53 @@ const ViewShipments = ({ user }) => {
   //   }
   // };
 // Batch Status Updater for Selected Items
+  // const handleBatchStatusChange = async (newStatus) => {
+  //   if (selectedTrackingIds.length === 0) return;
+
+  //   setLoading(true);
+  //   try {
+  //     // 🎯 Check if the target state is "Ready to Collect"
+  //     const shouldSendSMS = newStatus === "Ready to Collect";
+
+  //     const updatePromises = selectedTrackingIds.map(async (id) => {
+  //       const fullShipmentObj = shipments.find(s => s.tracking_id === id);
+  //       if (!fullShipmentObj) return;
+
+  //       return fetch(`https://sewaro-backend.onrender.com/api/shipments/update/${id}`, {
+  //         method: 'PUT',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({ 
+  //           ...fullShipmentObj, 
+  //           status: newStatus,
+  //           triggerSMS: shouldSendSMS // 👈 Pass the flag down for every record
+  //         })
+  //       });
+  //     });
+
+  //     await Promise.all(updatePromises);
+      
+  //     let successMsg = `🎉 Successfully synchronized status to "${newStatus}" across ${selectedTrackingIds.length} records!`;
+  //     if (shouldSendSMS) {
+  //       successMsg += " 💬 SMS customer alerts queued successfully.";
+  //     }
+
+  //     showNotification('success', successMsg);
+  //     setSelectedTrackingIds([]);
+  //     fetchShipments();
+  //   } catch (err) {
+  //     console.error("Batch update transaction anomaly:", err);
+  //     showNotification('error', "❌ Batch Status Update Action Failed.");
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleBatchStatusChange = async (newStatus) => {
     if (selectedTrackingIds.length === 0) return;
 
     setLoading(true);
     try {
-      // 🎯 Check if the target state is "Ready to Collect"
-      const shouldSendSMS = newStatus === "Ready to Collect";
+      // 🎯 Check if the target state is an eligible alert tier
+      const isSMSStatus = newStatus === "Ready to Collect" || newStatus === "Collected";
 
       const updatePromises = selectedTrackingIds.map(async (id) => {
         const fullShipmentObj = shipments.find(s => s.tracking_id === id);
@@ -3732,7 +3812,7 @@ const ViewShipments = ({ user }) => {
           body: JSON.stringify({ 
             ...fullShipmentObj, 
             status: newStatus,
-            triggerSMS: shouldSendSMS // 👈 Pass the flag down for every record
+            triggerSMS: isSMSStatus ? newStatus : null // 👈 Pass target status tier string
           })
         });
       });
@@ -3740,7 +3820,7 @@ const ViewShipments = ({ user }) => {
       await Promise.all(updatePromises);
       
       let successMsg = `🎉 Successfully synchronized status to "${newStatus}" across ${selectedTrackingIds.length} records!`;
-      if (shouldSendSMS) {
+      if (isSMSStatus) {
         successMsg += " 💬 SMS customer alerts queued successfully.";
       }
 
@@ -3753,7 +3833,6 @@ const ViewShipments = ({ user }) => {
       setLoading(false);
     }
   };
-
 
   // 🌟 Batch Purge/Deletion Request Execution Core
   const handleBatchDeleteExecute = async () => {
