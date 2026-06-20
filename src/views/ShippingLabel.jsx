@@ -322,7 +322,7 @@ export default function ShippingLabel({ previewTrackingId, packages, senderInfo,
 
         {/* Dynamic Destination Country Panel Footer */}
         <div style={{ padding: '8px 0 2px 0', textAlign: 'center' }}>
-          <h1 style={{ margin: '0', fontSize: '26px', fontWeight: '900', textTransform: 'uppercase' }}>
+          <h1 style={{ margin: '0', fontSize: '26px',color:'#0a0a0a', fontWeight: '900', textTransform: 'uppercase' }}>
             {receiverInfo.country || "NEPAL"}
           </h1>
         </div>
