@@ -2464,7 +2464,7 @@ const confirmShipment = async () => {
             Namaste Sewaro Cargo
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '11px', textTransform: 'uppercase', color: '#080808', letterSpacing: '1px', fontWeight: '600' }}>
-            Reliable Logistics Services
+            Service PVT. LTD.
           </p>
         </div>
 
