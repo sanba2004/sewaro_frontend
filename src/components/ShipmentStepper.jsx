@@ -2443,12 +2443,31 @@ const confirmShipment = async () => {
     <div id="printable-invoice" className="invoice-card">
       
       {/* 🧾 Document Title & Meta Block */}
-      <h1 className="invoice-main-title">Invoice</h1>
-      <div className="invoice-meta-text">
-        <p><strong>Invoice #:</strong> {previewTrackingId}</p>
-        <p><strong>Package Number:</strong> {packages.length}</p>
-        <p><strong>Date:</strong> {new Date().toLocaleDateString('en-GB')}</p>
-        <p><strong>Payment mode:</strong> {billingInfo.method || "Cash"}</p>
+      {/* 🧾 Document Title, Meta Block & Company branding Row Container */}
+      {/* 🧾 Document Title, Meta Block & Company branding Row Container */}
+      <div className="invoice-header-top-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        
+        {/* Left Column: Document Title & Metadata */}
+        <div>
+          <h1 className="invoice-main-title" style={{ margin: '0 0 10px 0', lineHeight: '1' }}>Invoice</h1>
+          <div className="invoice-meta-text">
+            <p><strong>Invoice #:</strong> {previewTrackingId}</p>
+            <p><strong>Package Number:</strong> {packages.length}</p>
+            <p><strong>Date:</strong> {new Date().toLocaleDateString('en-GB')}</p>
+            <p><strong>Payment mode:</strong> {billingInfo.method || "Cash"}</p>
+          </div>
+        </div>
+
+        {/* Right Column: Company Branding Title (Centered Vertically with the Left Column) */}
+        <div style={{ textAlign: 'right', marginTop: '0px' }}>
+          <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: '#050506', letterSpacing: '0.5px', lineHeight: '1.2' }}>
+            Namaste Sewaro Cargo
+          </h2>
+          <p style={{ margin: '4px 0 0 0', fontSize: '11px', textTransform: 'uppercase', color: '#080808', letterSpacing: '1px', fontWeight: '600' }}>
+            Reliable Logistics Services
+          </p>
+        </div>
+
       </div>
 
       {/* 👥 Split Address Banner Header Grid */}

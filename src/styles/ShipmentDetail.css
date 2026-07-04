@@ -274,3 +274,35 @@
     box-sizing: border-box;
   }
 }
+
+@media print {
+  /* Hide all dashboard buttons and back actions */
+  .no-print { 
+    display: none !important; 
+  }
+  
+  /* 1. When printing the shipping label ONLY */
+  body.print-mode-label-only #dashboard-view-panel,
+  body.print-mode-label-only .invoice-printable-target {
+    display: none !important;
+  }
+  body.print-mode-label-only .label-printable-target {
+    display: block !important;
+  }
+
+  /* 2. When printing the invoice ONLY */
+  body.print-mode-invoice-only #dashboard-view-panel,
+  body.print-mode-invoice-only .label-printable-target {
+    display: none !important;
+  }
+  body.print-mode-invoice-only .invoice-printable-target {
+    display: block !important;
+  }
+}
+
+/* Screen View Display: Keeps previews beautifully visible at the bottom of the screen */
+.invoice-printable-target, 
+.label-printable-target { 
+  display: block; 
+  margin-top: 40px;
+}

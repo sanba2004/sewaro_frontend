@@ -354,18 +354,297 @@
 
 
 
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+// import '../styles/PricingManagement.css';
+
+// export default function PricingManagement() {
+//   const [tiers, setTiers] = useState([]);
+//   const [editingId, setEditingId] = useState(null);
+  
+//   // 🌐 BASE API URL (Points to your new Option A parallel endpoint track)
+//   const API_BASE_URL = 'https://sewaro-backend.onrender.com/api/pricing-shipments';
+
+//   // States for Editing existing tiers
+//   const [editFormData, setEditFormData] = useState({ 
+//     sender_country: '', 
+//     receiver_country: '', 
+//     tier_name: '', 
+//     min_weight: '', 
+//     max_weight: '', 
+//     rate_per_kg: '' 
+//   });
+
+//   // 🎯 NEW: State tracking creation including dynamic route countries
+//   const [newRowData, setNewRowData] = useState({
+//     sender_country: '',
+//     receiver_country: '',
+//     tier_name: '',
+//     min_weight: '',
+//     max_weight: '',
+//     rate_per_kg: ''
+//   });
+
+//   const [message, setMessage] = useState('');
+//   const [errorMessage, setErrorMessage] = useState('');
+
+//   useEffect(() => {
+//     loadTiers();
+//   }, []);
+
+//   const loadTiers = async () => {
+//     try {
+//       const res = await axios.get(API_BASE_URL);
+//       setTiers(res.data);
+//     } catch (err) {
+//       console.error("Failed loading shipment pricing matrices:", err);
+//       setErrorMessage("Could not load pricing matrix from the database.");
+//     }
+//   };
+
+//   const handleEditClick = (tier) => {
+//     setEditingId(tier.id);
+//     setEditFormData({
+//       sender_country: tier.sender_country,
+//       receiver_country: tier.receiver_country,
+//       tier_name: tier.tier_name,
+//       min_weight: tier.min_weight,
+//       max_weight: tier.max_weight,
+//       rate_per_kg: tier.rate_per_kg
+//     });
+//   };
+
+//   const handleDeleteTier = async (id, tierName) => {
+//     const confirmDelete = window.confirm(`Are you sure you want to permanently delete the "${tierName}" shipping rule?`);
+//     if (!confirmDelete) return;
+
+//     try {
+//       await axios.delete(`${API_BASE_URL}/${id}`);
+//       setMessage('Shipping route tier deleted successfully.');
+//       loadTiers(); 
+//       setTimeout(() => setMessage(''), 3000);
+//     } catch (err) {
+//       console.error("Failed to delete pricing tier:", err);
+//       setErrorMessage("Error removing the selected pricing tier.");
+//     }
+//   };
+
+//   const handleSaveSubmit = async (id) => {
+//     try {
+//       await axios.put(`${API_BASE_URL}/${id}`, editFormData);
+//       setMessage('Route Matrix parameter adjusted successfully!');
+//       setEditingId(null);
+//       loadTiers();
+//       setTimeout(() => setMessage(''), 3000);
+//     } catch (err) {
+//       console.error("Failed updating parameters:", err);
+//       setErrorMessage("Failed updating parameters in backend.");
+//     }
+//   };
+
+//   const handleCreateSubmit = async (e) => {
+//     e.preventDefault();
+//     setErrorMessage('');
+//     setMessage('');
+
+//     // Quick client-side validation logic check
+//     if (parseFloat(newRowData.min_weight) >= parseFloat(newRowData.max_weight)) {
+//       setErrorMessage("Range Validation Failure: 'From (KG)' value must be strictly lower than the 'To (KG)' parameter value.");
+//       return;
+//     }
+
+//     try {
+//       await axios.post(`${API_BASE_URL}/create`, newRowData);
+//       setMessage('New custom cross-country shipping range appended successfully!');
+      
+//       // Clear out entry form input states completely
+//       setNewRowData({ 
+//         sender_country: '', 
+//         receiver_country: '', 
+//         tier_name: '', 
+//         min_weight: '', 
+//         max_weight: '', 
+//         rate_per_kg: '' 
+//       });
+//       loadTiers(); 
+//       setTimeout(() => setMessage(''), 3000);
+//     } catch (err) {
+//       setErrorMessage(err.response?.data?.error || "Error appending new matrix profile.");
+//     }
+//   };
+
+//   return (
+//     <div className="pricing-admin-container" style={{ padding: '25px', maxWidth: '1200px', margin: '0 auto' }}>
+//       <h2>Global Multi-Country Shipping Matrix Management</h2>
+      
+//       {message && <div style={{ padding: '10px', background: '#d4edda', color: '#155724', marginBottom: '15px', borderRadius: '4px' }}>{message}</div>}
+//       {errorMessage && <div style={{ padding: '10px', background: '#f8d7da', color: '#721c24', marginBottom: '15px', borderRadius: '4px' }}>{errorMessage}</div>}
+      
+//       {/* 📊 Current Data Matrix Grid View */}
+//       <table className="admin-rates-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
+//         <thead>
+//           <tr style={{ background: '#0f172a', color: '#fff', textAlign: 'left' }}>
+//             <th style={{ padding: '12px' }}>Origin</th>
+//             <th style={{ padding: '12px' }}>Destination</th>
+//             <th style={{ padding: '12px' }}>Tier Classification</th>
+//             <th style={{ padding: '12px' }}>From (KG)</th>
+//             <th style={{ padding: '12px' }}>To (KG)</th>
+//             <th style={{ padding: '12px' }}>Price (Per KG)</th>
+//             <th style={{ padding: '12px' }}>Actions</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {tiers.map((tier) => (
+//             <tr key={tier.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+//               {/* Origin Country */}
+//               <td style={{ padding: '12px' }}>
+//                 {editingId === tier.id ? (
+//                   <input type="text" style={{ width: '100px', padding: '4px' }} value={editFormData.sender_country} onChange={(e) => setEditFormData({...editFormData, sender_country: e.target.value})} />
+//                 ) : tier.sender_country}
+//               </td>
+              
+//               {/* Destination Country */}
+//               <td style={{ padding: '12px' }}>
+//                 {editingId === tier.id ? (
+//                   <input type="text" style={{ width: '100px', padding: '4px' }} value={editFormData.receiver_country} onChange={(e) => setEditFormData({...editFormData, receiver_country: e.target.value})} />
+//                 ) : tier.receiver_country}
+//               </td>
+
+//               {/* Tier Name */}
+//               <td style={{ padding: '12px' }}>
+//                 {editingId === tier.id ? (
+//                   <input type="text" style={{ width: '140px', padding: '4px' }} value={editFormData.tier_name} onChange={(e) => setEditFormData({...editFormData, tier_name: e.target.value})} />
+//                 ) : tier.tier_name}
+//               </td>
+
+//               {/* Min Weight Bracket */}
+//               <td style={{ padding: '12px' }}>
+//                 {editingId === tier.id ? (
+//                   <input type="number" step="0.01" style={{ width: '80px', padding: '4px' }} value={editFormData.min_weight} onChange={(e) => setEditFormData({...editFormData, min_weight: e.target.value})} />
+//                 ) : `${parseFloat(tier.min_weight || 0).toFixed(2)} kg`}
+//               </td>
+
+//               {/* Max Weight Bracket */}
+//               <td style={{ padding: '12px' }}>
+//                 {editingId === tier.id ? (
+//                   <input type="number" step="0.01" style={{ width: '80px', padding: '4px' }} value={editFormData.max_weight} onChange={(e) => setEditFormData({...editFormData, max_weight: e.target.value})} />
+//                 ) : `${parseFloat(tier.max_weight || 0).toFixed(2)} kg`}
+//               </td>
+
+//               {/* Rate per KG Cost */}
+//               <td style={{ padding: '12px' }}>
+//                 {editingId === tier.id ? (
+//                   <input type="number" style={{ width: '90px', padding: '4px' }} value={editFormData.rate_per_kg} onChange={(e) => setEditFormData({...editFormData, rate_per_kg: e.target.value})} />
+//                 ) : `Rs. ${parseFloat(tier.rate_per_kg || 0).toFixed(2)}`}
+//               </td>
+
+//               {/* Action Buttons Row */}
+//               <td style={{ padding: '12px' }}>
+//                 {editingId === tier.id ? (
+//                   <div style={{ display: 'flex', gap: '8px' }}>
+//                     <button onClick={() => handleSaveSubmit(tier.id)} style={{ padding: '5px 10px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Save</button>
+//                     <button onClick={() => setEditingId(null)} style={{ padding: '5px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
+//                   </div>
+//                 ) : (
+//                   <div style={{ display: 'flex', gap: '8px' }}>
+//                     <button 
+//                       onClick={() => handleEditClick(tier)} 
+//                       style={{ padding: '5px 12px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+//                     >
+//                       Edit
+//                     </button>
+//                     <button 
+//                       onClick={() => handleDeleteTier(tier.id, tier.tier_name)} 
+//                       style={{ padding: '5px 12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+//                     >
+//                       🗑️ Delete
+//                     </button>
+//                   </div>
+//                 )}
+//               </td>
+//             </tr>
+//           ))}
+//         </tbody>
+//       </table>
+
+//       <hr style={{ margin: '40px 0', border: 'none', borderTop: '2px dashed #cbd5e1' }} />
+
+//       {/* 🎯 NEW: Create a New Pricing Tier Form Card Panel (With Multi-Country Support) */}
+//       <div style={{ background: '#f8fafc', padding: '25px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+//         <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a' }}>➕ Create New Route Weight Pricing Bracket</h3>
+//         <form onSubmit={handleCreateSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px', alignItems: 'end' }}>
+//           <div>
+//             <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>Origin (Sender Country):</label>
+//             <input type="text" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} placeholder="e.g. Malaysia" value={newRowData.sender_country} onChange={(e) => setNewRowData({...newRowData, sender_country: e.target.value})} />
+//           </div>
+//           <div>
+//             <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>Destination (Receiver):</label>
+//             <input type="text" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} placeholder="e.g. Nepal" value={newRowData.receiver_country} onChange={(e) => setNewRowData({...newRowData, receiver_country: e.target.value})} />
+//           </div>
+//           <div>
+//             <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>Tier Name / Desc:</label>
+//             <input type="text" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} placeholder="e.g. MY-NP Economy" value={newRowData.tier_name} onChange={(e) => setNewRowData({...newRowData, tier_name: e.target.value})} />
+//           </div>
+//           <div>
+//             <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>From (Min KG):</label>
+//             <input type="number" step="0.01" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} placeholder="0.00" value={newRowData.min_weight} onChange={(e) => setNewRowData({...newRowData, min_weight: e.target.value})} />
+//           </div>
+//           <div>
+//             <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>To (Max KG):</label>
+//             <input type="number" step="0.01" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} placeholder="10.00" value={newRowData.max_weight} onChange={(e) => setNewRowData({...newRowData, max_weight: e.target.value})} />
+//           </div>
+//           <div>
+//             <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>Price (Per KG):</label>
+//             <input type="number" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} placeholder="550" value={newRowData.rate_per_kg} onChange={(e) => setNewRowData({...newRowData, rate_per_kg: e.target.value})} />
+//           </div>
+//           <button type="submit" style={{ padding: '10px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}>
+//             Add new price
+//           </button>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// }
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/PricingManagement.css';
+
+// 🌍 Comprehensive dynamic list of global countries for autocompletion suggestions
+const COUNTRIES_LIST = [
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+  "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
+  "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
+  "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+  "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+  "Fiji", "Finland", "France",
+  "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+  "Haiti", "Honduras", "Hungary",
+  "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast",
+  "Jamaica", "Japan", "Jordan",
+  "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan",
+  "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+  "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
+  "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
+  "Oman",
+  "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+  "Qatar",
+  "Romania", "Russia", "Rwanda",
+  "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+  "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+  "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
+  "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+  "Yemen",
+  "Zambia", "Zimbabwe"
+];
 
 export default function PricingManagement() {
   const [tiers, setTiers] = useState([]);
   const [editingId, setEditingId] = useState(null);
   
-  // 🌐 BASE API URL (Points to your new Option A parallel endpoint track)
   const API_BASE_URL = 'https://sewaro-backend.onrender.com/api/pricing-shipments';
 
-  // States for Editing existing tiers
   const [editFormData, setEditFormData] = useState({ 
     sender_country: '', 
     receiver_country: '', 
@@ -375,7 +654,6 @@ export default function PricingManagement() {
     rate_per_kg: '' 
   });
 
-  // 🎯 NEW: State tracking creation including dynamic route countries
   const [newRowData, setNewRowData] = useState({
     sender_country: '',
     receiver_country: '',
@@ -447,7 +725,6 @@ export default function PricingManagement() {
     setErrorMessage('');
     setMessage('');
 
-    // Quick client-side validation logic check
     if (parseFloat(newRowData.min_weight) >= parseFloat(newRowData.max_weight)) {
       setErrorMessage("Range Validation Failure: 'From (KG)' value must be strictly lower than the 'To (KG)' parameter value.");
       return;
@@ -457,7 +734,6 @@ export default function PricingManagement() {
       await axios.post(`${API_BASE_URL}/create`, newRowData);
       setMessage('New custom cross-country shipping range appended successfully!');
       
-      // Clear out entry form input states completely
       setNewRowData({ 
         sender_country: '', 
         receiver_country: '', 
@@ -480,6 +756,13 @@ export default function PricingManagement() {
       {message && <div style={{ padding: '10px', background: '#d4edda', color: '#155724', marginBottom: '15px', borderRadius: '4px' }}>{message}</div>}
       {errorMessage && <div style={{ padding: '10px', background: '#f8d7da', color: '#721c24', marginBottom: '15px', borderRadius: '4px' }}>{errorMessage}</div>}
       
+      {/* 💡 SHARED NATIVE DATALIST ENGINE */}
+      <datalist id="global-countries-suggestions">
+        {COUNTRIES_LIST.map((country, idx) => (
+          <option key={idx} value={country} />
+        ))}
+      </datalist>
+      
       {/* 📊 Current Data Matrix Grid View */}
       <table className="admin-rates-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
         <thead>
@@ -496,17 +779,29 @@ export default function PricingManagement() {
         <tbody>
           {tiers.map((tier) => (
             <tr key={tier.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-              {/* Origin Country */}
+              {/* Origin Country with Suggestions */}
               <td style={{ padding: '12px' }}>
                 {editingId === tier.id ? (
-                  <input type="text" style={{ width: '100px', padding: '4px' }} value={editFormData.sender_country} onChange={(e) => setEditFormData({...editFormData, sender_country: e.target.value})} />
+                  <input 
+                    type="text" 
+                    list="global-countries-suggestions" 
+                    style={{ width: '110px', padding: '4px' }} 
+                    value={editFormData.sender_country} 
+                    onChange={(e) => setEditFormData({...editFormData, sender_country: e.target.value})} 
+                  />
                 ) : tier.sender_country}
               </td>
               
-              {/* Destination Country */}
+              {/* Destination Country with Suggestions */}
               <td style={{ padding: '12px' }}>
                 {editingId === tier.id ? (
-                  <input type="text" style={{ width: '100px', padding: '4px' }} value={editFormData.receiver_country} onChange={(e) => setEditFormData({...editFormData, receiver_country: e.target.value})} />
+                  <input 
+                    type="text" 
+                    list="global-countries-suggestions" 
+                    style={{ width: '110px', padding: '4px' }} 
+                    value={editFormData.receiver_country} 
+                    onChange={(e) => setEditFormData({...editFormData, receiver_country: e.target.value})} 
+                  />
                 ) : tier.receiver_country}
               </td>
 
@@ -569,17 +864,33 @@ export default function PricingManagement() {
 
       <hr style={{ margin: '40px 0', border: 'none', borderTop: '2px dashed #cbd5e1' }} />
 
-      {/* 🎯 NEW: Create a New Pricing Tier Form Card Panel (With Multi-Country Support) */}
+      {/* 🎯 Create a New Pricing Tier Form Card Panel (With Autocomplete Suggestions) */}
       <div style={{ background: '#f8fafc', padding: '25px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
         <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#0f172a' }}>➕ Create New Route Weight Pricing Bracket</h3>
         <form onSubmit={handleCreateSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px', alignItems: 'end' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>Origin (Sender Country):</label>
-            <input type="text" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} placeholder="e.g. Malaysia" value={newRowData.sender_country} onChange={(e) => setNewRowData({...newRowData, sender_country: e.target.value})} />
+            <input 
+              type="text" 
+              required 
+              list="global-countries-suggestions"
+              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} 
+              placeholder="e.g. Malaysia" 
+              value={newRowData.sender_country} 
+              onChange={(e) => setNewRowData({...newRowData, sender_country: e.target.value})} 
+            />
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>Destination (Receiver):</label>
-            <input type="text" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} placeholder="e.g. Nepal" value={newRowData.receiver_country} onChange={(e) => setNewRowData({...newRowData, receiver_country: e.target.value})} />
+            <input 
+              type="text" 
+              required 
+              list="global-countries-suggestions"
+              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} 
+              placeholder="e.g. Nepal" 
+              value={newRowData.receiver_country} 
+              onChange={(e) => setNewRowData({...newRowData, receiver_country: e.target.value})} 
+            />
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px', fontWeight: '500' }}>Tier Name / Desc:</label>
@@ -605,7 +916,6 @@ export default function PricingManagement() {
     </div>
   );
 }
-
 
 // import React, { useState, useEffect } from 'react';
 // import axios from 'axios';

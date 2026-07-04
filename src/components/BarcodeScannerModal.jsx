@@ -72,24 +72,128 @@
 // }
 
 
-import React, { useEffect, useRef } from 'react';
+// import React, { useEffect, useRef } from 'react';
+// import { Html5QrcodeScanner } from 'html5-qrcode';
+
+// export default function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }) {
+//   useEffect(() => {
+//     if (!isOpen) return;
+
+//     const scanner = new Html5QrcodeScanner(
+//       "qr-reader-target",
+//       { 
+//         fps: 10, 
+//         qrbox: { width: 250, height: 250 },
+//         rememberLastUsedCamera: true,
+//         supportedScanTypes: [0, 1] 
+//       },
+//       false
+//     );
+
+//     scanner.render(
+//       (decodedText) => {
+//         const cleanToken = decodedText.trim();
+//         scanner.clear().then(() => {
+//           onScanSuccess(cleanToken);
+//         }).catch(err => console.error("Failed to clear scanner state:", err));
+//       },
+//       (error) => {
+//         Object.values(error); 
+//       }
+//     );
+
+//     return () => {
+//       scanner.clear().catch(err => console.error("Scanner cleanup failure:", err));
+//     };
+//   }, [isOpen]);
+
+//   if (!isOpen) return null;
+
+//   return (
+//     <div style={{
+//       position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+//       backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center',
+//       alignItems: 'center', zIndex: 9999, padding: '20px', boxSizing: 'border-box'
+//     }}>
+//       {/* 📦 Main Container Card (Relative positioning lets us anchor the button inside it) */}
+//       <div style={{
+//         background: '#fff', 
+//         padding: '30px 25px 25px 25px', 
+//         borderRadius: '12px',
+//         maxWidth: '500px', 
+//         width: '100%', 
+//         position: 'relative', // 👈 Crucial context anchor
+//         textAlign: 'center',
+//         boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+//       }}>
+        
+//         {/* ❌ Absolute Positioned Cross Close Button */}
+//         <button 
+//           onClick={onClose}
+//           title="Close Camera"
+//           style={{
+//             position: 'absolute', 
+//             top: '15px',          // 👈 15px from the top edge of the white box
+//             right: '20px',        // 👈 20px from the right edge of the white box
+//             background: '#f1f3f5',
+//             border: 'none', 
+//             fontSize: '20px', 
+//             cursor: 'pointer', 
+//             fontWeight: 'bold',
+//             color: '#333',
+//             width: '32px',
+//             height: '32px',
+//             borderRadius: '50%',  // Makes it a clean circular button
+//             display: 'flex',
+//             alignItems: 'center',
+//             justifyContent: 'center',
+//             transition: 'all 0.2s ease',
+//             zIndex: 10000        // Forces it above any dynamic html5-qrcode video text overlays
+//           }}
+//           onMouseOver={(e) => e.currentTarget.style.background = '#e9ecef'}
+//           onMouseOut={(e) => e.currentTarget.style.background = '#f1f3f5'}
+//         >
+//           &times;
+//         </button>
+
+//         <h3 style={{ marginTop: '5px', marginBottom: '8px', color: '#333', fontSize: '18px' }}>
+//           📷 Scan Shipment Label
+//         </h3>
+//         <p style={{ fontSize: '13px', color: '#666', marginBottom: '20px' }}>
+//           Center the barcode or QR code inside the camera viewfinder panel below.
+//         </p>
+        
+//         {/* Camera Render Window */}
+//         <div id="qr-reader-target" style={{ width: '100%', borderRadius: '6px', overflow: 'hidden' }}></div>
+//       </div>
+//     </div>
+//   );
+// }
+
+import React, { useEffect } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 export default function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }) {
   useEffect(() => {
     if (!isOpen) return;
 
+    // 1. Initialize the scanner instance
     const scanner = new Html5QrcodeScanner(
       "qr-reader-target",
       { 
         fps: 10, 
         qrbox: { width: 250, height: 250 },
         rememberLastUsedCamera: true,
-        supportedScanTypes: [0, 1] 
+        supportedScanTypes: [0, 1],
+        // This configuration hides the file-drop options to keep UI clean
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: true
+        }
       },
       false
     );
 
+    // 2. Force it to directly use the normal rear camera instead of rendering picker UI
     scanner.render(
       (decodedText) => {
         const cleanToken = decodedText.trim();
@@ -99,6 +203,10 @@ export default function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }) 
       },
       (error) => {
         Object.values(error); 
+      },
+      // 👇 This 3rd argument forces constraints directly to the camera hardware stream
+      {
+        facingMode: "environment" // Forces the standard rear-facing environment camera
       }
     );
 
@@ -115,26 +223,24 @@ export default function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }) 
       backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', justifyContent: 'center',
       alignItems: 'center', zIndex: 9999, padding: '20px', boxSizing: 'border-box'
     }}>
-      {/* 📦 Main Container Card (Relative positioning lets us anchor the button inside it) */}
       <div style={{
         background: '#fff', 
         padding: '30px 25px 25px 25px', 
         borderRadius: '12px',
         maxWidth: '500px', 
         width: '100%', 
-        position: 'relative', // 👈 Crucial context anchor
+        position: 'relative', 
         textAlign: 'center',
         boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
       }}>
         
-        {/* ❌ Absolute Positioned Cross Close Button */}
         <button 
           onClick={onClose}
           title="Close Camera"
           style={{
             position: 'absolute', 
-            top: '15px',          // 👈 15px from the top edge of the white box
-            right: '20px',        // 👈 20px from the right edge of the white box
+            top: '15px',          
+            right: '20px',        
             background: '#f1f3f5',
             border: 'none', 
             fontSize: '20px', 
@@ -143,12 +249,12 @@ export default function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }) 
             color: '#333',
             width: '32px',
             height: '32px',
-            borderRadius: '50%',  // Makes it a clean circular button
+            borderRadius: '50%',  
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'all 0.2s ease',
-            zIndex: 10000        // Forces it above any dynamic html5-qrcode video text overlays
+            zIndex: 10000        
           }}
           onMouseOver={(e) => e.currentTarget.style.background = '#e9ecef'}
           onMouseOut={(e) => e.currentTarget.style.background = '#f1f3f5'}
@@ -163,7 +269,6 @@ export default function BarcodeScannerModal({ isOpen, onClose, onScanSuccess }) 
           Center the barcode or QR code inside the camera viewfinder panel below.
         </p>
         
-        {/* Camera Render Window */}
         <div id="qr-reader-target" style={{ width: '100%', borderRadius: '6px', overflow: 'hidden' }}></div>
       </div>
     </div>

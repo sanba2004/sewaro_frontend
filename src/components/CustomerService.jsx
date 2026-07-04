@@ -45,7 +45,7 @@ const CustomerService = ({ onBackClick }) => {
             <div>
               <small style={{ color: '#999', fontSize: '11px', textTransform: 'uppercase', display: 'block', fontWeight: '600' }}>Phone Line</small>
               <a href="tel:+9771234567" style={{ color: '#0056b3', textDecoration: 'none', fontWeight: '700', fontSize: '18px' }}>
-                +977-1234567
+                +977 9851134936
               </a>
             </div>
           </div>
@@ -55,7 +55,7 @@ const CustomerService = ({ onBackClick }) => {
             <div>
               <small style={{ color: '#999', fontSize: '11px', textTransform: 'uppercase', display: 'block', fontWeight: '600' }}>Email Address</small>
               <a href="mailto:sewaro151@gmail.com" style={{ color: '#0056b3', textDecoration: 'none', fontWeight: '600', fontSize: '16px' }}>
-                sewaro151@gmail.com
+                namastesewaro@gmail.com
               </a>
             </div>
           </div>
