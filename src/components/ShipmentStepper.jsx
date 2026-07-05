@@ -2414,7 +2414,6 @@ const confirmShipment = async () => {
 </div>
   </div>
 )} */}
-
 {step === 5 && (
   <div className="invoice-display-container">
     {/* 🖨️ CSS Print Layout Injection: Automatically strips borders and lines when printing */}
@@ -2442,8 +2441,6 @@ const confirmShipment = async () => {
 
     <div id="printable-invoice" className="invoice-card">
       
-      {/* 🧾 Document Title & Meta Block */}
-      {/* 🧾 Document Title, Meta Block & Company branding Row Container */}
       {/* 🧾 Document Title, Meta Block & Company branding Row Container */}
       <div className="invoice-header-top-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         
@@ -2458,7 +2455,7 @@ const confirmShipment = async () => {
           </div>
         </div>
 
-        {/* Right Column: Company Branding Title (Centered Vertically with the Left Column) */}
+        {/* Right Column: Company Branding Title */}
         <div style={{ textAlign: 'right', marginTop: '0px' }}>
           <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: '#050506', letterSpacing: '0.5px', lineHeight: '1.2' }}>
             Namaste Sewaro Cargo
@@ -2498,28 +2495,26 @@ const confirmShipment = async () => {
         <thead>
           <tr>
             <th style={{ width: '8%' }}>S.N</th>
-            <th>Description</th>
-            <th style={{ width: '25%' }}>HS CODE</th>
-            <th style={{ width: '15%' }}>Qty</th>
+            <th>Package Profile</th>
+            <th style={{ width: '30%' }}>Package Type</th>
+            <th style={{ width: '20%', textAlign: 'center' }}>Weight (Kg)</th>
           </tr>
         </thead>
         <tbody>
-          {packages.flatMap((pkg, pkgIdx) => 
-            (pkg.items || []).map((item, itemIdx) => (
-              <tr key={`${pkg.id || pkgIdx}-${itemIdx}`}>
-                <td>{itemIdx + 1}</td>
-                <td className="text-left">
-                  {item.description || `${pkg.profile || "Cargo Item"} (${pkg.type || "Parcel"})`}
-                </td>
-                <td>{item.hsCode || "—"}</td>
-                <td>{item.qty || 1}</td>
+          {packages.map((pkg, pkgIdx) => {
+            const packageWeight = parseFloat(pkg.total_weight || pkg.weight) || 0;
+            return (
+              <tr key={pkg.id || pkgIdx}>
+                <td>{pkgIdx + 1}</td>
+                <td className="text-left">{pkg.profile || "Cargo Item"}</td>
+                <td>{pkg.type || "Parcel"}</td>
+                <td style={{ textAlign: 'center' }}>{packageWeight.toFixed(2)}</td>
               </tr>
-            ))
-          )}
+            );
+          })}
         </tbody>
       </table>
 
-      {/* 📋 Bottom Section: Terms & Totals Row */}
       {/* 📋 Bottom Section: Swapped Terms & Financials Layout Grid */}
       <div className="invoice-footer-grid" style={{ display: 'flex', width: '100%', gap: '20px', marginTop: '20px' }}>
         
@@ -2528,12 +2523,12 @@ const confirmShipment = async () => {
           {(() => {
             // 🌟 Sum database weight field directly from the package root rows
             const aggregateWeight = packages.reduce((sum, p) => {
-              return sum + (parseFloat(p.total_weight) || 0);
+              return sum + (parseFloat(p.total_weight || p.weight) || 0);
             }, 0);
 
             // 🌟 Use package level weight field for calculating rates safely
-            const totalPayable = packages.reduce((sum, pkg) => {
-              const rawWeight = parseFloat(pkg.total_weight) || 0;
+            const totalPayableCalc = packages.reduce((sum, pkg) => {
+              const rawWeight = parseFloat(pkg.total_weight || pkg.weight) || 0;
               
               const chgWt = typeof getChargeableWeight === 'function' ? getChargeableWeight(rawWeight) : rawWeight;
               const rate = typeof getPricePerKg === 'function' ? getPricePerKg(chgWt) : 0;
@@ -2543,7 +2538,7 @@ const confirmShipment = async () => {
             }, 0);
 
             // Use the edited override price if present, otherwise fall back to system calculations
-            const currentActivePrice = manualPriceOverride !== null ? manualPriceOverride : totalPayable;
+            const currentActivePrice = manualPriceOverride !== null ? manualPriceOverride : totalPayableCalc;
 
             return (
               <>
@@ -2588,7 +2583,7 @@ const confirmShipment = async () => {
                           <input 
                             type="number"
                             className="invoice-price-override-field"
-                            value={manualPriceOverride !== null ? manualPriceOverride : totalPayable}
+                            value={manualPriceOverride !== null ? manualPriceOverride : totalPayableCalc}
                             onChange={(e) => {
                               const val = e.target.value;
                               setManualPriceOverride(val === '' ? '' : parseFloat(val));
@@ -2633,7 +2628,7 @@ const confirmShipment = async () => {
                   </span>
                 </div>
 
-                <p className="thank-you-msg" style={{ textAlign: 'center', marginTop: '10px', fontStyle: 'italic', fontSize: '12px' }}>
+                <p className="thank-you-msg" style={{ textAlignment: 'center', marginTop: '10px', fontStyle: 'italic', fontSize: '12px' }}>
                   Thank you for your business!
                 </p>
               </>
