@@ -1,3 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root {
+  --sw-ink: #0f172a;         /* matches your existing footer navy */
+  --sw-ink-soft: #1c2b45;
+  --sw-blue-deep: #123a5e;
+  --sw-blue: #1d6fb8;
+  --sw-stamp: #b3451f;       /* customs-stamp rust, used sparingly */
+  --sw-paper: #eef1f4;       /* cool steel paper */
+  --sw-line: #d7dde4;
+  --sw-slate: #48566b;
+  --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
+}
+
 /* RESET EVERYTHING */
 * {
   margin: 0;
@@ -19,7 +34,7 @@ body,
   margin: 0;
   padding: 0;
   border: none !important;      /* Removes those vertical 'box' lines */
-  background-color: #ffffff;    /* Pure white background */
+  background-color:transparent;    /* Pure white background */
   overflow-x: hidden; /* Prevents horizontal scrolling */
   display: block;          
 }
@@ -118,10 +133,10 @@ body,
 }
 .hero-banner {
   width: 100%;
-  height: 500px; /* Adjust this to change how much of the screen it covers */
-  background-image: url('/home.png'); /* Ensure this image is in your /public folder */
-  background-size: cover;      /* Scales image to fill the area without stretching */
-  background-position: center; /* Keeps the middle of the image visible */
+  height: 500px;
+  background-image: url('/home.png');
+  background-size: 100% auto;
+  background-position: center; /* shifts what part of the image shows */
   background-repeat: no-repeat;
   position: relative;
 }
@@ -145,7 +160,7 @@ body,
 @media (max-width: 768px) {
   .hero-content h1 {
     font-size: 2.2rem;   /* Scales the font down gracefully so it doesn't crowd small viewports */
-    line-height: 1.25;   /* 🚀 Crucial: Keeps your text from smashing together vertically */
+    line-height: 1.25;   /* Crucial: Keeps your text from smashing together vertically */
     margin-bottom: 0.8rem;
   }
 }
@@ -176,7 +191,7 @@ body,
 /* SERVICES SECTION */
 .services-section {
   padding: 80px 0;
-  background-color: #ffffff;
+  background-color: transparent;
 }
 
 .services-intro {
@@ -186,115 +201,158 @@ body,
 }
 
 .services-intro h2 {
-  color: #2563eb;
-  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  color: var(--sw-stamp);
+  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   margin-bottom: 10px;
 }
 
 .services-intro h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.3px;
   font-size: 2rem;
-  color: #1e293b;
+  color: #f9f9f9;
   margin-bottom: 15px;
 }
 
 .services-intro p {
-  color: #64748b;
+  color: #eeeaea;
   line-height: 1.7;
 }
 
-/* THE GRID */
-.services-slider {
-  display: flex;             /* Horizontal layout */
-  gap: 20px;
-  overflow-x: auto;          /* Allows scrolling */
-  scroll-behavior: smooth;
-  padding: 20px 5px;
-  scrollbar-width: none;     /* Hides scrollbar for Firefox */
-  scroll-snap-type: x mandatory; /* Makes it "snap" into place */
-}
-.services-slider::-webkit-scrollbar {
-  display: none;             /* Hides scrollbar for Chrome/Safari */
-}
-/* MINI BLOG / SERVICE CARD */
-.service-card {
-  /* This calculation ensures 4 cards fit perfectly */
-  flex: 0 0 calc(25% - 15px); 
-  min-width: 280px;          /* Prevents them from getting too small on mobile */
-  scroll-snap-align: start;  /* Snaps the edge of the card to the container */
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-  border: 1px solid #f1f5f9;
-}
-@media (max-width: 1024px) {
-  .service-card {
-    flex: 0 0 calc(50% - 10px);
-  }
-}
-
-/* Adjust for mobile (show 1 card) */
-@media (max-width: 600px) {
-  .service-card {
-    flex: 0 0 100%;
-  }
-}
-.service-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
-}
-
-.service-img-wrapper {
+/* ==========================================================================
+   SERVICE CARDS (Air Freight / Land Transport / Cargo Storage)
+   Single consolidated definition — this used to be defined twice
+   (an overflow-x:auto slider version, and a flex-wrap grid version)
+   and the two blocks were fighting each other. This is the only one now.
+   ========================================================================== */
+.services-grid {
   width: 100%;
-  height: 200px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.services-slider {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 28px;
+  width: 100%;
+}
+
+.service-card {
+  flex: 0 1 340px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid var(--sw-line);
+  border-top: 3px solid var(--sw-blue-deep);
+  border-radius: 2px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+  padding: 28px 26px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--sw-blue);
+  box-shadow: 0 12px 24px -14px rgba(15, 23, 42, 0.25);
+}
+
+/* the stamp — small, rotated, dashed, deliberately un-precious */
+/* .service-img-wrapper {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
   overflow: hidden;
+  border: 1px dashed var(--sw-slate);
+  border-radius: 6px;
+  transform: rotate(-4deg);
+  background-color: var(--sw-paper);
 }
 
 .service-img-wrapper img {
   width: 100%;
   height: 100%;
-  object-fit: contain; 
-  
-  /* 🌟 ADDED: Gives the box a clean background fill so any empty space looks intentional */
-  background-color: #f7f9fa; 
-  
-  /* 🌟 ADDED: Optional padding to keep the image edges away from the card border */
-  padding: 15px; 
+  object-fit: contain;
+  padding: 10px;
   box-sizing: border-box;
-
+} */
+.service-img-wrapper {
+  width: 150px;
+  height: 150px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px dashed var(--sw-slate);
+  border-radius: 6px;
+  transform: rotate(-4deg);
+  background-color: var(--sw-paper);
 }
 
+.service-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+  box-sizing: border-box;
+}
 .service-info {
-  padding: 25px;
+  padding: 0;
+}
+
+.service-tag {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  color: var(--sw-stamp);
+  margin-bottom: 6px;
 }
 
 .service-info h4 {
-  font-size: 1.25rem;
-  color: #1e293b;
-  margin-bottom: 10px;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--sw-ink);
+  margin-bottom: 8px;
+  letter-spacing: -0.2px;
 }
 
 .service-info p {
-  color: #64748b;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  color: var(--sw-slate);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 600px) {
+  .service-card { flex: 0 1 100%; }
 }
 
 /* DESTINATION BAR */
 .destinations-badge {
   text-align: center;
-  background: #f8fafc;
-  padding: 15px;
-  border-radius: 50px;
-  color: #475569;
-  font-weight: 500;
-  font-size: 0.9rem;
-  border: 1px dashed #cbd5e1;
+  background: var(--sw-paper);
+  padding: 14px;
+  border-radius: 2px;
+  border: 1px dashed var(--sw-line);
+  color: var(--sw-slate);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
 }
 .why-us-section {
   padding: 100px 0;
-  background-color: #ffffff;
+  background-color: transparent;
 }
 
 .section-title {
@@ -807,7 +865,7 @@ body,
   color: #212529;
 }
 
-/* 📱 Native Mobile Media Queries Overlay */
+/* Native Mobile Media Queries Overlay */
 @media screen and (max-width: 600px) {
   .search-track-form {
     flex-direction: column;
@@ -861,163 +919,136 @@ body,
     font-size: 14px;
   }
 }
-.why-image-side {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: 450px; /* Adjust based on your layout constraints */
-}
-
 .why-display-img {
   width: 100%;
   height: auto;
   object-fit: contain;
   border-radius: 8px; /* Adds a clean, modern look to your assets */
 }
-/* Container Layout Canvas */
-/* Container Layout Canvas */
+
+/* ==========================================================================
+   SERVICES SHOWCASE (Secure / Fast / 24-7 / Affordable rows)
+   Single consolidated definition, replacing the old block. Each row reads
+   as a manifest line item instead of an emoji-badged FAQ card.
+   ========================================================================== */
 .services-showcase-container {
   width: 100%;
   max-width: 1140px;
   margin: 0 auto;
-  padding: 60px 24px;
+  padding: 60px 24px 100px;
   display: flex;
   flex-direction: column;
-  gap: 70px; /* Space between rows */
+  gap: 56px;
   box-sizing: border-box;
 }
 
-/* Individual Alignments */
 .services-showcase-row {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 30px;
+  align-items: stretch;
+  gap: 0;
   width: 100%;
 }
 
-/* 🎯 AUTOMATIC ALTERNATION: Forces every second row to flip directions automatically */
-.services-showcase-container .services-showcase-row:nth-child(even) {
+.services-showcase-row.row-reverse {
   flex-direction: row-reverse;
-  justify-content: flex-start;
 }
 
-/* 🎯 IMAGES MADE SMALLER: Reduced max-width constraint cleanly */
 .services-showcase-image-wrapper {
-  flex: 0 0 37%; /* Shrinks down its flex blueprint footprint */
-  max-width: 370px; /* Sized down slightly for a punchier aesthetic */
+  flex: 0 0 34%;
+  max-width: 340px;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
-/* Base image styling (Odd rows: Left Image, Right Text) */
 .services-showcase-image-wrapper img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  min-height: 220px;
   object-fit: cover;
-  border-radius: 16px 4px 16px 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  filter: grayscale(20%) contrast(1.05) saturate(0.9);
+  border-radius: 2px;
 }
 
-/* 🎯 AUTOMATIC IMAGE BORDER CORNERS: Flips corners cleanly for even rows */
-.services-showcase-container .services-showcase-row:nth-child(even) .services-showcase-image-wrapper img {
-  border-radius: 4px 16px 16px 16px;
-}
-
-/* 🎯 THE PADDED TEXT BORDER CARD: Encloses your text blocks */
 .services-card-wrapper {
   flex: 1;
   background-color: #ffffff;
-  border: 1px solid #eceff0;    /* Soft clean outer outline border */
-  border-radius: 0px 30px 30px 30px; /* Custom curved accents tracking your sample */
-  padding: 20px 40px;            /* Generous internal spacing padding around the words */
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12); /* Clean elevation lift */
+  border: 1px solid var(--sw-line);
+  border-left: 3px solid var(--sw-blue-deep);
+  border-radius: 2px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  padding: 32px 40px;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   text-align: left;
-  max-width: 550px;
-  
+  max-width: 560px;
   min-height: 220px;
 }
 
-/* 🎯 AUTOMATIC CARD CORNERS: Flips card borders cleanly for even rows */
-.services-showcase-container .services-showcase-row:nth-child(even) .services-card-wrapper {
-  border-radius: 30px 0px 30px 30px;
+.services-showcase-row.row-reverse .services-card-wrapper {
+  border-left: none;
+  border-right: 3px solid var(--sw-blue-deep);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
 }
 
-/* Content Typography Inner Accents */
 .services-mini-badge {
-  font-size: 0.8rem;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 1.2px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  color: var(--sw-stamp);
+  margin-bottom: 14px;
+}
+
+.services-mini-badge .entry-index {
+  color: var(--sw-blue-deep);
   font-weight: 700;
-  color: #0250a3; /* Sewa blue branding tone */
-  margin-bottom: 10px;
 }
 
 .services-card-wrapper h4 {
-  font-size: 1.6rem;
-  color: #0f1c2a;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--sw-ink);
   margin: 0 0 12px 0;
   font-weight: 700;
+  letter-spacing: -0.3px;
 }
 
 .services-card-wrapper p {
   font-size: 0.98rem;
-  color: #566573;
-  line-height: 1.6;
+  color: var(--sw-slate);
+  line-height: 1.7;
   margin: 0;
 }
 
-/* Mobile Responsive Optimization fallback */
-
-
-
-/* 🎯 THE GRID WRAPPER */
-.services-grid {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 24px;
-  display: flex;
-  justify-content: center; /* Centers the inner layout container horizontally */
+.services-card-wrapper p strong {
+  color: var(--sw-ink);
+  font-weight: 600;
 }
 
-/* 🎯 THE SLIDER TRACK (Turned into a centered container) */
-.services-slider {
-  display: flex;
-  
-  /* 🌟 CHANGED: Centers the cards perfectly side-by-side */
-  justify-content: center; 
-  align-items: stretch; /* Ensures all cards match each other's height dynamically */
-  
-  /* 🌟 CHANGED: Wraps items to the next line on small screens instead of scrolling */
-  flex-wrap: wrap; 
-  
-  /* 🌟 REMOVED: Delete 'overflow-x: auto' so the scrollbar disappears completely */
-  
-  gap: 30px; /* Adjust this to add more or less space between the 3 cards */
-  width: 100%;
+@media (max-width: 768px) {
+  .services-showcase-row,
+  .services-showcase-row.row-reverse {
+    flex-direction: column;
+  }
+  .services-showcase-image-wrapper {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+  .services-showcase-image-wrapper img { min-height: 180px; }
+  .services-card-wrapper,
+  .services-showcase-row.row-reverse .services-card-wrapper {
+    border-left: 3px solid var(--sw-blue-deep);
+    border-right: none;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    max-width: 100%;
+  }
 }
 
-/* 🎯 THE INDIVIDUAL SERVICE CARDS */
-.service-card {
-  /* 🌟 CHANGED: Uses flex-basis to let them divide space cleanly up to 340px each */
-  flex: 0 1 340px; 
-  
-  width: 100%;
-  background: #ffffff;
-  border: 1px solid #eceff0;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease;
-}
 /* Ensure the body cleans layout edges safely */
 html, body {
   margin: 0;
@@ -1042,9 +1073,8 @@ html, body {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
-/* 📱 Native Mobile Media Queries Overlay */
+/* Native Mobile Media Queries Overlay (form styling on small screens) */
 @media screen and (max-width: 600px) {
-  /* Keeps the horizontal layout and ensures everything stays inside the white capsule */
   .search-track-form {
     display: flex !important;
     flex-direction: row !important;      /* Forces them to stay perfectly side-by-side */
@@ -1165,10 +1195,4 @@ html, body {
   
   will-change: transform, opacity;
   transform-origin: center center;
-}
-
-/* Highly recommended: Keeps rows adequately padded so elements have 
-   breathing space on screen while they execute their scale transitions */
-.services-showcase-row {
-  padding: 100px 20px;
 }

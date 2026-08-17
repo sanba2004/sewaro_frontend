@@ -97,7 +97,7 @@ const Navbar = ({ onLoginClick, onHomeClick, onScannerClick, onRequestQuoteClick
         {/* Branding Logo Block */}
         <div className="menu-logo" onClick={handleLogoClick}>
           <img src="/logo.png" alt="Sewa Logistics Logo" className="logo-image" />
-          <span className="text">SEWA LOGISTICS</span>
+          <span className="text">NAMASTE SEWARO CARGO</span>
         </div>
 
         {/* 🍔 Hamburger Trigger Icon */}

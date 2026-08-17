@@ -262,3 +262,36 @@
   margin-top: 30px;
   margin-bottom: 20px;
 }
+/* Container spacing */
+.chart-toggle-controls {
+  display: flex;
+  gap: 16px; /* Increased spacing between buttons */
+  margin: 16px 0;
+}
+
+/* Base Button Style (Larger & More Visible) */
+.chart-toggle-btn {
+  padding: 12px 24px;       /* Generous padding for a bigger click target */
+  font-size: 1rem;          /* Crisp, highly readable text size */
+  font-weight: 600;         /* Semi-bold text to stand out */
+  color: #4a5568;           /* Neutral dark gray text */
+  background-color: #f7fafc;/* Soft off-white background */
+  border: 2px solid #e2e8f0;/* Subtle border defining the shape */
+  border-radius: 8px;       /* Modern rounded corners */
+  cursor: pointer;
+  transition: all 0.2s ease;/* Smooth transition for hover/active states */
+}
+
+/* Hover State (Slight contrast lift) */
+.chart-toggle-btn:hover {
+  background-color: #edf2f7;
+  border-color: #cbd5e0;
+}
+
+/* Active State (Pop of color to show what's selected) */
+.chart-toggle-btn.active {
+  color: #ffffff;           /* White text for contrast */
+  background-color: #3182ce;/* Eye-catching brand blue (Change to match your theme!) */
+  border-color: #3182ce;
+  box-shadow: 0 4px 6px -1px rgba(49, 130, 206, 0.2); /* Subtle glow effect */
+}

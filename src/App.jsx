@@ -4497,6 +4497,8 @@
 // }
 
 // export default App;
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import LoginPage from './views/LoginPage'; 
@@ -4520,7 +4522,7 @@ import bgimageimg from './assets/bgimage.png';
 
 import Quote from './views/Quote';
 import CustomerService from './components/CustomerService'; 
-
+import WireframeBackground from './components/WireframeBackground';
 // ✨ INLINE REUSABLE SCROLL REVEAL COMPONENT 
 function ScrollReveal({ children }) {
   const [scale, setScale] = useState(0.1);    
@@ -4836,6 +4838,7 @@ function App() {
 
   return (
     <div className="layout">
+      <WireframeBackground />
       {!isLoggedIn && (
         <Navbar 
           menuItems={menuItems} 
@@ -4898,9 +4901,22 @@ function App() {
             className="hero-banner"
             style={{ 
               backgroundImage: `url(${currentBg})`,
-              transition: 'background-image 0.8s ease-in-out'
+              transition: 'background-image 0.8s ease-in-out',
+              height: '85vh',
             }}
           >
+            {/* <section 
+  className="hero-banner"
+  style={{ 
+    backgroundImage: `url(${currentBg})`,
+    transition: 'background-image 0.8s ease-in-out',
+    height: '100vh',
+    width: '100%',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
+  }}
+></section> */}
+
             <div className="hero-overlay">
               <div className="hero-content">
                 <h1 className="hero-animate">Reliable Logistics for Nepal</h1>
@@ -5067,6 +5083,8 @@ function App() {
                         <img src={airfreightimg} alt="Air Freight" />
                       </div>
                       <div className="service-info">
+                       <span className="service-tag">01 · AIR</span>
+
                         <h4>Air Freight Services</h4>
                         <p>Fast and efficient air cargo facilitation operating out of Tribhuvan International Airport (TIA) connecting Kathmandu directly to global airlines.</p>
                       </div>
@@ -5079,6 +5097,7 @@ function App() {
                         <img src={landtransportimg} alt="Land Transport" />
                       </div>
                       <div className="service-info">
+                        <span className="service-tag">02 · GROUND</span>
                         <h4>Land Transport & Courier</h4>
                         <p>Secure cross-border logistics and express courier handling optimized for small parcels, priority packages, and bulk ground shipments.</p>
                       </div>
@@ -5091,6 +5110,7 @@ function App() {
                         <img src={cargostorageimg} alt="Cargo Storage" />
                       </div>
                       <div className="service-info">
+                        <span className="service-tag">03 · STORAGE</span>
                         <h4>Secure Cargo Storage</h4>
                         <p>Premium warehouse facilities providing managed secure placement, 24/7 monitoring, and full protection for goods awaiting transit updates.</p>
                       </div>
@@ -5189,7 +5209,7 @@ function App() {
               {/* 🎯 SECTION TITLE */}
               <div style={{ textAlign: 'center', marginBottom: '40px' }}>
                 <h2 style={{ fontSize: '2.2rem', color: '#212529', fontWeight: '700', marginBottom: '10px' }}>
-                  Sewa Logistics By The Numbers
+                  Namaste Sewaro Cargo By The Numbers
                 </h2>
                 <div style={{ width: '60px', height: '4px', backgroundColor: '#0056b3', margin: '0 auto', borderRadius: '2px' }}></div>
               </div>
@@ -5215,7 +5235,7 @@ function App() {
               <div className="footer-column">
                 <div className="footer-logo">
                   
-                  <span className="footer-logo-text">  SEWA LOGISTICS</span>
+                  <span className="footer-logo-text">  NAMASTE SEWARO CARGO</span>
                 </div>
                 <p className="footer-tagline">
                   Your trusted partner for global logistics and cargo services from Nepal to the world.

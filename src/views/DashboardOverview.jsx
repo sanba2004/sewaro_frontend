@@ -149,14 +149,88 @@
 
 
 
-
-
-
-
-
-
-
 // src/views/DashboardOverview.jsx (Revised Version)
+
+
+// import React, { useState, useEffect } from 'react';
+// import '../styles/DashboardOverview.css';
+// import YearlyMonthChart from '../components/YearlyMonthlyChart'; // 📊 IMPORT NEW BAR GRAPH MODULE
+
+// const DashboardOverview = () => {
+//   const [stats, setStats] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const fetchOverviewData = async () => {
+//       try {
+//         setLoading(true);
+//         const response = await fetch('https://sewaro-backend.onrender.com/api/admin/overview');
+//         if (!response.ok) throw new Error('Failed to fetch dashboard metrics');
+//         const result = await response.json();
+//         if (result.success) {
+//           // Optimized payload schema removes recent shipments entirely
+//           const statsWithoutShipments = { ...result.data };
+//           delete statsWithoutShipments.recentShipments; // Safety deletion
+//           setStats(statsWithoutShipments);
+//         } else {
+//           throw new Error(result.error || 'Unknown error occurred');
+//         }
+//       } catch (err) { setError(err.message); } 
+//       finally { setLoading(false); }
+//     };
+//     fetchOverviewData();
+//   }, []);
+
+//   if (loading) return (
+//     <div className="overview-loading"><div className="spinner"></div><p>Loading administration matrix indicators...</p></div>
+//   );
+//   if (error) return (
+//     <div className="overview-error"><h3>❌ Analytics Loading Failure</h3><p>{error}</p></div>
+//   );
+
+//   const { metrics, statusDistribution } = stats;
+
+//   return (
+//     <div className="overview-container">
+//       <div className="overview-header">
+//         <h2>System Performance Dashboard</h2>
+//         <p>Live logistical counts and performance metrics.</p>
+//       </div>
+
+//       {/* 📊 Row 1: Core Stat Cards (Unchanged) */}
+//       <div className="metrics-grid">
+//         <div className="metric-card shipments"><div className="card-icon">📦</div><div className="card-info"><h4>Total Shipments</h4><p className="card-value">{metrics.totalShipments.toLocaleString()}</p></div></div>
+//         <div className="metric-card revenue"><div className="card-icon">💰</div><div className="card-info"><h4>Total Revenue</h4><p className="card-value">${metrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p></div></div>
+//         <div className="metric-card packages"><div className="card-icon">🏷️</div><div className="card-info"><h4>Packages Handled</h4><p className="card-value">{metrics.totalPackages.toLocaleString()}</p></div></div>
+//       </div>
+
+//       {/* 📈 Row 2: Status Breakdown Distributions (Unchanged) */}
+//       <div className="section-title"><h3>Shipment Tracking Distribution States</h3></div>
+//       <div className="status-grid">
+//         {Object.entries(statusDistribution).map(([status, count]) => (
+//           <div key={status} className={`status-pill ${status.toLowerCase().replace(/\s+/g, '-')}`}>
+//             <span className="status-name">{status}</span><span className="status-count">{count}</span>
+//           </div>
+//         ))}
+//       </div>
+
+//       {/* 📊 REPLACED Row 3: Yearly month shipment volume matrix chart ledger */}
+//       <div className="chart-feed-ticker-view section-title">
+//         <h3>Logistics Lifecycle Control Ledger: Yearly Volume Matrix</h3>
+//       </div>
+      
+//       <div className="analytics-section">
+//         {/* Call the new date controlled chart module */}
+//         <YearlyMonthChart />
+//       </div>
+
+//     </div>
+//   );
+// };
+
+// export default DashboardOverview;
+
 import React, { useState, useEffect } from 'react';
 import '../styles/DashboardOverview.css';
 import YearlyMonthChart from '../components/YearlyMonthlyChart'; // 📊 IMPORT NEW BAR GRAPH MODULE
@@ -165,6 +239,7 @@ const DashboardOverview = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [viewMode, setViewMode] = useState('monthly'); // 🆕 'monthly' | 'country'
 
   useEffect(() => {
     const fetchOverviewData = async () => {
@@ -220,14 +295,45 @@ const DashboardOverview = () => {
         ))}
       </div>
 
-      {/* 📊 REPLACED Row 3: Yearly month shipment volume matrix chart ledger */}
+      {/* 📊 Row 3: Yearly month shipment volume matrix chart ledger */}
       <div className="chart-feed-ticker-view section-title">
-        <h3>Logistics Lifecycle Control Ledger: Yearly Volume Matrix</h3>
+        <h3>Shipment Volume Trends</h3>
       </div>
-      
+
+      {/* 🆕 Toggle buttons: Monthly vs Countrywise */}
+      {/* <div className="chart-toggle-controls">
+        <button
+          className={viewMode === 'monthly' ? 'chart-toggle-btn active' : 'chart-toggle-btn'}
+          onClick={() => setViewMode('monthly')}
+        >
+          Monthly View
+        </button>
+        
+        <button
+          className={viewMode === 'country' ? 'chart-toggle-btn active' : 'chart-toggle-btn'}
+          onClick={() => setViewMode('country')}
+        >
+          Countrywise
+        </button>
+      </div> */}
+      <div className="chart-toggle-controls">
+  <button
+    className={`chart-toggle-btn ${viewMode === 'monthly' ? 'active' : ''}`}
+    onClick={() => setViewMode('monthly')}
+  >
+    Monthly View
+  </button>
+  
+  <button
+    className={`chart-toggle-btn ${viewMode === 'country' ? 'active' : ''}`}
+    onClick={() => setViewMode('country')}
+  >
+    Countrywise
+  </button>
+</div>
       <div className="analytics-section">
         {/* Call the new date controlled chart module */}
-        <YearlyMonthChart />
+        <YearlyMonthChart viewMode={viewMode} />
       </div>
 
     </div>
