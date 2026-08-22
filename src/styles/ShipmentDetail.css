@@ -35,7 +35,6 @@
   border-radius: 0 0 6px 6px;
 }
 
-/* Two-column structural grid for Left (Text) and Right (ID Preview) */
 .info-split-grid {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -43,7 +42,6 @@
   align-items: start;
 }
 
-/* Left side alignment - keeps your textual entries uniform */
 .text-details-column {
   display: flex;
   flex-direction: column;
@@ -62,7 +60,7 @@
 .text-details-column strong {
   color: #111111;
   display: inline-block;
-  width: 200px; /* Aligns data column labels uniformly */
+  width: 200px;
 }
 
 /* ==========================================================================
@@ -163,7 +161,6 @@
   box-sizing: border-box;
 }
 
-/* Allows package listing item tables to scroll sideways cleanly on narrow screens */
 .package-table-scroll-container {
   width: 100%;
   overflow-x: auto;
@@ -215,12 +212,12 @@
   }
 
   .info-split-grid {
-    grid-template-columns: 1fr !important; /* Collapses into a single stacked block column on small devices */
+    grid-template-columns: 1fr !important;
     gap: 20px;
   }
   
   .text-details-column strong {
-    display: block; /* Stacks label over values to optimize screen space width */
+    display: block;
     width: auto;
     margin-bottom: 2px;
   }
@@ -275,34 +272,49 @@
   }
 }
 
+/* ==========================================================================
+   PRINT VISIBILITY — single source of truth for all three print modes
+   ========================================================================== */
 @media print {
-  /* Hide all dashboard buttons and back actions */
   .no-print { 
     display: none !important; 
   }
   
-  /* 1. When printing the shipping label ONLY */
+  /* 1. Label only */
   body.print-mode-label-only #dashboard-view-panel,
-  body.print-mode-label-only .invoice-printable-target {
+  body.print-mode-label-only .invoice-printable-target,
+  body.print-mode-label-only .listing-printable-target {
     display: none !important;
   }
   body.print-mode-label-only .label-printable-target {
     display: block !important;
   }
 
-  /* 2. When printing the invoice ONLY */
+  /* 2. Invoice only */
   body.print-mode-invoice-only #dashboard-view-panel,
-  body.print-mode-invoice-only .label-printable-target {
+  body.print-mode-invoice-only .label-printable-target,
+  body.print-mode-invoice-only .listing-printable-target {
     display: none !important;
   }
   body.print-mode-invoice-only .invoice-printable-target {
     display: block !important;
   }
+
+  /* 3. Packing listing only */
+  body.print-mode-listing-only #dashboard-view-panel,
+  body.print-mode-listing-only .invoice-printable-target,
+  body.print-mode-listing-only .label-printable-target {
+    display: none !important;
+  }
+  body.print-mode-listing-only .listing-printable-target {
+    display: block !important;
+  }
 }
 
-/* Screen View Display: Keeps previews beautifully visible at the bottom of the screen */
+/* Screen View Display: keeps previews visible at the bottom of the screen when not printing */
 .invoice-printable-target, 
-.label-printable-target { 
+.label-printable-target,
+.listing-printable-target { 
   display: block; 
   margin-top: 40px;
 }

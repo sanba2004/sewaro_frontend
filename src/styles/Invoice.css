@@ -315,3 +315,53 @@
     margin: 4px auto !important;
   }
 }
+@media print {
+  /* ==========================================================================
+     ⚙️ SCENARIO C: Printing the Packing Listing Only (Bulletproof Selector)
+     ========================================================================== */
+  body.print-mode-listing-only * {
+    visibility: hidden !important;
+  }
+  body.print-mode-listing-only .listing-printable-target,
+  body.print-mode-listing-only .listing-printable-target * {
+    visibility: visible !important;
+    display: block !important;
+  }
+  body.print-mode-listing-only .listing-printable-target {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 900px !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+    z-index: 9999999 !important;
+  }
+}
+
+@media print {
+  body.print-mode-listing-only .listing-printable-target div[style*="display: flex"] {
+    display: flex !important;
+  }
+}
+@media print {
+  /* Restore proper table layout inside Listing print mode */
+  body.print-mode-listing-only .listing-printable-target table {
+    display: table !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  body.print-mode-listing-only .listing-printable-target thead {
+    display: table-header-group !important;
+  }
+  body.print-mode-listing-only .listing-printable-target tbody {
+    display: table-row-group !important;
+  }
+  body.print-mode-listing-only .listing-printable-target tr {
+    display: table-row !important;
+  }
+  body.print-mode-listing-only .listing-printable-target th,
+  body.print-mode-listing-only .listing-printable-target td {
+    display: table-cell !important;
+  }
+}
