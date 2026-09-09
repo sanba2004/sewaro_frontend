@@ -472,13 +472,17 @@ const [previewTrackingId, setPreviewTrackingId] = useState(() => {
 
 
 
-  const getChargeableWeight = (weight) => {
-    const w = parseFloat(weight);
-    if (w <= 0.5) return 0.5;
-    if (w <= 1.0) return 1.0;
-    return Math.ceil(w); // Rounds up to nearest KG for weights > 1
-  };
-
+  // const getChargeableWeight = (weight) => {
+  //   const w = parseFloat(weight);
+  //   if (w <= 0.5) return 0.5;
+  //   if (w <= 1.0) return 1.0;
+  //   return Math.ceil(w); // Rounds up to nearest KG for weights > 1
+  // };
+const getChargeableWeight = (weight) => {
+  const w = parseFloat(weight);
+  if (isNaN(w) || w <= 0) return 0;
+  return Math.ceil(w * 2) / 2;
+};
 useEffect(() => {
   const fetchRates = async () => {
     try {
