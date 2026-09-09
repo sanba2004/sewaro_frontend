@@ -5251,7 +5251,7 @@ function App() {
                 <div className="footer-map">
                   <iframe 
                     title="Sewa Logistics Location"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3491.0943471929686!2d85.34781241086367!3d27.70213112562245!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb1963398eb051%3A0x60b70a200d3f7e25!2sNamaste%20Sewaro%20Travels%20%26%20Tours%20Pvt.Ltd!5e1!3m2!1sen!2snp!4v1779859656600!5m2!1sen!2snp" 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d733.9240538507814!2d85.34787906024164!3d27.70036566703931!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8408b1a92f2b887f%3A0x8aa05535943a166a!2sNamaste%20Sewaro%20Cargo%20Service%20PVT.LTD!5e1!3m2!1sen!2snp!4v1788939188621!5m2!1sen!2snp" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" 
                     width="100%" 
                     height="150" 
                     style={{ border: 0, borderRadius: "8px", marginTop: "15px" }} 
