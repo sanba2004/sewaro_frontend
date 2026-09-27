@@ -233,13 +233,13 @@
 
 import React, { useState, useEffect } from 'react';
 import '../styles/DashboardOverview.css';
-import YearlyMonthChart from '../components/YearlyMonthlyChart'; // 📊 IMPORT NEW BAR GRAPH MODULE
+import YearlyMonthChart from '../components/YearlyMonthlyChart';
 
 const DashboardOverview = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('monthly'); // 🆕 'monthly' | 'country'
+  const [viewMode, setViewMode] = useState('monthly');
 
   useEffect(() => {
     const fetchOverviewData = async () => {
@@ -249,14 +249,13 @@ const DashboardOverview = () => {
         if (!response.ok) throw new Error('Failed to fetch dashboard metrics');
         const result = await response.json();
         if (result.success) {
-          // Optimized payload schema removes recent shipments entirely
           const statsWithoutShipments = { ...result.data };
-          delete statsWithoutShipments.recentShipments; // Safety deletion
+          delete statsWithoutShipments.recentShipments;
           setStats(statsWithoutShipments);
         } else {
           throw new Error(result.error || 'Unknown error occurred');
         }
-      } catch (err) { setError(err.message); } 
+      } catch (err) { setError(err.message); }
       finally { setLoading(false); }
     };
     fetchOverviewData();
@@ -278,14 +277,30 @@ const DashboardOverview = () => {
         <p>Live logistical counts and performance metrics.</p>
       </div>
 
-      {/* 📊 Row 1: Core Stat Cards (Unchanged) */}
       <div className="metrics-grid">
-        <div className="metric-card shipments"><div className="card-icon">📦</div><div className="card-info"><h4>Total Shipments</h4><p className="card-value">{metrics.totalShipments.toLocaleString()}</p></div></div>
-        <div className="metric-card revenue"><div className="card-icon">💰</div><div className="card-info"><h4>Total Revenue</h4><p className="card-value">${metrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p></div></div>
-        <div className="metric-card packages"><div className="card-icon">🏷️</div><div className="card-info"><h4>Packages Handled</h4><p className="card-value">{metrics.totalPackages.toLocaleString()}</p></div></div>
+        <div className="metric-card shipments">
+          <div className="card-icon">📦</div>
+          <div className="card-info">
+            <h4>Total Shipments</h4>
+            <p className="card-value">{metrics.totalShipments.toLocaleString()}</p>
+          </div>
+        </div>
+        <div className="metric-card revenue">
+          <div className="card-icon">💰</div>
+          <div className="card-info">
+            <h4>Total Revenue</h4>
+            <p className="card-value">NPR {metrics.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+          </div>
+        </div>
+        <div className="metric-card packages">
+          <div className="card-icon">🏷️</div>
+          <div className="card-info">
+            <h4>Packages Handled</h4>
+            <p className="card-value">{metrics.totalPackages.toLocaleString()}</p>
+          </div>
+        </div>
       </div>
 
-      {/* 📈 Row 2: Status Breakdown Distributions (Unchanged) */}
       <div className="section-title"><h3>Shipment Tracking Distribution States</h3></div>
       <div className="status-grid">
         {Object.entries(statusDistribution).map(([status, count]) => (
@@ -295,47 +310,28 @@ const DashboardOverview = () => {
         ))}
       </div>
 
-      {/* 📊 Row 3: Yearly month shipment volume matrix chart ledger */}
       <div className="chart-feed-ticker-view section-title">
         <h3>Shipment Volume Trends</h3>
       </div>
 
-      {/* 🆕 Toggle buttons: Monthly vs Countrywise */}
-      {/* <div className="chart-toggle-controls">
+      <div className="chart-toggle-controls">
         <button
-          className={viewMode === 'monthly' ? 'chart-toggle-btn active' : 'chart-toggle-btn'}
+          className={`chart-toggle-btn ${viewMode === 'monthly' ? 'active' : ''}`}
           onClick={() => setViewMode('monthly')}
         >
           Monthly View
         </button>
-        
         <button
-          className={viewMode === 'country' ? 'chart-toggle-btn active' : 'chart-toggle-btn'}
+          className={`chart-toggle-btn ${viewMode === 'country' ? 'active' : ''}`}
           onClick={() => setViewMode('country')}
         >
           Countrywise
         </button>
-      </div> */}
-      <div className="chart-toggle-controls">
-  <button
-    className={`chart-toggle-btn ${viewMode === 'monthly' ? 'active' : ''}`}
-    onClick={() => setViewMode('monthly')}
-  >
-    Monthly View
-  </button>
-  
-  <button
-    className={`chart-toggle-btn ${viewMode === 'country' ? 'active' : ''}`}
-    onClick={() => setViewMode('country')}
-  >
-    Countrywise
-  </button>
-</div>
-      <div className="analytics-section">
-        {/* Call the new date controlled chart module */}
-        <YearlyMonthChart viewMode={viewMode} />
       </div>
 
+      <div className="analytics-section">
+        <YearlyMonthChart viewMode={viewMode} />
+      </div>
     </div>
   );
 };

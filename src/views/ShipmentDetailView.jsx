@@ -1675,12 +1675,21 @@ export default function ShipmentDetailView({ trackingId, onClose, user }) {
             <div className="status-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', minWidth: '160px' }}>
               <label style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', color: '#555' }}>Shipment Status</label>
               {isAdmin ? (
-                <select value={data?.status || 'Confirmed'} onChange={(e) => handleInputChange('status', e.target.value)} style={{ padding: '10px', fontSize: '14px', fontWeight: 'bold', borderRadius: '4px', border: '1px solid #ccc', background: '#000', color: '#fff', cursor: 'pointer', width: '100%' }}>
-                  <option value="Confirmed">Confirmed</option>
+                // <select value={data?.status || 'Confirmed'} onChange={(e) => handleInputChange('status', e.target.value)} style={{ padding: '10px', fontSize: '14px', fontWeight: 'bold', borderRadius: '4px', border: '1px solid #ccc', background: '#000', color: '#fff', cursor: 'pointer', width: '100%' }}>
+                //   <option value="Confirmed">Confirmed</option>
+                //   <option value="In Transit">In Transit</option>
+                //   <option value="Landed">Landed</option>
+                //   <option value="Ready to Collect">Ready to Collect</option>
+                //   <option value="Collected">Collected</option>
+                // </select>
+                <select value={data?.status || 'Shipment Confirmed'} onChange={(e) => handleInputChange('status', e.target.value)} style={{ padding: '10px', fontSize: '14px', fontWeight: 'bold', borderRadius: '4px', border: '1px solid #ccc', background: '#000', color: '#fff', cursor: 'pointer', width: '100%' }}>
+                  <option value="Shipment Confirmed">Shipment Confirmed</option>
+                  <option value="Heading to Nepal Customs">Heading to Nepal Customs</option>
+                  <option value="Departed Nepal">Departed Nepal</option>
                   <option value="In Transit">In Transit</option>
-                  <option value="Landed">Landed</option>
-                  <option value="Ready to Collect">Ready to Collect</option>
-                  <option value="Collected">Collected</option>
+                  <option value="Arrived at Destination">Arrived at Destination</option>
+                  <option value="Preparing for Delivery">Preparing for Delivery</option>
+                  <option value="Delivered">Delivered</option>
                 </select>
               ) : (
                 <span style={{ padding: '8px 16px', fontSize: '14px', fontWeight: 'bold', borderRadius: '4px', background: '#f4f4f4', border: '1px solid #ccc', color: '#333', display: 'block', textAlign: 'center', width: '100%', boxSizing: 'border-box' }}>

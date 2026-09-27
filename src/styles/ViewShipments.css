@@ -1,138 +1,124 @@
 /* ==========================================================================
-   Shipment Dashboard - Dark Theme + Responsive Locked Layout
+   Shipment Table — Light theme, functional shape language
    ========================================================================== */
 
-/* Container Background & Overflow Control */
-/* ==========================================================================
-   Shipment Dashboard - Clean White & Flexible Horizontal Layout
-   ========================================================================== */
-
-/* Container Background - Clean White Base */
 .view-shipments-container {
-    background-color: #f8f8f8; 
-    padding: 20px;
-    border-radius: 8px;
-    color: #090808; /* Clean solid black text */
-    min-height: 100vh;
-    width: 100%;
-    box-sizing: border-box;
+  background-color: #f5f6f4;
+  padding: 20px;
+  color: #14213d;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Page Heading */
 .view-shipments-container h2 {
-    color: #100909;
-    margin-bottom: 25px;
-    font-weight: 700;
-    font-size: 1.6rem;
+  color: #14213d;
+  margin-bottom: 22px;
+  font-weight: 700;
+  font-size: 1.5rem;
 }
 
-/* 🌟 Horizontal Scroll Wrapper */
 .table-responsive {
-    width: 100%;
-    overflow-x: auto; /* Generates horizontal scrollbar if screen is narrow */
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background-color: #ffffff;
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #d8dce1;
+  background-color: #ffffff;
 }
 
-/* ==========================================================================
-   Table Core Styling
-   ========================================================================== */
 .shipment-table {
-    width: 100%;
-    border-collapse: collapse; /* Flatten rows for a clean data-dense look */
-    background-color: #ffffff;
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
 }
 
-/* 🌟 Forces data rows to fit perfectly onto exactly one single line */
-.shipment-table th, 
+.shipment-table th,
 .shipment-table td {
-    text-align: left;
-    padding: 14px 18px;
-    color: #dad3d3; /* Sharp black text for ultimate readability */
-    font-size: 0.9rem;
-    white-space: nowrap; /* 🔥 MAGIC FIX: Prevents text from dropping to a second line */
-    vertical-align: middle;
-    border-bottom: 1px solid #e5e7eb; /* Soft light gray borders */
+  text-align: left;
+  padding: 13px 18px;
+  color: #2a3244;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-bottom: 1px solid #edeff2;
 }
 
-/* Table Headers Styling */
 .shipment-table th {
-    background-color: #f8fafc; /* Subtle off-white header accent */
-    color: #030506; /* Slate grey header labels */
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #e2e8f0;
+  background-color: #f5f6f4;
+  color: #4b5768;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  border-bottom: 2px solid #d8dce1;
 }
 
-/* Row Hover Interaction */
-.shipment-table tr:hover td {
-    background-color: #93951b; /* Subtle gray highlight on hover */
-    transition: background-color 0.15s ease;
+.shipment-table td.tracking-cell,
+.shipment-table td[data-label="Tracking ID"] {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  color: #0b4f8a;
+  font-weight: 600;
 }
 
-/* ==========================================================================
-   Interactive UI Components
-   ========================================================================== */
+.shipment-table tr {
+  border-left: 3px solid transparent;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
 
-/* Status Badge - High Contrast Accent */
+.shipment-table tr:hover {
+  border-left-color: #0b4f8a;
+  background-color: #f8fafc;
+}
+
 .badge-status {
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    background-color: #fef3c7; /* Light Amber backdrop */
-    color: #d97706; /* High-visibility warning orange text */
-    border: 1px solid #fde68a;
-    display: inline-block;
+  display: inline-block;
+  padding: 5px 14px 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background-color: #fdf2e3;
+  color: #b45309;
+  clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 0 100%);
 }
 
-/* Details Action Trigger Button */
 .view-btn {
-    background: #c92273; /* Sleek charcoal dark button */
-    border: 1px solid #1e293b;
-    color: #ffffff;
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  background: #0b4f8a;
+  border: none;
+  color: #ffffff;
+  padding: 7px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  transition: background 0.15s ease;
 }
 
 .view-btn:hover:not(:disabled) {
-    background: #791753;
-    border-color: #9c1c5e;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #093f6f;
 }
 
 .view-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
-/* Loader Layout */
 .loader {
-    color: #1e293b;
-    text-align: center;
-    margin-top: 60px;
-    font-size: 1.1rem;
-    font-weight: 500;
+  color: #14213d;
+  text-align: center;
+  margin-top: 60px;
+  font-size: 1.05rem;
+  font-weight: 500;
 }
-
 
 .filters-control-panel {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
-  background-color: #f8f9fa;
-  padding: 15px 20px;
-  border-radius: 8px;
+  gap: 18px;
+  background-color: #ffffff;
+  padding: 16px 20px;
   margin-bottom: 20px;
   align-items: flex-end;
-  border: 1px solid #e9ecef;
+  border: 1px solid #d8dce1;
 }
 
 .filter-group {
@@ -142,51 +128,54 @@
 }
 
 .filter-group label {
-  font-size: 13px;
-  font-weight: 6px;
-  color: #495057;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5768;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .filter-group input,
 .filter-group select {
   padding: 8px 12px;
   font-size: 14px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
+  border: 1px solid #d8dce1;
   outline: none;
-  background-color: #2c2b2b;
+  background-color: #ffffff;
+  color: #14213d;
   min-width: 160px;
 }
 
 .filter-group input:focus,
 .filter-group select:focus {
-  border-color: #28a745;
+  border-color: #0b4f8a;
 }
 
 .reset-filters-btn {
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: #6c757d;
-  color: rgb(13, 13, 13);
-  border: none;
-  border-radius: 4px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #ffffff;
+  color: #4b5768;
+  border: 1px solid #d8dce1;
   cursor: pointer;
   height: 38px;
-  transition: background-color 0.2s;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .reset-filters-btn:hover {
-  background-color: #5a6268;
+  border-color: #0b4f8a;
+  color: #0b4f8a;
 }
 
 .pagination-container {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 15px;
-  padding: 15px 5px;
-  font-size: 14px;
-  color: #5f6368;
+  gap: 14px;
+  padding: 14px 4px;
+  font-size: 13px;
+  color: #4b5768;
 }
 
 .pagination-info {
@@ -195,116 +184,99 @@
 
 .pagination-buttons {
   display: flex;
-  gap: 5px;
+  gap: 4px;
 }
 
 .pagination-btn {
   background: none;
-  border: none;
-  font-size: 20px;
-  color: #5f6368;
+  border: 1px solid #d8dce1;
+  font-size: 16px;
+  color: #4b5768;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: background-color 0.15s;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background-color: #f1f3f4;
-  color: #202124;
+  border-color: #0b4f8a;
+  color: #0b4f8a;
 }
 
 .pagination-btn:disabled {
   color: #c4c7c5;
+  border-color: #edeff2;
   cursor: not-allowed;
 }
 
-/* Container Box rules */
 .shipments-container {
   background: #ffffff;
-  border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #d8dce1;
 }
 
-/* Responsive Table Transform Formula Rule Matrix */
 @media (max-width: 768px) {
-  .shipments-container {
-    padding: 10px;
-  }
+  .shipments-container { padding: 10px; }
 
-  /* Deconstruct table wrappers into vertical stacking modules */
-  .shipments-table, 
-  .shipments-table thead, 
-  .shipments-table tbody, 
-  .shipments-table th, 
-  .shipments-table td, 
-  .shipments-table tr { 
-    display: block; 
+  .shipments-table,
+  .shipments-table thead,
+  .shipments-table tbody,
+  .shipments-table th,
+  .shipments-table td,
+  .shipments-table tr {
+    display: block;
     width: 100%;
   }
-  
-  /* Completely hide the header layout safely—preventing row collisions */
-  .shipments-table thead tr { 
+
+  .shipments-table thead tr {
     position: absolute;
     top: -9999px;
     left: -9999px;
   }
-  
-  /* Format table rows into clear card layouts */
+
   .shipments-table tr {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    margin-bottom: 15px;
+    border-left: 3px solid #0b4f8a;
+    margin-bottom: 14px;
     padding: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
   }
-  
-  /* Align each table column cell horizontally with a pseudo-label format */
-  .shipments-table td { 
+
+  .shipments-table td {
     border: none;
-    border-bottom: 1px dashed #f1f5f9; 
+    border-bottom: 1px dashed #edeff2;
     position: relative;
-    padding-left: 45% !important; 
+    padding-left: 45% !important;
     text-align: right !important;
     font-size: 13px;
     padding: 8px 5px;
   }
-  
-  .shipments-table td:last-child {
-    border-bottom: none;
-  }
 
-  /* Insert matching text column headers dynamically if using data attributes */
-  .shipments-table td::before { 
+  .shipments-table td:last-child { border-bottom: none; }
+
+  .shipments-table td::before {
     position: absolute;
     top: 8px;
     left: 6px;
-    width: 40%; 
-    padding-right: 10px; 
+    width: 40%;
+    padding-right: 10px;
     white-space: nowrap;
     text-align: left;
-    font-weight: bold;
-    color: #64748b;
-    content: attr(data-label); /* Reads string labels directly out of your JSX template mapping! */
+    font-weight: 600;
+    color: #4b5768;
+    content: attr(data-label);
   }
-  
-  /* Filter control sections wrap vertically */
+
   .filter-bar-container {
     flex-direction: column !important;
     gap: 10px;
   }
-  
-  .filter-bar-container input, 
+
+  .filter-bar-container input,
   .filter-bar-container select {
     width: 100% !important;
   }
 }
-
-
-

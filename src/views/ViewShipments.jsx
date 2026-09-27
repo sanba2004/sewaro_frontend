@@ -3692,8 +3692,7 @@ const handleInlineStatusChange = async (shipment, newStatus) => {
       setStatusUpdatingMap(prev => ({ ...prev, [trackingId]: true }));
 
       // 🎯 Determine if the current transition qualifies for an SMS alert
-      const isSMSStatus = newStatus === "Ready to Collect" || newStatus === "Collected";
-
+      const isSMSStatus = newStatus === "Delivered";      
       const updatedPayload = {
         ...shipment,
         status: newStatus,
@@ -3800,8 +3799,7 @@ const handleInlineStatusChange = async (shipment, newStatus) => {
     setLoading(true);
     try {
       // 🎯 Check if the target state is an eligible alert tier
-      const isSMSStatus = newStatus === "Ready to Collect" || newStatus === "Collected";
-
+      const isSMSStatus = newStatus === "Delivered";
       const updatePromises = selectedTrackingIds.map(async (id) => {
         const fullShipmentObj = shipments.find(s => s.tracking_id === id);
         if (!fullShipmentObj) return;
@@ -4030,13 +4028,23 @@ const handleInlineStatusChange = async (shipment, newStatus) => {
         </div>
         <div className="filter-group">
           <label>Status:</label>
-          <select value={status} onChange={(e) => handleFilterChange(setStatus, e.target.value)}>
+          {/* <select value={status} onChange={(e) => handleFilterChange(setStatus, e.target.value)}>
             <option value="All">All Statuses</option>
             <option value="Confirmed">Confirmed</option>
             <option value="In Transit">In Transit</option>
             <option value="Landed">Landed</option>
             <option value="Ready to Collect">Ready to Collect</option>
             <option value="Collected">Collected</option>
+          </select> */}
+          <select value={status} onChange={(e) => handleFilterChange(setStatus, e.target.value)}>
+            <option value="All">All Statuses</option>
+            <option value="Shipment Confirmed">Shipment Confirmed</option>
+            <option value="Heading to Nepal Customs">Heading to Nepal Customs</option>
+            <option value="Departed Nepal">Departed Nepal</option>
+            <option value="In Transit">In Transit</option>
+            <option value="Arrived at Destination">Arrived at Destination</option>
+            <option value="Preparing for Delivery">Preparing for Delivery</option>
+            <option value="Delivered">Delivered</option>
           </select>
         </div>
 
@@ -4163,11 +4171,13 @@ const handleInlineStatusChange = async (shipment, newStatus) => {
                 }}
               >
                 <option value="">-- Choose Status --</option>
-                <option value="Confirmed">Confirmed</option>
+                <option value="Shipment Confirmed">Shipment Confirmed</option>
+                <option value="Heading to Nepal Customs">Heading to Nepal Customs</option>
+                <option value="Departed Nepal">Departed Nepal</option>
                 <option value="In Transit">In Transit</option>
-                <option value="Landed">Landed</option>
-                <option value="Ready to Collect">Ready to Collect</option>
-                <option value="Collected">Collected</option>
+                <option value="Arrived at Destination">Arrived at Destination</option>
+                <option value="Preparing for Delivery">Preparing for Delivery</option>
+                <option value="Delivered">Delivered</option>
               </select>
             </div>
 
@@ -4250,26 +4260,26 @@ const handleInlineStatusChange = async (shipment, newStatus) => {
                         </td>
                       )}
 
-                      <td style={{ fontWeight: '400', color: '#f3f2f2' }}>{s.tracking_id || 'N/A'}</td> 
+                      <td style={{ fontWeight: '400', color: '#040303' }}>{s.tracking_id || 'N/A'}</td> 
                       
                       {isUserAdmin && (
-                        <td style={{ fontWeight: '400', color: '#f3f2f2' }}>
+                        <td style={{ fontWeight: '400', color: '#080808' }}>
                           {s.User?.full_name ? s.User.full_name : (s.user_id ? `User ID: ${s.user_id}` : 'System')}
                         </td>
                       )}
 
-                      <td style={{ fontWeight: '400', color: '#f3f2f2' }}>{s.created_at ? new Date(s.created_at).toLocaleDateString() : 'N/A'}</td>
-                      <td style={{ fontWeight: '400', color: '#f3f2f2' }}>{s.sender_name || '—'}</td>
-                      <td style={{ fontWeight: '400', color: '#f3f2f2' }}>{s.sender_contact_num || '—'}</td>
-                      <td style={{ fontWeight: '400', color: '#f3f2f2' }}>{s.receiver_name || '—'}</td>
-                      <td style={{ fontWeight: '400', color: '#f3f2f2' }}>{s.receiver_contact || '—'}</td>
-                      <td style={{ fontWeight: '400', color: '#f3f2f2' }}><span className="badge-status">{s.status || 'Pending'}</span></td>
+                      <td style={{ fontWeight: '400', color: '#0e0d0d' }}>{s.created_at ? new Date(s.created_at).toLocaleDateString() : 'N/A'}</td>
+                      <td style={{ fontWeight: '400', color: '#070707' }}>{s.sender_name || '—'}</td>
+                      <td style={{ fontWeight: '400', color: '#0c0b0b' }}>{s.sender_contact_num || '—'}</td>
+                      <td style={{ fontWeight: '400', color: '#000000' }}>{s.receiver_name || '—'}</td>
+                      <td style={{ fontWeight: '400', color: '#000000' }}>{s.receiver_contact || '—'}</td>
+                      <td style={{ fontWeight: '400', color: '#010101' }}><span className="badge-status">{s.status || 'Pending'}</span></td>
                       
                       {/* Status Dropdown Column - Flagged to ignore row clicks */}
                       {isUserAdmin && (
                         <td data-no-row-click="true">
                           <select 
-                            value={s.status || 'Confirmed'} 
+                            value={s.status || 'Shipment Confirmed'} 
                             disabled={statusUpdatingMap[s.tracking_id]}
                             onChange={(e) => handleInlineStatusChange(s, e.target.value)}
                             style={{ 
@@ -4283,11 +4293,13 @@ const handleInlineStatusChange = async (shipment, newStatus) => {
                               outline: 'none'
                             }}
                           >
-                            <option value="Confirmed">Confirmed</option>
-                            <option value="In Transit">In Transit</option>
-                            <option value="Landed">Landed</option>
-                            <option value="Ready to Collect">Ready to Collect</option>
-                            <option value="Collected">Collected</option>
+                              <option value="Shipment Confirmed">Shipment Confirmed</option>
+                              <option value="Heading to Nepal Customs">Heading to Nepal Customs</option>
+                              <option value="Departed Nepal">Departed Nepal</option>
+                              <option value="In Transit">In Transit</option>
+                              <option value="Arrived at Destination">Arrived at Destination</option>
+                              <option value="Preparing for Delivery">Preparing for Delivery</option>
+                              <option value="Delivered">Delivered</option>
                           </select>
                         </td>
                       )}

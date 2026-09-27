@@ -5012,15 +5012,19 @@ function App() {
                       fontWeight: 'bold',
                       display: 'inline-block',
                       backgroundColor: 
-                        publicTrackingData.status?.toLowerCase() === 'collected' ? '#d4edda' :
-                        publicTrackingData.status?.toLowerCase() === 'ready to collect' ? '#cce5ff' :
-                        publicTrackingData.status?.toLowerCase() === 'landed' ? '#d1ecf1' :
-                        publicTrackingData.status?.toLowerCase() === 'in transit' ? '#fff3cd' : '#e2e3e5',
+                        publicTrackingData.status?.toLowerCase() === 'delivered' ? '#d4edda' :
+                        publicTrackingData.status?.toLowerCase() === 'preparing for delivery' ? '#cce5ff' :
+                        publicTrackingData.status?.toLowerCase() === 'arrived at destination' ? '#d1ecf1' :
+                        publicTrackingData.status?.toLowerCase() === 'in transit' ? '#fff3cd' :
+                        publicTrackingData.status?.toLowerCase() === 'departed nepal' ? '#fff3cd' :
+                        publicTrackingData.status?.toLowerCase() === 'heading to nepal customs' ? '#e2e3e5' : '#e2e3e5',
                       color: 
-                        publicTrackingData.status?.toLowerCase() === 'collected' ? '#155724' :
-                        publicTrackingData.status?.toLowerCase() === 'ready to collect' ? '#004085' :
-                        publicTrackingData.status?.toLowerCase() === 'landed' ? '#0c5460' :
-                        publicTrackingData.status?.toLowerCase() === 'in transit' ? '#856404' : '#383d41',
+                        publicTrackingData.status?.toLowerCase() === 'delivered' ? '#155724' :
+                        publicTrackingData.status?.toLowerCase() === 'preparing for delivery' ? '#004085' :
+                        publicTrackingData.status?.toLowerCase() === 'arrived at destination' ? '#0c5460' :
+                        publicTrackingData.status?.toLowerCase() === 'in transit' ? '#856404' :
+                        publicTrackingData.status?.toLowerCase() === 'departed nepal' ? '#856404' :
+                        publicTrackingData.status?.toLowerCase() === 'heading to nepal customs' ? '#383d41' : '#383d41',
                       textTransform: 'uppercase'
                     }}>
                       {publicTrackingData.status || 'Pending'}
@@ -5031,9 +5035,9 @@ function App() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px', position: 'relative' }}>
                   <div style={{ position: 'absolute', top: '15px', left: '8%', right: '8%', height: '4px', backgroundColor: '#e9ecef', zIndex: 1 }}></div>
 
-                  {['in transit', 'landed', 'ready to collect', 'collected'].map((step, idx) => {
+                  {['shipment confirmed', 'heading to nepal customs', 'departed nepal', 'in transit', 'arrived at destination', 'preparing for delivery', 'delivered'].map((step, idx) => {
                     const currentStatusLower = (publicTrackingData.status || '').toLowerCase();
-                    const statusOrder = ['in transit', 'landed', 'ready to collect', 'collected'];
+                    const statusOrder = ['shipment confirmed', 'heading to nepal customs', 'departed nepal', 'in transit', 'arrived at destination', 'preparing for delivery', 'delivered'];
                     const currentIdx = statusOrder.indexOf(currentStatusLower);
                     const isCompleted = statusOrder.indexOf(step) <= currentIdx;
 
@@ -5249,17 +5253,17 @@ function App() {
                   (Main Office)
                 </p>
                 <div className="footer-map">
-                  <iframe 
-                    title="Sewa Logistics Location"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d733.9240538507814!2d85.34787906024164!3d27.70036566703931!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8408b1a92f2b887f%3A0x8aa05535943a166a!2sNamaste%20Sewaro%20Cargo%20Service%20PVT.LTD!5e1!3m2!1sen!2snp!4v1788939188621!5m2!1sen!2snp" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" 
-                    width="100%" 
-                    height="150" 
-                    style={{ border: 0, borderRadius: "8px", marginTop: "15px" }} 
-                    allowFullScreen="" 
-                    loading="lazy" 
-                    referrerPolicy="no-referrer-when-downgrade"
-                  ></iframe>
-                </div>
+                <iframe
+                  title="Sewa Logistics Location"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d733.9240538507814!2d85.34787906024164!3d27.70036566703931!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8408b1a92f2b887f%3A0x8aa05535943a166a!2sNamaste%20Sewaro%20Cargo%20Service%20PVT.LTD!5e1!3m2!1sen!2snp!4v1788939188621!5m2!1sen!2snp"
+                  width="100%"
+                  height="150"
+                  style={{ border: 0, borderRadius: '8px', marginTop: '15px' }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
               </div>
 
               <div className="footer-column">
